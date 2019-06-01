@@ -1,122 +1,135 @@
 #pragma once
 
+// -- std headers
+#include <sstream>
+
+// -- sio headers
+#include <sio/exception.h>
+
 namespace sio {
-  
-  inline buffer_view::buffer_view( const buffer &buf ) :
-    _buffer(buf) {
+
+  inline buffer_span::buffer_span( const container &bytes ) :
+    _first( bytes.begin() ),
+    _last( bytes.end() ) {
     /* nop */
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline const byte &buffer_view::operator[]( index_type index ) const {
-    return _buffer [ index ] ;
+
+  inline buffer_span::buffer_span( const_iterator first, const_iterator last ) :
+    _first(first),
+    _last(last) {
+    /* nop */
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline byte_array::const_iterator buffer_view::begin() const {
-    return _buffer.begin() ;
+
+  inline buffer_span::buffer_span( const_iterator first, std::size_t count ) :
+    _first(first),
+    _last(std::next(first, count)) {
+    /* nop */
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline byte_array::const_iterator buffer_view::end() const {
-    return _buffer.end() ;
+
+  inline buffer_span::const_iterator buffer_span::begin() const {
+    return _first ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline byte_array::const_reverse_iterator buffer_view::rbegin() const {
-    return _buffer.rbegin() ;
+
+  inline buffer_span::const_iterator buffer_span::end() const {
+    return _last ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline byte_array::const_reverse_iterator buffer_view::rend() const {
-    return _buffer.rend() ;
+
+  inline const buffer_span::element_type *buffer_span::data() const {
+    return &(*_first) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline const byte &buffer_view::front() const {
-    return _buffer.front() ;
+
+  inline buffer_span::const_reference buffer_span::front() const {
+    return (*_first) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline const byte &buffer_view::back() const {
-    return _buffer.back() ;
+
+  inline buffer_span::const_reference buffer_span::back() const {
+    return *(_last-1) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline std::size_t buffer_view::size() const {
-    return _buffer.size() ;
+
+  inline buffer_span::const_reference buffer_span::operator[]( index_type index ) const {
+    return data() [ index ] ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline const byte &buffer_view::at( index_type index ) const {
-    return _buffer.at( index ) ;
+
+  inline buffer_span::const_reference buffer_span::at( index_type index ) const {
+    if( index >= size() ) {
+      std::stringstream ss ;
+      ss << "index: " << index << ", size: " << size() ;
+      SIO_THROW( error_code::out_of_range, ss.str() ) ;
+    }
+    return data() [ index ] ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline const byte *buffer_view::data() const {
-    return _buffer.data() ;
+
+  inline std::size_t buffer_span::size() const {
+    return std::distance( _first, _last ) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline bool buffer_view::empty() const {
-    return _buffer.empty() ;
+
+  inline bool buffer_span::empty() const {
+    return (size() == 0) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline const byte *buffer_view::ptr( index_type index ) const {
-    return _buffer.ptr( index ) ;
+
+  inline buffer_span buffer_span::subspan( index_type start ) const {
+    if( start >= size() ) {
+      std::stringstream ss ;
+      ss << "start: " << start << ", size: " << size() ;
+      SIO_THROW( error_code::out_of_range, ss.str() ) ;
+    }
+    return buffer_span( std::next(_first, start) , _last ) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline bool buffer_view::valid() const {
-    return _buffer.valid() ;
+
+  inline buffer_span buffer_span::subspan( index_type start, std::size_t count ) const {
+    if( start+count >= size() ) {
+      std::stringstream ss ;
+      ss << "start: " << start << ", count: " << count << ", size: " << size() ;
+      SIO_THROW( error_code::out_of_range, ss.str() ) ;
+    }
+    return buffer_span( std::next(_first, start) , std::next(_first, start+count) ) ;
   }
-  
-  //--------------------------------------------------------------------------
-  
-  inline std::size_t buffer_view::read( byte *ptr, index_type position, std::size_t length, std::size_t count ) const {
-    return _buffer.read( ptr, position, length, count ) ;
-  }
-  
-  //--------------------------------------------------------------------------
-  
-  template <typename T>
-  inline std::size_t buffer_view::read( T *ptr, index_type position, std::size_t count ) const {
-    return _buffer.read<T>( ptr, position, count ) ;
-  }
-  
+
   //--------------------------------------------------------------------------
   //--------------------------------------------------------------------------
-    
-  inline buffer::buffer( std::size_t len ) :
+
+  inline buffer::buffer( size_type len ) :
     _bytes( len, sio::null_byte ) {
     if( 0 == len ) {
       SIO_THROW( sio::error_code::invalid_argument, "Can't construct a buffer with length of 0!" ) ;
     }
   }
-  
+
   //--------------------------------------------------------------------------
 
-  inline buffer::buffer( byte_array &&bytes ) :
+  inline buffer::buffer( container &&bytes ) :
     _bytes( std::move( bytes ) ) {
     /* nop */
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   inline buffer::buffer( buffer&& rhs ) {
     _bytes = std::move( rhs._bytes ) ;
     _valid = rhs._valid ;
@@ -131,153 +144,153 @@ namespace sio {
     rhs._valid = false ;
     return *this ;
   }
-  
+
   //--------------------------------------------------------------------------
 
-  inline byte_array::const_iterator buffer::begin() const {
+  inline buffer::const_iterator buffer::begin() const {
     return _bytes.begin() ;
   }
-  
-  //--------------------------------------------------------------------------
-  
-  inline byte_array::const_iterator buffer::end() const {
-    return _bytes.end() ;
-  }
-  
-  //--------------------------------------------------------------------------
-  
-  inline byte_array::iterator buffer::begin() {
-    return _bytes.begin() ;
-  }
-  
-  //--------------------------------------------------------------------------
-  
-  inline byte_array::iterator buffer::end() {
-    return _bytes.end() ;
-  }
-  
-  //--------------------------------------------------------------------------
-  
-  inline byte_array::const_reverse_iterator buffer::rbegin() const {
-    return _bytes.rbegin() ;
-  }
-  
-  //--------------------------------------------------------------------------
-  
-  inline byte_array::const_reverse_iterator buffer::rend() const {
-    return _bytes.rend() ;
-  }
-  
-  //--------------------------------------------------------------------------
-  
-  inline byte_array::reverse_iterator buffer::rbegin() {
-    return _bytes.rbegin() ;
-  }
-  
-  //--------------------------------------------------------------------------
-  
-  inline byte_array::reverse_iterator buffer::rend() {
-    return _bytes.rend() ;
-  }
-  
-  //--------------------------------------------------------------------------
-  
-  inline const byte &buffer::operator[]( index_type index ) const {
-    return _bytes [ index ] ;
-  }
-  
-  //--------------------------------------------------------------------------
-  
-  inline byte &buffer::operator[]( index_type index ) {
-    return _bytes [ index ] ;
-  }
-  
-  //--------------------------------------------------------------------------
-  
-  inline const byte &buffer::at( index_type index ) const {
-    return _bytes.at( index ) ;
-  }
-  
+
   //--------------------------------------------------------------------------
 
-  inline byte &buffer::at( index_type index ) {
+  inline buffer::const_iterator buffer::end() const {
+    return _bytes.end() ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  inline buffer::iterator buffer::begin() {
+    return _bytes.begin() ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  inline buffer::iterator buffer::end() {
+    return _bytes.end() ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  inline buffer::const_reverse_iterator buffer::rbegin() const {
+    return _bytes.rbegin() ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  inline buffer::const_reverse_iterator buffer::rend() const {
+    return _bytes.rend() ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  inline buffer::reverse_iterator buffer::rbegin() {
+    return _bytes.rbegin() ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  inline buffer::reverse_iterator buffer::rend() {
+    return _bytes.rend() ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  inline buffer::const_reference buffer::operator[]( index_type index ) const {
+    return _bytes [ index ] ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  inline buffer::reference buffer::operator[]( index_type index ) {
+    return _bytes [ index ] ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  inline buffer::const_reference buffer::at( index_type index ) const {
     return _bytes.at( index ) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline const byte &buffer::front() const {
+
+  inline buffer::reference buffer::at( index_type index ) {
+    return _bytes.at( index ) ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  inline buffer::const_reference buffer::front() const {
     return _bytes.front() ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline byte &buffer::front() {
+
+  inline buffer::reference buffer::front() {
     return _bytes.front() ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline const byte &buffer::back() const {
+
+  inline buffer::const_reference buffer::back() const {
     return _bytes.back() ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline byte &buffer::back() {
+
+  inline buffer::reference buffer::back() {
     return _bytes.back() ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline const byte *buffer::data() const {
+
+  inline buffer::const_pointer buffer::data() const {
     return _bytes.data() ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline byte *buffer::data() {
+
+  inline buffer::pointer buffer::data() {
     return _bytes.data() ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline const byte *buffer::ptr( index_type index ) const {
+
+  inline buffer::const_pointer buffer::ptr( index_type index ) const {
     return &(_bytes[ index ]) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline byte *buffer::ptr( index_type index ) {
+
+  inline buffer::pointer buffer::ptr( index_type index ) {
     return &(_bytes[ index ]) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline std::size_t buffer::size() const {
+
+  inline buffer::size_type buffer::size() const {
     return _bytes.size() ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   inline bool buffer::empty() const {
     return _bytes.empty() ;
   }
-  
+
   //--------------------------------------------------------------------------
 
-  inline void buffer::resize( std::size_t newsize ) {
-    return _bytes.resize( newsize ) ;
+  inline void buffer::resize( size_type newsize ) {
+    _bytes.resize( newsize ) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline std::size_t buffer::expand( std::size_t nbytes ) {
+
+  inline buffer::size_type buffer::expand( std::size_t nbytes ) {
     auto len = size() ;
     resize( len + nbytes ) ;
     return len ;
   }
-  
+
   //--------------------------------------------------------------------------
 
   inline void buffer::clear( bool shrink ) {
@@ -286,10 +299,10 @@ namespace sio {
       _bytes.shrink_to_fit() ;
     }
   }
-  
+
   //--------------------------------------------------------------------------
 
-  inline std::size_t buffer::write( const byte *const addr, index_type position, std::size_t length, std::size_t count ) {
+  inline buffer::size_type buffer::write( const_pointer const addr, index_type position, size_type length, size_type count ) {
     if( not valid() ) {
       SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
     }
@@ -305,37 +318,39 @@ namespace sio {
     }
     return padlen ;
   }
-  
+
   //--------------------------------------------------------------------------
 
   template <typename T>
-  inline std::size_t buffer::write( const T *const ptr, index_type position, std::size_t count ) {
+  inline buffer::size_type buffer::write( const T *const ptr, index_type position, size_type count ) {
     return write( SIO_CBYTE_CAST(ptr), position, sizeof(T), count ) ;
   }
-  
+
   //--------------------------------------------------------------------------
 
-  inline std::size_t buffer::read( byte *addr, index_type position, std::size_t length, std::size_t count ) const {
+  inline buffer::size_type buffer::read( pointer addr, index_type position, size_type length, size_type count ) const {
     if( not valid() ) {
       SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
     }
     const auto bytelen = length*count ;
     const auto padlen = (bytelen + sio::padding) & sio::padding_mask ;
     if( position + padlen >= size() ) {
-      SIO_THROW( sio::error_code::invalid_argument, "Can't read " + std::to_string(padlen) + " bytes out of buffer (pos=" + std::to_string(position) + ")" ) ;
+      std::stringstream ss ;
+      ss << "Can't read " << padlen << " bytes out of buffer (pos=" << position << ")" ;
+      SIO_THROW( sio::error_code::invalid_argument, ss.str() ) ;
     }
     auto ptr_read = ptr( position ) ;
     sio::memcpy_helper::copy( ptr_read, addr, length, count ) ;
     return padlen ;
   }
-  
+
   //--------------------------------------------------------------------------
 
   template <typename T>
-  inline std::size_t buffer::read( T *ptr, index_type position, std::size_t count ) const {
+  inline buffer::size_type buffer::read( T *ptr, index_type position, size_type count ) const {
     return read( SIO_BYTE_CAST(ptr), position, sizeof(T), count ) ;
   }
-  
+
   //--------------------------------------------------------------------------
 
   inline buffer buffer::reuse() {
@@ -343,12 +358,39 @@ namespace sio {
     _valid = false ;
     return new_buffer ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   inline bool buffer::valid() const {
     return _valid ;
   }
-  
-}
 
+  //--------------------------------------------------------------------------
+
+  inline buffer_span buffer::span() const {
+    return buffer_span( begin() , end() ) ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  inline buffer_span buffer::span( index_type start ) const {
+    if( start >= size() ) {
+      std::stringstream ss ;
+      ss << "start: " << start << ", size: " << size() ;
+      SIO_THROW( error_code::out_of_range, ss.str() ) ;
+    }
+    return buffer_span( std::next(begin(), start) , end() ) ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  inline buffer_span buffer::span( index_type start, size_type count ) const {
+    if( start+count >= size() ) {
+      std::stringstream ss ;
+      ss << "start: " << start << ", count: " << count << ", size: " << size() ;
+      SIO_THROW( error_code::out_of_range, ss.str() ) ;
+    }
+    return buffer_span( std::next(begin(), start) , std::next(begin(), start+count) ) ;
+  }
+
+}
