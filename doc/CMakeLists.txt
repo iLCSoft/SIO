@@ -27,6 +27,8 @@ ELSE()
     SET( DOC_INSTALL_PREFIX doc/lcio )
 ENDIF()
 
+OPTION( INSTALL_LATEX "Switch ON to install LaTeX documentation (reference and user manuals)" ON )
+
 
 
 # --------- java documentation -----------------------------------------------
@@ -68,13 +70,14 @@ IF( DOXYGEN_FOUND )
         OUTPUT  "${DOC_BIN_DIR}/html/index.html"
         COMMAND DOX_PROJECT_NUMBER="${${PROJECT_NAME}_VERSION}"
                 DOX_OUTPUT_DIRECTORY="${DOC_BIN_DIR}"
-                DOX_INPUT="${LCIO_AID_HEADERS_OUTPUT_DIR}"
+                DOX_INPUT="${LCIO_AID_HEADERS_OUTPUT_DIR} ${PROJECT_SOURCE_DIR}/sio/include"
                 "${DOXYGEN_EXECUTABLE}"
         WORKING_DIRECTORY ${DOC_SRC_DIR}/doxygen_api
         COMMENT "Building C++ API Documentation..."
         DEPENDS ./doxygen_api/Doxyfile ./CMakeLists.txt
                 ${LCIO_AID_HEADERS_OUTPUT_DIR}/EVENT/*
                 ${LCIO_AID_HEADERS_OUTPUT_DIR}/IO/*
+                ${PROJECT_SOURCE_DIR}/sio/include/*
     )
     
     ADD_CUSTOM_TARGET( doc_cpp DEPENDS "${DOC_BIN_DIR}/html/index.html" )
@@ -90,75 +93,76 @@ ELSE()
 ENDIF()
 
 
+IF( INSTALL_LATEX )
+  # ---------- reference manual (generated from doxygen latex) -----------------
+  IF( DOXYGEN_FOUND AND LATEX_COMPILER AND DVIPS_CONVERTER )
 
-# ---------- reference manual (generated from doxygen latex) -----------------
-IF( DOXYGEN_FOUND AND LATEX_COMPILER AND DVIPS_CONVERTER )
+      ADD_CUSTOM_COMMAND(
+          OUTPUT  "${DOC_BIN_DIR}/latex/lciorefman.ps"
+          # FIXME: latex returns error, using | xargs at the end ignores the exit code error
+          COMMAND "${LATEX_COMPILER}" -interaction=batchmode refman.tex | xargs
+          COMMAND "${LATEX_COMPILER}" -interaction=batchmode refman.tex | xargs
+          COMMAND "${DVIPS_CONVERTER}" -q -o refman.ps refman.dvi
+          COMMAND psnup -q -2 refman.ps lciorefman.ps # FIXME detect psnup
+          WORKING_DIRECTORY "${DOC_BIN_DIR}/latex"
+          COMMENT "Building Documentation - Reference Manual..."
+      )
 
-    ADD_CUSTOM_COMMAND(
-        OUTPUT  "${DOC_BIN_DIR}/latex/lciorefman.ps"
-        # FIXME: latex returns error, using | xargs at the end ignores the exit code error
-        COMMAND "${LATEX_COMPILER}" -interaction=batchmode refman.tex | xargs
-        COMMAND "${LATEX_COMPILER}" -interaction=batchmode refman.tex | xargs
-        COMMAND "${DVIPS_CONVERTER}" -q -o refman.ps refman.dvi
-        COMMAND psnup -q -2 refman.ps lciorefman.ps # FIXME detect psnup
-        WORKING_DIRECTORY "${DOC_BIN_DIR}/latex"
-        COMMENT "Building Documentation - Reference Manual..."
-    )
+      ADD_CUSTOM_TARGET( doc_refman DEPENDS ${DOC_BIN_DIR}/latex/lciorefman.ps )
+      ADD_DEPENDENCIES( doc_refman doc_cpp ) # need to generate doxygen documentation first
+      ADD_DEPENDENCIES( doc doc_refman )
 
-    ADD_CUSTOM_TARGET( doc_refman DEPENDS ${DOC_BIN_DIR}/latex/lciorefman.ps )
-    ADD_DEPENDENCIES( doc_refman doc_cpp ) # need to generate doxygen documentation first
-    ADD_DEPENDENCIES( doc doc_refman )
+      INSTALL( FILES "${DOC_BIN_DIR}/latex/lciorefman.ps" DESTINATION ${DOC_INSTALL_PREFIX} )
 
-    INSTALL( FILES "${DOC_BIN_DIR}/latex/lciorefman.ps" DESTINATION ${DOC_INSTALL_PREFIX} )
-
-ELSE()
-    MESSAGE( "Failed to find tools required to build lcio reference manual (latex, dvips)" )
-    MESSAGE( "Reference manual will not be built")
-    MESSAGE( "" )
-ENDIF()
-
-
-
-# ---------- user manual (latex only) ----------------------------------------
-IF( LATEX_COMPILER AND LATEX2HTML_CONVERTER AND PDFLATEX_COMPILER ) # AND DVIPS_CONVERTER )
- 
-    ADD_CUSTOM_COMMAND(
-        OUTPUT  "${DOC_BIN_DIR}/manual"
-        # copy directory from source-tree to keep the source-tree clean
-        COMMAND "${CMAKE_COMMAND}" -E copy_directory
-            "${PROJECT_SOURCE_DIR}/src/latex/manual"
-            "${DOC_BIN_DIR}/manual"
-    )
-
-    ADD_CUSTOM_COMMAND(
-        OUTPUT  "${DOC_BIN_DIR}/manual/manual.pdf"
-        COMMAND "${LATEX_COMPILER}" -interaction=batchmode manual.tex
-        COMMAND "${LATEX_COMPILER}" -interaction=batchmode manual.tex
-        #COMMAND "${CMAKE_COMMAND}" -E echo "creating manual.ps"
-        #COMMAND "${DVIPS_CONVERTER}" -q -o manual.ps manual.dvi
-        COMMAND "${CMAKE_COMMAND}" -E echo "creating manual.pdf"
-        COMMAND "${PDFLATEX_COMPILER}" -interaction=batchmode manual.tex
-        COMMAND "${CMAKE_COMMAND}" -E echo "creating manual_html"
-        COMMAND "${LATEX2HTML_CONVERTER}" -mkdir -dir manual_html -verbosity 0 -info 0 -no_auto_link -split 0 -no_navigation manual.tex
-        WORKING_DIRECTORY "${DOC_BIN_DIR}/manual"
-        COMMENT "Building Documentation - Users Manual..."
-        DEPENDS ${DOC_BIN_DIR}/manual
-    )
-
-    ADD_CUSTOM_TARGET( doc_usrman DEPENDS ${DOC_BIN_DIR}/manual/manual.pdf )
-    ADD_DEPENDENCIES( doc doc_usrman )
+  ELSE()
+      MESSAGE( "Failed to find tools required to build lcio reference manual (latex, dvips)" )
+      MESSAGE( "Reference manual will not be built")
+      MESSAGE( "" )
+  ENDIF()
 
 
-    INSTALL_DIRECTORY( "${DOC_BIN_DIR}/manual/manual_html"
-        DESTINATION ${DOC_INSTALL_PREFIX}
-    )
 
-    INSTALL( FILES "${DOC_BIN_DIR}/manual/manual.pdf" DESTINATION ${DOC_INSTALL_PREFIX} )
+  # ---------- user manual (latex only) ----------------------------------------
+  IF( LATEX_COMPILER AND LATEX2HTML_CONVERTER AND PDFLATEX_COMPILER ) # AND DVIPS_CONVERTER )
+   
+      ADD_CUSTOM_COMMAND(
+          OUTPUT  "${DOC_BIN_DIR}/manual"
+          # copy directory from source-tree to keep the source-tree clean
+          COMMAND "${CMAKE_COMMAND}" -E copy_directory
+              "${PROJECT_SOURCE_DIR}/src/latex/manual"
+              "${DOC_BIN_DIR}/manual"
+      )
 
-ELSE()
-    MESSAGE( "Failed to find tools required to build lcio user manual (latex, latex2html, pdflatex)" )
-    MESSAGE( "HTML documentation will not be built")
-    MESSAGE( "" )
+      ADD_CUSTOM_COMMAND(
+          OUTPUT  "${DOC_BIN_DIR}/manual/manual.pdf"
+          COMMAND "${LATEX_COMPILER}" -interaction=batchmode manual.tex
+          COMMAND "${LATEX_COMPILER}" -interaction=batchmode manual.tex
+          #COMMAND "${CMAKE_COMMAND}" -E echo "creating manual.ps"
+          #COMMAND "${DVIPS_CONVERTER}" -q -o manual.ps manual.dvi
+          COMMAND "${CMAKE_COMMAND}" -E echo "creating manual.pdf"
+          COMMAND "${PDFLATEX_COMPILER}" -interaction=batchmode manual.tex
+          COMMAND "${CMAKE_COMMAND}" -E echo "creating manual_html"
+          COMMAND "${LATEX2HTML_CONVERTER}" -mkdir -dir manual_html -verbosity 0 -info 0 -no_auto_link -split 0 -no_navigation manual.tex
+          WORKING_DIRECTORY "${DOC_BIN_DIR}/manual"
+          COMMENT "Building Documentation - Users Manual..."
+          DEPENDS ${DOC_BIN_DIR}/manual
+      )
+
+      ADD_CUSTOM_TARGET( doc_usrman DEPENDS ${DOC_BIN_DIR}/manual/manual.pdf )
+      ADD_DEPENDENCIES( doc doc_usrman )
+
+
+      INSTALL_DIRECTORY( "${DOC_BIN_DIR}/manual/manual_html"
+          DESTINATION ${DOC_INSTALL_PREFIX}
+      )
+
+      INSTALL( FILES "${DOC_BIN_DIR}/manual/manual.pdf" DESTINATION ${DOC_INSTALL_PREFIX} )
+
+  ELSE()
+      MESSAGE( "Failed to find tools required to build lcio user manual (latex, latex2html, pdflatex)" )
+      MESSAGE( "HTML documentation will not be built")
+      MESSAGE( "" )
+  ENDIF()
 ENDIF()
 
 # out-of-source vs in-source installations
