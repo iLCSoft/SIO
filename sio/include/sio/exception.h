@@ -9,7 +9,7 @@
 #define SIO_RETHROW( orig, code, message ) throw sio::exception( orig, code, __LINE__, __FUNCTION__, __FILE__, message )
 
 namespace sio {
-  
+
   /**
    *  @brief  error_code enumerator
    */
@@ -24,34 +24,35 @@ namespace sio {
     no_marker,
     compress_error,
     bad_state,
-    bad_alloc
+    bad_alloc,
+    out_of_range
   };
-  
+
   //--------------------------------------------------------------------------
   //--------------------------------------------------------------------------
-  
+
   /**
    *  @brief  error_code_helper class.
-   *  
-   *  Helper class for error_code manipulation 
+   *
+   *  Helper class for error_code manipulation
    */
   class error_code_helper {
   public:
     // static API only
     error_code_helper() = delete ;
-    
+
   public:
     /**
      *  @brief  Convert error_code to string
-     *  
+     *
      *  @param  code the code to convert
      */
     static std::string to_string( error_code code ) noexcept ;
   };
-  
+
   //--------------------------------------------------------------------------
   //--------------------------------------------------------------------------
-  
+
   /**
    *  @brief  exception class
    *
@@ -62,7 +63,7 @@ namespace sio {
     exception() = delete ;
     exception( const exception & ) = default ;
     ~exception() = default ;
-    
+
     /**
      *  @brief  Constructor
      *
@@ -73,7 +74,7 @@ namespace sio {
      *  @param  msg the exception message
      */
     exception( error_code code, unsigned int line, const std::string &func, const std::string &fname, const std::string &msg ) ;
-    
+
     /**
      *  @brief  Constructor
      *
@@ -86,7 +87,7 @@ namespace sio {
      */
     template <typename T>
     exception( const T &rhs, error_code code, unsigned int line, const std::string &func, const std::string &fname, const std::string &msg ) ;
-    
+
     /**
      *  @brief  Get the full exception message
      */
@@ -103,7 +104,7 @@ namespace sio {
      *  @param  msg the exception message
      */
     std::string message( error_code code, unsigned int line, const std::string &func, const std::string &fname, const std::string &msg ) const ;
-    
+
     /**
      *  @brief  Helper function creating the full exception message
      *
@@ -115,12 +116,12 @@ namespace sio {
      *  @param  msg the exception message
      */
     std::string message( const std::string &previous, error_code code, unsigned int line, const std::string &func, const std::string &fname, const std::string &msg ) const ;
-    
+
   protected:
     ///< The full exception message
     const std::string       _message {} ;
   };
-    
+
 }
 
 #include <sio/details/exception_impl.h>

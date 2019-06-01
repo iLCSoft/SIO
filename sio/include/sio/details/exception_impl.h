@@ -1,10 +1,10 @@
 #pragma once
 
 namespace sio {
-  
+
   inline std::string error_code_helper::to_string( error_code code ) noexcept {
     switch( code ) {
-      case error_code::invalid_argument: return "invalid_argument" ; 
+      case error_code::invalid_argument: return "invalid_argument" ;
       case error_code::not_found: return "not_found" ;
       case error_code::already_open: return "already_open" ;
       case error_code::open_fail: return "open_fail" ;
@@ -15,65 +15,66 @@ namespace sio {
       case error_code::compress_error: return "compress_error" ;
       case error_code::bad_state: return "bad_state" ;
       case error_code::bad_alloc: return "bad_alloc" ;
+      case error_code::out_of_range: return "out_of_range" ;
       default:  return "unknown" ;
     }
   }
-  
+
   //--------------------------------------------------------------------------
   //--------------------------------------------------------------------------
-  
-  inline exception::exception( 
-    error_code code, 
-    unsigned int line, 
-    const std::string &func, 
-    const std::string &fname, 
+
+  inline exception::exception(
+    error_code code,
+    unsigned int line,
+    const std::string &func,
+    const std::string &fname,
     const std::string &msg ) :
     _message( message(code, line, func, fname, msg) ) {
     /* nop */
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   template <typename T>
-  inline exception::exception( 
-    const T &rhs, 
-    error_code code, 
-    unsigned int line, 
-    const std::string &func, 
-    const std::string &fname, 
+  inline exception::exception(
+    const T &rhs,
+    error_code code,
+    unsigned int line,
+    const std::string &func,
+    const std::string &fname,
     const std::string &msg ) :
     _message( message(rhs.what(), code, line, func, fname, msg) ) {
     /* nop */
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   inline const char* exception::what() const noexcept {
     return _message.c_str() ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline std::string exception::message( 
-    error_code code, 
-    unsigned int line, 
-    const std::string &func, 
-    const std::string &fname, 
+
+  inline std::string exception::message(
+    error_code code,
+    unsigned int line,
+    const std::string &func,
+    const std::string &fname,
     const std::string &msg ) const {
-    return fname + 
-      " (l." + std::to_string(line) + ") in " + 
-      func + ": " + msg + 
+    return fname +
+      " (l." + std::to_string(line) + ") in " +
+      func + ": " + msg +
       " [" + error_code_helper::to_string( code ) + "]" ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
-  inline std::string exception::message( 
-    const std::string &previous, 
-    error_code code, 
-    unsigned int line, 
-    const std::string &func, 
-    const std::string &fname, 
+
+  inline std::string exception::message(
+    const std::string &previous,
+    error_code code,
+    unsigned int line,
+    const std::string &func,
+    const std::string &fname,
     const std::string &msg ) const {
     if( previous.empty() ) {
       return message(code, line, func, fname, msg) ;
@@ -82,12 +83,5 @@ namespace sio {
       return previous + "\n" + message(code, line, func, fname, msg) ;
     }
   }
-    
+
 }
-
-
-
-
-
-
-
