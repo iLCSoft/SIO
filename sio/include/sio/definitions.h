@@ -40,7 +40,7 @@
 #define SIO_LITTLE_ENDIAN
 #endif
 
-#if defined(_AIX)      ||   defined(__sparc__) ||   defined(_M_PPC) || ( defined(__APPLE_CC__) && !defined(__LITTLE_ENDIAN__)  ) 
+#if defined(_AIX)      ||   defined(__sparc__) ||   defined(_M_PPC) || ( defined(__APPLE_CC__) && !defined(__LITTLE_ENDIAN__)  )
 #define SIO_BIG_ENDIAN
 #endif
 
@@ -49,11 +49,11 @@
 #endif
 
 namespace sio {
-  
+
   // ----------------------------------------------------------------------------
   // Deal with pointer length.  Currently, the only problem is alpha which uses
-  // 64 bit pointers.                                                          
-  //                                                              
+  // 64 bit pointers.
+  //
   // OS            CPU           Macro         Provided by   Pointer size
   // ------------  ------------  ------------  ------------  -----------
   // AIX           PPC(?)        _AIX          GNU compiler  4 bytes
@@ -69,7 +69,7 @@ namespace sio {
   // ----------------------------------------------------------------------------
   // Old check was problematic because both macros could evaluate to true, and it would
   // also be possible that sio::ptr_type was not defined at all.  Change as needed.
-  // --JM 
+  // --JM
 #if defined(__alpha__) || defined(_M_ALPHA) || defined(_LP64)
   using ptr_type = std::size_t ;
 #else
@@ -82,7 +82,7 @@ namespace sio {
   using byte_traits = std::char_traits<byte> ;
   using index_type = std::size_t ;
   using options_type = unsigned int ;
-  
+
   ///< Kilo byte unit
   static constexpr std::size_t kbyte = 0x00000400 ;
   ///< Mega byte unit
@@ -99,20 +99,20 @@ namespace sio {
   static constexpr unsigned int record_marker = 0xabadcafe ;
   ///< The block marker
   static constexpr unsigned int block_marker  = 0xdeadbeef ;
-  
+
   static constexpr std::size_t max_record_name_len = 64 ;
-  
+
   static constexpr byte null_byte = '\0' ;
-  
+
   // TODO: Do we still need all of this ??
   static constexpr std::size_t single_len = 1 ;
-  static constexpr std::size_t double_len = 2 ;  
+  static constexpr std::size_t double_len = 2 ;
   static constexpr std::size_t quad_len = 4 ;
   static constexpr std::size_t octo_len = 8 ;
-  
+
   //--------------------------------------------------------------------------
   //--------------------------------------------------------------------------
-  
+
   /**
    *  @brief  version_helper class.
    *
@@ -123,43 +123,43 @@ namespace sio {
     using version_type   = uint32_t ;
     using major_type     = uint16_t ;
     using minor_type     = uint16_t ;
-  
-  public:  
+
+  public:
     // static API only
     version_helper() = delete ;
-    
+
     /**
-     *  @brief  Encode a version from a major and minor version number 
-     *  
+     *  @brief  Encode a version from a major and minor version number
+     *
      *  @param  major the major version number
      *  @param  minor the minor version number
      */
-    static inline version_type encode( major_type major, minor_type minor ) noexcept {
+    static inline version_type encode_version( major_type major, minor_type minor ) noexcept {
       return (((major) << 16) + (minor)) ;
     }
-    
+
     /**
-     *  @brief  Decode a minor version number from the version number 
-     *  
+     *  @brief  Decode a minor version number from the version number
+     *
      *  @param  version the full version number
      */
-    static inline minor_type minor( version_type version ) noexcept {
+    static inline minor_type minor_version( version_type version ) noexcept {
       return ((version) & 0x0000ffff) ;
     }
-    
+
     /**
-     *  @brief  Decode a major version number from the version number 
-     *  
+     *  @brief  Decode a major version number from the version number
+     *
      *  @param  version the full version number
      */
-    static inline major_type major( version_type version ) noexcept {
+    static inline major_type major_version( version_type version ) noexcept {
       return (((version) & 0xffff0000) >> 16) ;
     }
   };
-  
+
   //--------------------------------------------------------------------------
   //--------------------------------------------------------------------------
-  
+
   /**
    *  @brief  memcpy_helper class
    *
@@ -169,10 +169,10 @@ namespace sio {
   public:
     // static API only
     memcpy_helper() = delete ;
-    
+
     /**
      *  @brief  Perform a reverse byte copy
-     *  
+     *
      *  @param  from the input bytes address to copy
      *  @param  dest the output destination of copied bytes
      *  @param  size the size of the element in the bytes
@@ -189,10 +189,10 @@ namespace sio {
         dest += jump;
       }
     }
-    
+
     /**
      *  @brief  Perform a byte array copy
-     *  
+     *
      *  @param  from the input bytes address to copy
      *  @param  dest the output destination of copied bytes
      *  @param  size the size of the element in the bytes
@@ -206,10 +206,10 @@ namespace sio {
 #endif
     }
   };
-  
+
   //--------------------------------------------------------------------------
   //--------------------------------------------------------------------------
-  
+
   /**
    *  @brief  string_helper class
    *
@@ -219,14 +219,14 @@ namespace sio {
   public:
     // static API only
     string_helper() = delete ;
-    
+
     /**
      *  @brief  Validate a name.
-     *  
-     *  SIO only accepts names starting with (regular expression) [A-Za-z_] 
-     *  and continuing with [A-Za-z0-9_] (which most people will recognize 
+     *
+     *  SIO only accepts names starting with (regular expression) [A-Za-z_]
+     *  and continuing with [A-Za-z0-9_] (which most people will recognize
      *  as the definition of a C/C++ variable name).
-     *  
+     *
      *  @param  name the strin name to test
      */
     static inline bool validate( const std::string &name ) {
@@ -247,10 +247,10 @@ namespace sio {
       }
       return true;
     }
-    
+
     /**
      *  @brief  Validate a record name
-     *  
+     *
      *  @param  name the record name to validate
      */
     static inline bool valid_record_name( const std::string &name ) {
@@ -266,7 +266,7 @@ namespace sio {
 
 }
 
-// SIO_LOGLVL defines the log level. The verbosity is fixed 
+// SIO_LOGLVL defines the log level. The verbosity is fixed
 // at compile time to avoid performance issue due to logging
 // Log levels:
 // - silent: 0
@@ -304,10 +304,3 @@ namespace sio {
 
 #define SIO_BYTE_CAST(pntr)    (reinterpret_cast<sio::byte*>((pntr)))
 #define SIO_CBYTE_CAST(pntr)    (reinterpret_cast<const sio::byte*>((pntr)))
-
-
-
-
-
-
-
