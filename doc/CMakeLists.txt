@@ -43,7 +43,7 @@ IF( INSTALL_JAR )
     )
 
     ADD_CUSTOM_TARGET( doc_java DEPENDS "${DOC_SRC_DIR}/api/index.html" )
-    ADD_DEPENDENCIES( doc_java jar ) # need to generate java headers first 
+    ADD_DEPENDENCIES( doc_java jar ) # need to generate java headers first
     ADD_DEPENDENCIES( doc doc_java )
 
     SET_DIRECTORY_PROPERTIES( PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${DOC_SRC_DIR}/api" )
@@ -70,7 +70,7 @@ IF( DOXYGEN_FOUND )
         OUTPUT  "${DOC_BIN_DIR}/html/index.html"
         COMMAND DOX_PROJECT_NUMBER="${${PROJECT_NAME}_VERSION}"
                 DOX_OUTPUT_DIRECTORY="${DOC_BIN_DIR}"
-                DOX_INPUT="${LCIO_AID_HEADERS_OUTPUT_DIR} ${PROJECT_SOURCE_DIR}/sio/include"
+                DOX_INPUT="${LCIO_AID_HEADERS_OUTPUT_DIR} ${PROJECT_SOURCE_DIR}/sio/include/sio"
                 "${DOXYGEN_EXECUTABLE}"
         WORKING_DIRECTORY ${DOC_SRC_DIR}/doxygen_api
         COMMENT "Building C++ API Documentation..."
@@ -79,7 +79,7 @@ IF( DOXYGEN_FOUND )
                 ${LCIO_AID_HEADERS_OUTPUT_DIR}/IO/*
                 ${PROJECT_SOURCE_DIR}/sio/include/*
     )
-    
+
     ADD_CUSTOM_TARGET( doc_cpp DEPENDS "${DOC_BIN_DIR}/html/index.html" )
     ADD_DEPENDENCIES( doc_cpp lcio ) # need to generate c++ headers first
     ADD_DEPENDENCIES( doc doc_cpp )
@@ -124,7 +124,7 @@ IF( INSTALL_LATEX )
 
   # ---------- user manual (latex only) ----------------------------------------
   IF( LATEX_COMPILER AND LATEX2HTML_CONVERTER AND PDFLATEX_COMPILER ) # AND DVIPS_CONVERTER )
-   
+
       ADD_CUSTOM_COMMAND(
           OUTPUT  "${DOC_BIN_DIR}/manual"
           # copy directory from source-tree to keep the source-tree clean
@@ -183,4 +183,3 @@ ELSE()
 ENDIF()
 
 ADD_DEPENDENCIES( uninstall uninstall_doc )
-
