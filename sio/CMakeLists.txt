@@ -121,3 +121,9 @@ add_test_reg (
   BUILD_EXEC 
   REGEX_FAIL "TEST_FAILED" 
 )
+
+add_test_reg (
+  test_exception
+  BUILD_EXEC 
+  REGEX_FAIL "TEST_FAILED" 
+)
