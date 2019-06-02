@@ -14,11 +14,12 @@ namespace sio {
     using index_type = std::size_t ;
 
   public:
-    buffer_span() = delete ;
+    buffer_span( const buffer_span& ) = default ;
     buffer_span( buffer_span&& ) = default ;
     ~buffer_span() = default ;
     buffer_span& operator=( const buffer_span& ) = default ;
     buffer_span& operator=( buffer_span&& ) = default ;
+    buffer_span() ;
     buffer_span( const container &bytes ) ;
     buffer_span( const_iterator first, const_iterator last ) ;
     buffer_span( const_iterator first, std::size_t count ) ;
@@ -33,6 +34,8 @@ namespace sio {
 
     std::size_t size() const ;
     bool empty() const ;
+    bool valid() const ;
+    operator bool() const noexcept ;
 
     buffer_span subspan( index_type start ) const ;
     buffer_span subspan( index_type start, std::size_t count ) const ;
@@ -40,6 +43,7 @@ namespace sio {
   private:
     const_iterator    _first{} ;
     const_iterator    _last{} ;
+    bool              _isnull {false} ;
   };
 
   //--------------------------------------------------------------------------

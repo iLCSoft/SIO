@@ -5,8 +5,16 @@
 
 // -- sio headers
 #include <sio/exception.h>
+#include <sio/helpers.h>
 
 namespace sio {
+
+  inline buffer_span::buffer_span() :
+    _isnull(true) {
+    /* nop */
+  }
+
+  //--------------------------------------------------------------------------
 
   inline buffer_span::buffer_span( const container &bytes ) :
     _first( bytes.begin() ),
@@ -45,7 +53,7 @@ namespace sio {
   //--------------------------------------------------------------------------
 
   inline const buffer_span::element_type *buffer_span::data() const {
-    return &(*_first) ;
+    return _isnull ? nullptr : &(*_first) ;
   }
 
   //--------------------------------------------------------------------------
@@ -80,13 +88,25 @@ namespace sio {
   //--------------------------------------------------------------------------
 
   inline std::size_t buffer_span::size() const {
-    return std::distance( _first, _last ) ;
+    return _isnull ? 0 : std::distance( _first, _last ) ;
   }
 
   //--------------------------------------------------------------------------
 
   inline bool buffer_span::empty() const {
     return (size() == 0) ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  inline bool buffer_span::valid() const {
+    return _isnull ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  inline buffer_span::operator bool() const noexcept {
+    return _isnull ;
   }
 
   //--------------------------------------------------------------------------
