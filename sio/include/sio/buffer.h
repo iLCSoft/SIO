@@ -5,8 +5,23 @@
 
 namespace sio {
 
+  /**
+   *  @brief  buffer_span class.
+   *
+   *  Implements a view on a byte array without owning it.
+   *  A buffer_span can be obtained directly from a byte_array
+   *  or from a buffer using the buffer::span() methods.
+   *  The buffer_span class provides only const methods to
+   *  work with the underlying byte array, except for the
+   *  assignement operator which allow to change the underlying
+   *  byte array span. Note that the implementation stores a
+   *  pair of const_iterator on a byte_array. Thus the validity
+   *  of the buffer_span object relies on the validity of these
+   *  iterators.
+   */
   class buffer_span {
   public:
+    // traits
     using container = byte_array ;
     using element_type = byte_array::value_type ;
     using const_iterator = container::const_iterator ;
@@ -14,35 +29,146 @@ namespace sio {
     using index_type = std::size_t ;
 
   public:
+    /// Default copy constructor
     buffer_span( const buffer_span& ) = default ;
+    /// Default move constructor
     buffer_span( buffer_span&& ) = default ;
+    /// Default destructor
     ~buffer_span() = default ;
+    /// Default assignement operator
     buffer_span& operator=( const buffer_span& ) = default ;
+    /// Default move assignment operator
     buffer_span& operator=( buffer_span&& ) = default ;
+
+    /**
+     *  @brief  Default constructor
+     */
     buffer_span() ;
+
+    /**
+     *  @brief  Constructor from a byte_array
+     *
+     *  @param  bytes the byte_array on which to construct the span
+     */
     buffer_span( const container &bytes ) ;
+
+    /**
+     *  @brief  Constructor with two iterators
+     *
+     *  @param  first the start of the span
+     *  @param  last the end of the span (not included)
+     */
     buffer_span( const_iterator first, const_iterator last ) ;
+
+    /**
+     *  @brief  Constructor with iterator and bytes count
+     *
+     *  @param  first the start of the span
+     *  @param  count the number of bytes to the end of the span
+     */
     buffer_span( const_iterator first, std::size_t count ) ;
 
+    /**
+     *  @name Iterators
+     */
+    ///{@
+    /**
+     *  @brief  Get the iterator to the start of the span
+     */
     const_iterator begin() const ;
+
+    /**
+     *  @brief  Get the iterator to the end of the span
+     */
     const_iterator end() const ;
+    ///@}
+
+    /**
+     *  @name Element access
+     */
+    ///{@
+    /**
+     *  @brief  Get the data buffer
+     */
     const element_type *data() const ;
+
+    /**
+     *  @brief  Get the front element (if valid)
+     */
     const_reference front() const ;
+
+    /**
+     *  @brief  Get the back element (if valid)
+     */
     const_reference back() const ;
+
+    /**
+     *  @brief  Data access operator (no range check)
+     *
+     *  @param  index the index of a byte access
+     */
     const_reference operator[]( index_type index ) const ;
+
+    /**
+     *  @brief  Data access operator (range check!)
+     *
+     *  @param  index the index of a byte access
+     */
     const_reference at( index_type index ) const ;
+    ///@}
 
+    /**
+     *  @name Capacity
+     */
+    ///{@
+    /**
+     *  @brief  Get the size of the span
+     */
     std::size_t size() const ;
-    bool empty() const ;
-    bool valid() const ;
-    operator bool() const noexcept ;
 
+    /**
+     *  @brief  Whether the span is empty
+     */
+    bool empty() const ;
+
+    /**
+     *  @brief  Whether the span is valid, meaning not default constructed
+     */
+    bool valid() const ;
+
+    /**
+     *  @brief  boolean operator. Returns true if the span is valid
+     */
+    operator bool() const noexcept ;
+    ///@}
+
+    /**
+     *  @name  Operations
+     */
+    ///{@
+    /**
+     *  @brief  Get a sub span from a new start, untill the end
+     *
+     *  @param  start the subspan new start
+     */
     buffer_span subspan( index_type start ) const ;
+
+    /**
+     *  @brief  Get a sub span from a new start and new end
+     *
+     *
+     *  @param  start the subspan new start
+     *  @param  count the size of the subspan
+     */
     buffer_span subspan( index_type start, std::size_t count ) const ;
+    ///@}
 
   private:
+    ///< An iterator to the begin of a byte_array
     const_iterator    _first{} ;
+    ///< An iterator to the end of a byte_array
     const_iterator    _last{} ;
+    ///< Whether the span is null (invalid)
     bool              _isnull {false} ;
   };
 
