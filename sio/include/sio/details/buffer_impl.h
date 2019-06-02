@@ -322,57 +322,6 @@ namespace sio {
 
   //--------------------------------------------------------------------------
 
-  inline buffer::size_type buffer::write( const_pointer const addr, index_type position, size_type length, size_type count ) {
-    if( not valid() ) {
-      SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
-    }
-    const auto bytelen = length*count ;
-    const auto padlen = (bytelen + sio::padding) & sio::padding_mask ;
-    if( position + padlen >= size() ) {
-      expand( padlen ) ;
-    }
-    auto ptr_write = ptr( position ) ;
-    sio::memcpy_helper::copy( addr, ptr_write, length, count ) ;
-    for( auto bytcnt = bytelen; bytcnt < padlen; bytcnt++ ) {
-      *(ptr_write + bytcnt) = sio::null_byte ;
-    }
-    return padlen ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  template <typename T>
-  inline buffer::size_type buffer::write( const T *const ptr, index_type position, size_type count ) {
-    return write( SIO_CBYTE_CAST(ptr), position, sizeof(T), count ) ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  inline buffer::size_type buffer::read( pointer addr, index_type position, size_type length, size_type count ) const {
-    if( not valid() ) {
-      SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
-    }
-    const auto bytelen = length*count ;
-    const auto padlen = (bytelen + sio::padding) & sio::padding_mask ;
-    if( position + padlen >= size() ) {
-      std::stringstream ss ;
-      ss << "Can't read " << padlen << " bytes out of buffer (pos=" << position << ")" ;
-      SIO_THROW( sio::error_code::invalid_argument, ss.str() ) ;
-    }
-    auto ptr_read = ptr( position ) ;
-    sio::memcpy_helper::copy( ptr_read, addr, length, count ) ;
-    return padlen ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  template <typename T>
-  inline buffer::size_type buffer::read( T *ptr, index_type position, size_type count ) const {
-    return read( SIO_BYTE_CAST(ptr), position, sizeof(T), count ) ;
-  }
-
-  //--------------------------------------------------------------------------
-
   inline buffer buffer::reuse() {
     buffer new_buffer( std::move( _bytes ) ) ;
     _valid = false ;

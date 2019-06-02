@@ -274,50 +274,6 @@ namespace sio {
      */
     ///@{
     /**
-     *  @brief  Write data in the buffer
-     *
-     *  @param  ptr the address of the bytes to write
-     *  @param  position the target position in the buffer where to write
-     *  @param  length the length of the byte element
-     *  @param  count the number of elements to write
-     *  @return the number of bytes written in the buffer
-     */
-    size_type write( const_pointer const ptr, index_type position, size_type length, size_type count ) ;
-
-    /**
-     *  @brief  Write data in the buffer
-     *
-     *  @param  ptr the address of the bytes to write
-     *  @param  position the target position in the buffer where to write
-     *  @param  count the number of elements to write
-     *  @return the number of bytes written in the buffer
-     */
-    template <typename T>
-    size_type write( const T *const ptr, index_type position, size_type count ) ;
-
-    /**
-     *  @brief  Read data from the buffer
-     *
-     *  @param  ptr the address to receive read bytes
-     *  @param  position the target position in the buffer where to read
-     *  @param  length the length of the byte element
-     *  @param  count the number of elements to read
-     *  @return the number of bytes read out from the buffer
-     */
-    size_type read( pointer ptr, index_type position, size_type length, size_type count ) const ;
-
-    /**
-     *  @brief  Read data from the buffer
-     *
-     *  @param  ptr the address to receive read bytes
-     *  @param  position the target position in the buffer where to read
-     *  @param  count the number of elements to read
-     *  @return the number of bytes read out from the buffer
-     */
-    template <typename T>
-    size_type read( T *ptr, index_type position, size_type count ) const ;
-
-    /**
      *  @brief  Re-use the buffer bytes. Creates a new buffer object
      *          and move the byte container in the new buffer object.
      *          The current buffer is invalidated
