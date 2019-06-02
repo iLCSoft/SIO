@@ -4,6 +4,8 @@
 #include <sio/buffer.h>
 #include <sio/compression.h>
 #include <sio/compression/zlib.h>
+#include <sio/helpers.h>
+#include <sio/io_device.h>
 
 using UnitTest = sio::test::UnitTest;
 
@@ -22,6 +24,6 @@ int main() {
   catch( sio::exception &e ) {
     std::cout << "Caught sio exception: \n" << e.what() << std::endl ;
   }
-  
+
   return 0;
 }
