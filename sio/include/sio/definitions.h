@@ -48,6 +48,10 @@
 #error "Couldn't determine endianess on this plateform!"
 #endif
 
+/**
+ *  sio (simple io) namespace.
+ *  Holds a persistency implementation using sio
+ */
 namespace sio {
 
   // ----------------------------------------------------------------------------
@@ -76,33 +80,33 @@ namespace sio {
   using ptr_type = unsigned int ;
 #endif
 
-  ///< Bytes related types
+  // Bytes related types
   using byte = unsigned char ;
   using byte_array = std::vector<unsigned char> ;
   using byte_traits = std::char_traits<byte> ;
   using index_type = std::size_t ;
   using options_type = unsigned int ;
 
-  ///< Kilo byte unit
+  /// The null byte definition
+  static constexpr byte null_byte = '\0' ;
+  /// Kilo byte unit
   static constexpr std::size_t kbyte = 0x00000400 ;
-  ///< Mega byte unit
+  /// Mega byte unit
   static constexpr std::size_t mbyte = 0x00100000 ;
-  ///< The compression bit mask
+  /// The compression bit mask
   static constexpr unsigned int compression_bit = 0x00000001 ;
-  ///< The bit alignment mask
+  /// The bit alignment mask
   static constexpr unsigned int bit_align = 0x00000003 ;
-  ///< The additional padding added in buffer IO
+  /// The additional padding added in buffer IO
   static constexpr unsigned int padding = 3 ;
-  ///< The additional padding mask
+  /// The additional padding mask
   static constexpr unsigned int padding_mask = 0xfffffffc ;
-  ///< The record marker
+  /// The record marker
   static constexpr unsigned int record_marker = 0xabadcafe ;
-  ///< The block marker
+  /// The block marker
   static constexpr unsigned int block_marker  = 0xdeadbeef ;
 
   static constexpr std::size_t max_record_name_len = 64 ;
-
-  static constexpr byte null_byte = '\0' ;
 
   // TODO: Do we still need all of this ??
   static constexpr std::size_t single_len = 1 ;
