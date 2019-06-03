@@ -29,6 +29,7 @@ namespace sio {
     const std::string &func,
     const std::string &fname,
     const std::string &msg ) :
+    _code( code ),
     _message( message(code, line, func, fname, msg) ) {
     /* nop */
   }
@@ -43,6 +44,7 @@ namespace sio {
     const std::string &func,
     const std::string &fname,
     const std::string &msg ) :
+    _code( code ) ,
     _message( message(rhs.what(), code, line, func, fname, msg) ) {
     /* nop */
   }
@@ -51,6 +53,12 @@ namespace sio {
 
   inline const char* exception::what() const noexcept {
     return _message.c_str() ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  inline sio::error_code exception::code() const {
+    return _code ;
   }
 
   //--------------------------------------------------------------------------

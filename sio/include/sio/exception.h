@@ -92,6 +92,11 @@ namespace sio {
      *  @brief  Get the full exception message
      */
     const char* what() const noexcept override ;
+    
+    /**
+     *  @brief  Get the associated error code
+     */
+    sio::error_code code() const ;
 
   protected:
     /**
@@ -118,8 +123,10 @@ namespace sio {
     std::string message( const std::string &previous, error_code code, unsigned int line, const std::string &func, const std::string &fname, const std::string &msg ) const ;
 
   protected:
+    ///< The associated error code
+    const error_code        _code ;
     ///< The full exception message
-    const std::string       _message {} ;
+    const std::string       _message ;
   };
 
 }
