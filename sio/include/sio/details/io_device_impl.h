@@ -29,14 +29,14 @@ namespace sio {
 
   template <typename T>
   inline void read_device::read( T &var ) {
-    read( var, 1 ) ;
+    read( &var, 1 ) ;
   }
 
   //--------------------------------------------------------------------------
 
   template <typename T>
-  inline void read_device::read( T &var, size_type count ) {
-    _cursor += sio::io_helper::read( _buffer, &var, _cursor, count ) ;
+  inline void read_device::read( T *var, size_type count ) {
+    _cursor += sio::io_helper::read( _buffer, var, _cursor, count ) ;
   }
 
 }
