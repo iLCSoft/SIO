@@ -25,7 +25,6 @@ namespace sio {
     using container = byte_array ;
     using element_type = container::value_type ;
     using const_iterator = container::const_iterator ;
-    using const_reference = container::const_reference ;
     using index_type = std::size_t ;
     using size_type = std::size_t ;
     using reference = container::reference ;
