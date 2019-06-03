@@ -23,10 +23,15 @@ namespace sio {
   public:
     // traits
     using container = byte_array ;
-    using element_type = byte_array::value_type ;
+    using element_type = container::value_type ;
     using const_iterator = container::const_iterator ;
     using const_reference = container::const_reference ;
     using index_type = std::size_t ;
+    using size_type = std::size_t ;
+    using reference = container::reference ;
+    using const_reference = container::const_reference ;
+    using pointer = container::pointer ;
+    using const_pointer = container::const_pointer ;
 
   public:
     /// Default copy constructor
@@ -181,17 +186,17 @@ namespace sio {
   class buffer {
   public:
     using container = byte_array ;
-    using element_type = byte_array::value_type ;
-    using iterator = byte_array::iterator ;
-    using const_iterator = byte_array::const_iterator ;
-    using reverse_iterator = byte_array::reverse_iterator ;
-    using const_reverse_iterator = byte_array::const_reverse_iterator ;
+    using element_type = container::value_type ;
+    using iterator = container::iterator ;
+    using const_iterator = container::const_iterator ;
+    using reverse_iterator = container::reverse_iterator ;
+    using const_reverse_iterator = container::const_reverse_iterator ;
     using index_type = std::size_t ;
     using size_type = std::size_t ;
-    using reference = byte_array::reference ;
-    using const_reference = byte_array::const_reference ;
-    using pointer = byte_array::pointer ;
-    using const_pointer = byte_array::const_pointer ;
+    using reference = container::reference ;
+    using const_reference = container::const_reference ;
+    using pointer = container::pointer ;
+    using const_pointer = container::const_pointer ;
 
   public:
     /// No default constructor
