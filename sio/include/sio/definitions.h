@@ -144,6 +144,26 @@ namespace sio {
   };
   
   /**
+   *  @brief  block_info struct.
+   *
+   *  Holds simple descriptive fields on block
+   */
+  struct block_info {
+    ///< The start position of the block in the record buffer
+    unsigned int                  _record_start {0} ;
+    ///< The end position of the block in the record buffer
+    unsigned int                  _record_end {0} ;
+    ///< The size of the block header in memory
+    unsigned int                  _header_length {0} ;
+    ///< The block version
+    unsigned int                  _version {0} ;
+    ///< The size of the block data
+    unsigned int                  _data_length {0} ;
+    ///< The block name
+    std::string                   _name {} ;
+  };
+  
+  /**
    *  @brief  Streaming operator for record_info
    */
   inline std::ostream &operator<<( std::ostream &stream, const record_info &info ) {
@@ -153,6 +173,18 @@ namespace sio {
     stream << "- options:               " << info._options << std::endl ;
     stream << "- compressed len:        " << info._data_length << std::endl ;
     stream << "- uncompressed len:      " << info._uncompressed_length << std::endl ;
+    return stream ;
+  }
+  
+  /**
+   *  @brief  Streaming operator for block_info
+   */
+  inline std::ostream &operator<<( std::ostream &stream, const block_info &info ) {
+    stream << "- name:                  " << info._name << std::endl ;
+    stream << "- record pos:            " << info._record_start << " - " << info._record_end << std::endl ;
+    stream << "- header len:            " << info._header_length << std::endl ;
+    stream << "- version:               " << info._version << std::endl ;
+    stream << "- data len:              " << info._data_length << std::endl ;
     return stream ;
   }
 }
