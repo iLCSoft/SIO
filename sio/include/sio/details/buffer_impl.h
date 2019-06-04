@@ -84,6 +84,12 @@ namespace sio {
     }
     return data() [ index ] ;
   }
+  
+  //--------------------------------------------------------------------------
+  
+  buffer_span::const_pointer buffer_span::ptr( index_type index ) const {
+    return data() + index ;
+  }
 
   //--------------------------------------------------------------------------
 
@@ -100,13 +106,13 @@ namespace sio {
   //--------------------------------------------------------------------------
 
   inline bool buffer_span::valid() const {
-    return _isnull ;
+    return (not _isnull) ;
   }
 
   //--------------------------------------------------------------------------
 
   inline buffer_span::operator bool() const noexcept {
-    return _isnull ;
+    return valid() ;
   }
 
   //--------------------------------------------------------------------------

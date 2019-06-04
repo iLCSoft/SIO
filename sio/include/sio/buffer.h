@@ -119,6 +119,13 @@ namespace sio {
      *  @param  index the index of a byte access
      */
     const_reference at( index_type index ) const ;
+    
+    /**
+     *  @brief  Get a pointer on the raw bytes at the given index
+     *
+     *  @param  index the index access
+     */
+    const_pointer ptr( index_type index ) const ;
     ///@}
 
     /**
