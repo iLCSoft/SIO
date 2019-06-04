@@ -234,5 +234,19 @@ namespace sio {
       SIO_THROW( sio::error_code::bad_state, "ifstream is in a bad state after a seek operation!" ) ;
     }
   }
+  
+  //--------------------------------------------------------------------------
+  
+  template <typename compT, typename ...Args>
+  inline buffer api::uncompress( compT &compressor, const buffer_span &inbuf, Args ...args ) {
+    return compressor.uncompress( inbuf, args... ) ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  template <typename compT, typename ...Args>
+  inline buffer api::compress( compT &compressor, const buffer_span &inbuf, Args ...args ) {
+    return compressor.compress( inbuf, args... ) ;
+  }
 
 }
