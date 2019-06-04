@@ -10,20 +10,6 @@ namespace sio {
   
   class zlib_compression {
   public:
-    struct compress_opts {
-      
-    };
-    
-    struct uncompress_opts {
-      ///< The length of the input buffer to uncompress
-      std::size_t        _inlen {0} ;
-      ///< An optional shift from the input buffer start position
-      std::size_t        _inshift {0} ;
-      ///< The expected output buffer length after uncompression
-      std::size_t        _outlen {0} ;
-    };
-
-  public:
     /// Default constructor
     zlib_compression() = default ;
     /// Default destructor
@@ -33,57 +19,59 @@ namespace sio {
      *  @brief  Uncompress the buffer and return a new buffer
      * 
      *  @param  inbuf the input buffer to uncompress
-     *  @param  opts the uncompression options
+     *  @param  out_len the uncompressed buffer length (read out from the record header)
      */
-    buffer uncompress( const buffer &inbuf, const uncompress_opts &opts ) ;
+    buffer uncompress( const buffer_span &inbuf, std::size_t out_len ) ;
+    
+    /**
+     *  @brief  Compress the buffer and return a new buffer
+     * 
+     *  @param  inbuf the input buffer to compress
+     *  @param  comp_level the compression level
+     */
+    buffer compress( const buffer_span &inbuf, int comp_level = Z_DEFAULT_COMPRESSION ) ;
   };
   
+  //--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   
-  buffer zlib_compression::uncompress( const buffer &inbuf, const uncompress_opts &opts ) {
+  buffer zlib_compression::uncompress( const buffer_span &inbuf, std::size_t out_len ) {
     if( not inbuf.valid() ) {
       SIO_THROW( sio::error_code::invalid_argument, "Buffer is not valid" ) ;
     }
-    if( opts._inshift + opts._inlen > inbuf.size() ) {
-      SIO_THROW( sio::error_code::invalid_argument, "Invalid uncompression options: incompatible sizes" ) ;
-    }
-    auto indata = inbuf.ptr( opts._inshift ) ;
-    auto insize = opts._inlen ;
-    auto outsize = opts._outlen ;
-    // setup the zstream interface
-    z_stream zstream ;
-    zstream.zalloc = Z_NULL ;
-    zstream.zfree  = Z_NULL ;
-    zstream.opaque = 0 ;
-    auto zstat = inflateInit( &zstream ) ;
+    // zlib uncompress requires to pass an address of uLongf type ...
+    uLongf outsize = out_len ;
+    buffer outbuf( out_len ) ;
+    auto zstat = ::uncompress( (Bytef*)outbuf.data(), &outsize, (const Bytef*)inbuf.data(), inbuf.size() ) ;
     if( Z_OK != zstat ) {
-      SIO_THROW( sio::error_code::compress_error, "Zlib inflate init failed with status " + std::to_string( zstat ) ) ;
+      std::stringstream ss ;
+      ss << "Zlib uncompression failed with status " << zstat ;
+      SIO_THROW( sio::error_code::compress_error, ss.str() ) ;
     }
-    buffer outbuf( outsize ) ;
-    zstream.next_in   = outbuf.data() ;
-    zstream.avail_in  = outsize ;
-    zstream.total_in  = 0 ;
-    zstream.next_out  = const_cast<byte *>(indata) ; // thank you zlib for your awesome constness handling ...
-    zstream.avail_out = insize ;
-    zstream.total_out = 0 ;
-    try {
-      zstat = inflate( &zstream, Z_FINISH ) ;
-      if( Z_OK != zstat ) {
-        SIO_THROW( sio::error_code::compress_error, "Zlib inflate failed with status " + std::to_string( zstat ) ) ;
-      }
+    return outbuf ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  buffer zlib_compression::compress( const buffer_span &inbuf, int comp_level ) {
+    if( not inbuf.valid() ) {
+      SIO_THROW( sio::error_code::invalid_argument, "Buffer is not valid" ) ;
     }
-    catch( sio::exception &e ) {
-      // inflateEnd after a failure
-      zstat = inflateEnd( &zstream ) ;
-      if( Z_OK != zstat ) {
-        SIO_THROW( sio::error_code::compress_error, "Zlib inflateEnd failed with status " + std::to_string( zstat ) ) ;
-      }
-      throw e ;
+    if( (comp_level < -1) or (comp_level > 9) ) {
+      SIO_THROW( sio::error_code::invalid_argument, "Invalid compression level" ) ;
     }
-    // inflateEnd at end of function
-    zstat = inflateEnd( &zstream ) ;
+    // comp_bound is a first estimate of the compressed size.
+    // After compression, the real output size is returned,
+    // this is why the buffer is resized after calling compress2().
+    auto comp_bound = ::compressBound( inbuf.size() ) ;
+    buffer outbuf( comp_bound ) ;
+    auto zstat = ::compress2( (Bytef*)outbuf.data(), &comp_bound, (const Bytef*)inbuf.data(), inbuf.size(), comp_level ) ;
     if( Z_OK != zstat ) {
-      SIO_THROW( sio::error_code::compress_error, "Zlib inflateEnd failed with status " + std::to_string( zstat ) ) ;
+      std::stringstream ss ;
+      ss << "Zlib compression failed with status " << zstat ;
+      SIO_THROW( sio::error_code::compress_error, ss.str() ) ;
     }
+    outbuf.resize( comp_bound ) ;
     return outbuf ;
   }
 }
