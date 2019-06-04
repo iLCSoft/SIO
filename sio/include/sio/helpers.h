@@ -6,32 +6,7 @@
 namespace sio {
   
   class buffer ;
-  
-  /**
-   *  @brief  record_info struct.
-   *
-   *  Holds simple descriptive fields on record
-   */
-  struct record_info {
-    ///< Position of the record start in the file
-    sio::ifstream::pos_type       _file_start {0} ;
-    ///< Position of the record end in the file
-    sio::ifstream::pos_type       _file_end {0} ;
-    ///< The size of the record header in memory
-    unsigned int                  _header_length {0} ;
-    ///< The record options
-    unsigned int                  _options {0} ;
-    ///< The size of the record data read out from the file
-    unsigned int                  _data_length {0} ;
-    ///< The size of the record data after uncompression (if compressed)
-    unsigned int                  _uncompressed_length {0} ;
-    ///< The record name
-    std::string                   _name {} ;
-  };
-  
-  //--------------------------------------------------------------------------
-  //--------------------------------------------------------------------------
-  
+
   /**
    *  @brief  compression_helper class
    */
@@ -218,8 +193,51 @@ namespace sio {
     template <class bufT>
     static typename bufT::size_type write( bufT &buffer, typename bufT::const_pointer const ptr, typename bufT::size_type length, typename bufT::index_type position, typename bufT::size_type count ) ;
 
-    // static record_info read_record_info( sio::ifstream &stream, bool rewind ) ;
+    /**
+     *  @brief  Read the next record header from the input stream.
+     *          On exit, the stream cursor is set after the record header, ready
+     *          to read the incoming record data bytes. The record header bytes 
+     *          read out from the stream are stored in the buffer passed as third 
+     *          argument. If the buffer is not large enough to contain all bytes,
+     *          it is expanded.  
+     *  
+     *  @param  stream the input stream
+     *  @param  rec_info the record info to receive
+     *  @param  outbuf the buffer containing the record info bytes
+     */
+    static void read_record_info( sio::ifstream &stream, record_info &rec_info, buffer &outbuf ) ;
     
+    /**
+     *  @brief  Read out the record data from the input stream. The record data 
+     *          bytes are written in the buffer passed by reference. By default, the 
+     *          bytes are written at the beginning of the buffer. The last argument
+     *          allows for specifying a shift from the start of the buffer. 
+     *          
+     *  @param  stream the input stream
+     *  @param  rec_info the record info
+     *  @param  outbuf the buffer to receive the record data bytes
+     *  @param  buffer_shift an optional shift from the start of the buffer
+     */
+    static void read_record_data( sio::ifstream &stream, const record_info &rec_info, buffer &outbuf, std::size_t buffer_shift = 0 ) ;
+    
+    /**
+     *  @brief  Read out the record (header + data) from the input stream.
+     *          Simple combination of the functions above.
+     *   
+     *  @param  stream the input stream
+     *  @param  rec_info the record info to receive
+     *  @param  outbuf the record header + data bytes to receive
+     */
+    static void read_record( sio::ifstream &stream, record_info &rec_info, buffer &outbuf ) ;
+    
+    /**
+     *  @brief  Read out the record (header + data) from the input stream.
+     *          Simple combination of the functions above. Returns the record
+     *          info and the buffer. The initial buffer size is set to 1 Mo and
+     *          might be expanded while reading out the record data if required.
+     *          
+     *  @param  stream the input stream
+     */
     static std::pair<record_info, buffer> read_record( sio::ifstream &stream ) ;
   };
 
