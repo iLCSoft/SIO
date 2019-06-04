@@ -110,14 +110,51 @@ namespace sio {
   static constexpr unsigned int record_marker = 0xabadcafe ;
   /// The block marker
   static constexpr unsigned int block_marker  = 0xdeadbeef ;
-
+  
   static constexpr std::size_t max_record_name_len = 64 ;
+
+  static constexpr std::size_t max_record_info_len = 2*sizeof(sio::ifstream::pos_type) + 5*sizeof(unsigned int) + max_record_name_len ;
 
   // TODO: Do we still need all of this ??
   static constexpr std::size_t single_len = 1 ;
   static constexpr std::size_t double_len = 2 ;
   static constexpr std::size_t quad_len = 4 ;
   static constexpr std::size_t octo_len = 8 ;
+  
+  /**
+   *  @brief  record_info struct.
+   *
+   *  Holds simple descriptive fields on record
+   */
+  struct record_info {
+    ///< Position of the record start in the file
+    sio::ifstream::pos_type       _file_start {0} ;
+    ///< Position of the record end in the file
+    sio::ifstream::pos_type       _file_end {0} ;
+    ///< The size of the record header in memory
+    unsigned int                  _header_length {0} ;
+    ///< The record options
+    unsigned int                  _options {0} ;
+    ///< The size of the record data read out from the file
+    unsigned int                  _data_length {0} ;
+    ///< The size of the record data after uncompression (if compressed)
+    unsigned int                  _uncompressed_length {0} ;
+    ///< The record name
+    std::string                   _name {} ;
+  };
+  
+  /**
+   *  @brief  Streaming operator for record_info
+   */
+  inline std::ostream &operator<<( std::ostream &stream, const record_info &info ) {
+    stream << "- name:                  " << info._name << std::endl ;
+    stream << "- file pos:              " << info._file_start << " - " << info._file_end << std::endl ;
+    stream << "- header len:            " << info._header_length << std::endl ;
+    stream << "- options:               " << info._options << std::endl ;
+    stream << "- compressed len:        " << info._data_length << std::endl ;
+    stream << "- uncompressed len:      " << info._uncompressed_length << std::endl ;
+    return stream ;
+  }
 }
 
 // SIO_LOGLVL defines the log level. The verbosity is fixed
