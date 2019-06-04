@@ -53,12 +53,7 @@ int main( int argc, char **argv ) {
           continue ;
         }
         std::cout << "======== SIO record ========" << std::endl ;
-        std::cout << "+==> name:                  " << read_result.first._name << std::endl ;
-        std::cout << "+==> file pos:              " << read_result.first._file_start << " - " << read_result.first._file_end << std::endl ;
-        std::cout << "+==> header len:            " << read_result.first._header_length << std::endl ;
-        std::cout << "+==> options (compressed?): " << read_result.first._options << " (" << sio::compression_helper::is_compressed(read_result.first._options) <<  ")" << std::endl ;
-        std::cout << "+==> compressed len:        " << read_result.first._data_length << std::endl ;
-        std::cout << "+==> uncompressed len:      " << read_result.first._uncompressed_length << std::endl ;
+        std::cout << read_result.first << std::endl ;
       }
     }
     catch( sio::exception &e ) {
