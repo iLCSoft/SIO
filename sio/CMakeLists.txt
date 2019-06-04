@@ -68,6 +68,7 @@ INSTALL_SHARED_LIBRARY( sio DESTINATION lib )
 INSTALL_DIRECTORY( include/ DESTINATION include )
 
 ADD_EXECUTABLE( sio-dump main/sio-dump.cc )
+TARGET_LINK_LIBRARIES( sio-dump ${ZLIB_LIBRARIES} )
 INSTALL( TARGETS sio-dump RUNTIME DESTINATION bin )
 
 function ( add_test_reg test_name )
