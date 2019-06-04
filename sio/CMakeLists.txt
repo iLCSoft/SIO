@@ -71,6 +71,10 @@ ADD_EXECUTABLE( sio-dump main/sio-dump.cc )
 TARGET_LINK_LIBRARIES( sio-dump ${ZLIB_LIBRARIES} )
 INSTALL( TARGETS sio-dump RUNTIME DESTINATION bin )
 
+ADD_EXECUTABLE( sio-dump-detailed main/sio-dump-detailed.cc )
+TARGET_LINK_LIBRARIES( sio-dump-detailed ${ZLIB_LIBRARIES} )
+INSTALL( TARGETS sio-dump-detailed RUNTIME DESTINATION bin )
+
 function ( add_test_reg test_name )
   cmake_parse_arguments(ARG "BUILD_EXEC" "" "COMMAND;DEPENDS;EXEC_ARGS;REGEX_PASS;REGEX_PASSED;REGEX_FAIL;REGEX_FAILED;REQUIRES" ${ARGN} )
   set ( missing )
