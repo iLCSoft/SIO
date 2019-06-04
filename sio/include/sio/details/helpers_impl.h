@@ -1,13 +1,6 @@
 
 namespace sio {
   
-  inline bool compression_helper::is_compressed( options_type opts ) {
-    return static_cast<bool>( opts & sio::compression_bit ) ;
-  }
-  
-  //--------------------------------------------------------------------------
-  //--------------------------------------------------------------------------
-
   inline version_helper::version_type version_helper::encode_version( major_type major, minor_type minor ) noexcept {
     return (((major) << 16) + (minor)) ;
   }

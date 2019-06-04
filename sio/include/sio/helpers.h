@@ -6,22 +6,6 @@
 namespace sio {
 
   /**
-   *  @brief  compression_helper class
-   */
-  class compression_helper {
-  public:
-    /**
-     *  @brief  Extract the compression bit from the option word
-     * 
-     *  @param  opts the options word
-     */
-    static bool is_compressed( options_type opts ) ;
-  };
-  
-  //--------------------------------------------------------------------------
-  //--------------------------------------------------------------------------
-
-  /**
    *  @brief  version_helper class.
    *
    *  Helper class to encode or decode version in a single variable
