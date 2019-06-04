@@ -106,8 +106,8 @@ namespace sio {
     device.read( &(rec_info._name[0]), name_length ) ;
     // a bit of debugging ...
     SIO_DEBUG( "=== Read record info ====" ) ;
-    SIO_DEBUG( info ) ;
-    const auto compressed = sio::compression_helper::is_compressed( rec_info._options ) ;
+    SIO_DEBUG( rec_info ) ;
+    const auto compressed = sio::api::is_compressed( rec_info._options ) ;
     // if the record is compressed skip the read pointer over 
     // any padding bytes that may have been inserted to make 
     // the next record header start on a four byte boundary in the file.
@@ -145,7 +145,7 @@ namespace sio {
     if( not stream.good() ) {
       SIO_THROW( sio::error_code::io_failure, "ifstream is in a bad state after a read operation!" ) ;
     }
-    const auto compressed = sio::compression_helper::is_compressed( rec_info._options ) ;
+    const auto compressed = sio::api::is_compressed( rec_info._options ) ;
     // if the record is compressed skip the read pointer over 
     // any padding bytes that may have been inserted to make 
     // the next record header start on a four byte boundary in the file.
@@ -197,6 +197,8 @@ namespace sio {
       }
     }
   }
+  
+  //--------------------------------------------------------------------------
 
   inline void api::skip_records( sio::ifstream &stream, std::size_t nskip ) {
     std::size_t counter = 0 ;
@@ -237,16 +239,59 @@ namespace sio {
   
   //--------------------------------------------------------------------------
   
-  template <typename compT, typename ...Args>
-  inline buffer api::uncompress( compT &compressor, const buffer_span &inbuf, Args ...args ) {
-    return compressor.uncompress( inbuf, args... ) ;
+  inline std::vector<block_info> api::read_block_infos( const buffer_span &buf ) {
+    if( not buf.valid() ) {
+      SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
+    }
+    std::vector<block_info> block_infos ;
+    read_device device( buf ) ;
+    while( 1 ) {
+      // end of block buffer ?
+      if( device.position() >= buf.size() ) {
+        break ;
+      }
+      block_info info ;
+      info._record_start = device.position() ;
+      unsigned int marker(0), block_len(0) ;
+      device.read( block_len ) ;
+      device.read( marker ) ;
+      // check for a block marker
+      if( sio::block_marker != marker ) {
+        SIO_THROW( sio::error_code::no_marker, "Block marker not found!" ) ;
+      }
+      device.read( info._version ) ;
+      unsigned int name_len(0) ;
+      device.read( name_len ) ;
+      info._name.assign( name_len, '\0' ) ;
+      device.read( &(info._name[0]), name_len ) ;
+      info._header_length = device.position() - info._record_start ;
+      info._data_length = block_len - info._header_length ;
+      device.seek( info._record_start + block_len ) ;
+      info._record_end = device.position() ;
+      // add block info
+      block_infos.push_back( info ) ;
+    }
+    return block_infos ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  inline bool api::is_compressed( options_type opts ) {
+    return static_cast<bool>( opts & sio::compression_bit ) ;
   }
   
   //--------------------------------------------------------------------------
   
   template <typename compT, typename ...Args>
-  inline buffer api::compress( compT &compressor, const buffer_span &inbuf, Args ...args ) {
-    return compressor.compress( inbuf, args... ) ;
+  inline void api::uncompress( compT &compressor, const buffer_span &inbuf, buffer &outbuf, Args ...args ) {
+    compressor.uncompress( inbuf, outbuf, args... ) ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  template <typename compT, typename ...Args>
+  inline void api::compress( compT &compressor, const buffer_span &inbuf, buffer &outbuf, Args ...args ) {
+    compressor.compress( inbuf, outbuf, args... ) ;
   }
 
 }
