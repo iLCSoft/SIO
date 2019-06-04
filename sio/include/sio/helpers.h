@@ -140,6 +140,10 @@ namespace sio {
     io_helper() = delete ;
 
     /**
+     *  @name Buffer I/O
+     */
+    ///@{
+    /**
      *  @brief  Read data from the buffer. The template form allows
      *  for using either a sio::buffer or a sio::buffer_span object
      *
@@ -192,7 +196,12 @@ namespace sio {
      */
     template <class bufT>
     static typename bufT::size_type write( bufT &buffer, typename bufT::const_pointer const ptr, typename bufT::size_type length, typename bufT::index_type position, typename bufT::size_type count ) ;
+    ///@}
 
+    /**
+     *  @name Record I/O
+     */
+    ///@{
     /**
      *  @brief  Read the next record header from the input stream.
      *          On exit, the stream cursor is set after the record header, ready
@@ -276,6 +285,7 @@ namespace sio {
      *  @param  name the target record name
      */
     static void go_to_record( sio::ifstream &stream, const std::string &name ) ;
+    ///@}
   };
 
 }
