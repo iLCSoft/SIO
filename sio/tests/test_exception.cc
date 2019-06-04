@@ -2,7 +2,6 @@
 #include <sio/definitions.h>
 #include <sio/exception.h>
 #include <sio/buffer.h>
-#include <sio/compression.h>
 #include <sio/compression/zlib.h>
 #include <sio/helpers.h>
 #include <sio/io_device.h>
