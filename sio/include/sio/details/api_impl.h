@@ -1,6 +1,14 @@
+// -- sio headers
 #include <sio/exception.h>
 #include <sio/buffer.h>
 #include <sio/io_device.h>
+#include <sio/compression/zlib.h>
+
+// -- std headers
+#include <iostream>
+#include <iomanip>
+#include <limits>
+#include <string>
 
 namespace sio {
 
@@ -272,6 +280,107 @@ namespace sio {
       block_infos.push_back( info ) ;
     }
     return block_infos ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  inline void api::dump_records( sio::ifstream &stream, std::size_t skip, std::size_t count, bool detailed ) {
+    try {
+      // skip records first
+      if( skip > 0 ) {
+        sio::api::skip_records( stream, skip ) ;        
+      }
+      sio::record_info rec_info ;
+      sio::buffer info_buffer( sio::max_record_info_len ) ;
+      sio::buffer rec_buffer( sio::mbyte ) ;
+      sio::buffer uncomp_rec_buffer( sio::mbyte ) ;
+      unsigned int record_counter (0) ;
+      const unsigned int tab_len = 117 ;
+      if( not detailed ) {
+        std::cout << std::string( tab_len, '-' ) << std::endl ;
+        std::cout << 
+          std::setw(30) << std::left << "Record name " << " | " << 
+          std::setw(15) << "Start" << " | " << 
+          std::setw(15) << "End" << " | " << 
+          std::setw(12) << "Options" << " | " << 
+          std::setw(15) << "Header len" << " | " <<
+          std::setw(15) << "Data len" <<
+          std::endl ;
+        std::cout << std::string( tab_len, '-' ) << std::endl ;
+      }
+      while(1) {
+        if( record_counter >= count ) {
+          break ;
+        }
+        sio::api::read_record_info( stream, rec_info, info_buffer ) ;
+        if( detailed ) {
+          sio::api::read_record_data( stream, rec_info, rec_buffer ) ;
+        }
+        // seek after the record to read the next record info
+        stream.seekg( rec_info._file_end ) ;
+        ++ record_counter ;
+        if( detailed ) {
+          std::cout << std::string( tab_len, '-' ) << std::endl ;
+          std::cout << 
+            std::setw(30) << std::left << "Record name " << " | " << 
+            std::setw(15) << "Start" << " | " << 
+            std::setw(15) << "End" << " | " << 
+            std::setw(12) << "Options" << " | " << 
+            std::setw(15) << "Header len" << " | " <<
+            std::setw(15) << "Data len" <<
+            std::endl ;
+        }
+        std::cout << 
+          std::setw(30) << std::left << rec_info._name << " | " << 
+          std::setw(15) << rec_info._file_start << " | " << 
+          std::setw(15) << rec_info._file_end << " | " << 
+          std::setw(12) << rec_info._options << " | " << 
+          std::setw(15) << rec_info._header_length << " | " << 
+          std::setw(15) << rec_info._data_length <<
+          std::endl ;
+        if( detailed ) {
+          std::cout << std::string( tab_len, '-' ) << std::endl ;
+          std::cout << 
+            std::setw(30) << std::left << "Block name " << " | " << 
+            std::setw(15) << "Start" << " | " << 
+            std::setw(15) << "End" << " | " << 
+            std::setw(12) << "Version" << " | " << 
+            std::setw(15) << "Header len" << " | " <<
+            std::setw(15) << "Data len" <<
+            std::endl ;
+          std::cout << std::string( tab_len, '-' ) << std::endl ;
+          const bool compressed = sio::api::is_compressed( rec_info._options ) ;
+          if( compressed ) {
+            // FIXME use zlib by default ??
+            sio::zlib_compression compressor ;
+            uncomp_rec_buffer.resize( rec_info._uncompressed_length ) ;
+            sio::api::uncompress( compressor, rec_buffer.span(), uncomp_rec_buffer ) ;
+          }
+          sio::buffer &device_buffer = compressed ? uncomp_rec_buffer : rec_buffer ;
+          auto block_infos = sio::api::read_block_infos( device_buffer.span() ) ;
+          for( auto binfo : block_infos ) {
+            std::stringstream version_str ;
+            version_str << sio::version_helper::major_version( binfo._version ) << "." << sio::version_helper::minor_version( binfo._version ) ;
+            std::cout << 
+              std::setw(30) << std::left << binfo._name << " | " << 
+              std::setw(15) << binfo._record_start << " | " << 
+              std::setw(15) << binfo._record_end << " | " << 
+              std::setw(12) << version_str.str() << " | " << 
+              std::setw(15) << binfo._header_length << " | " << 
+              std::setw(15) << binfo._data_length <<
+              std::endl ;
+          }
+          std::cout << std::endl ;
+        }
+      }
+    }
+    catch( sio::exception &e ) {
+      // we are finished !
+      if( e.code() == sio::error_code::eof ) {
+        return ;
+      }
+      throw e ;
+    }
   }
   
   //--------------------------------------------------------------------------

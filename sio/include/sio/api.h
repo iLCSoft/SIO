@@ -169,6 +169,8 @@ namespace sio {
      *  @param  buf the input block buffer
      */
     static std::vector<block_info> read_block_infos( const buffer_span &buf ) ;
+    
+    static void dump_records( sio::ifstream &stream, std::size_t skip, std::size_t count, bool detailed ) ;
     ///@}
 
     /**

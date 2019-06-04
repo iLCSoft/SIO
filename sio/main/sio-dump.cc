@@ -2,11 +2,7 @@
 #include <sio/definitions.h>
 #include <sio/buffer.h>
 #include <sio/api.h>
-
-// -- std headers
-#include <iostream>
-#include <limits>
-#include <string>
+#include <sio/compression/zlib.h>
 
 /**
  *  @brief  Utility in sio to dump all records from a file on disk
@@ -14,6 +10,7 @@
 int main( int argc, char **argv ) {
   
   if( (argc < 2) or (argc > 4) ) {
+    std::cout << "Dump SIO record from file to console" << std::endl ;
     std::cout << "Usage: " << std::endl ;
     std::cout << "- Dump all records from the file:" << std::endl ;
     std::cout << "     sio-dump <file-name>" << std::endl ;
@@ -25,53 +22,22 @@ int main( int argc, char **argv ) {
   }
   
   const std::string fname = argv[1] ;
-  unsigned int max_record_number = std::numeric_limits<unsigned int>::max() ;
-  unsigned int skip_record_number = 0 ;
+  unsigned int count = std::numeric_limits<unsigned int>::max() ;
+  unsigned int skip = 0 ;
+  
   if( argc > 3 ) {
-    skip_record_number = atoi(argv[2]) ;
-    max_record_number = skip_record_number + atoi(argv[3]) ;
-    std::cout << "Will skip " << skip_record_number << " records and dump the " << atoi(argv[3]) << " next ones ..." << std::endl ;
+    skip = atoi(argv[2]) ;
+    count = atoi(argv[3]) ;
+    std::cout << "Will skip " << skip << " records and dump the " << count << " next ones ..." << std::endl ;
   }
   else if( argc > 2 ) {
-    max_record_number = atoi(argv[2]) ;
-    std::cout << "Will dump only " << max_record_number << " records ..." << std::endl ;
+    count = atoi(argv[2]) ;
+    std::cout << "Will dump only " << count << " records ..." << std::endl ;
   }
-  unsigned int record_counter (0) ;
   
-  try {
-    sio::ifstream file;
-    file.open( fname , std::ios::in | std::ios::binary ) ;
-    try {
-      sio::record_info rec_info ;
-      sio::buffer rec_buffer( sio::max_record_info_len ) ;
-      while(1) {
-        if( record_counter >= max_record_number ) {
-          break ;
-        }
-        sio::api::read_record_info( file, rec_info, rec_buffer ) ;
-        // seek after the record to read the next record info
-        file.seekg( rec_info._file_end ) ;
-        ++ record_counter ;
-        // skip printing if requested so
-        if( (skip_record_number > 0) and skip_record_number >= record_counter ) {
-          continue ;
-        }
-        std::cout << "======== SIO record ========" << std::endl ;
-        std::cout << rec_info << std::endl ;
-      }
-    }
-    catch( sio::exception &e ) {
-      // we are finished !
-      if( e.code() == sio::error_code::eof ) {
-        return 0 ;
-      }
-      throw e ;
-    }
-  }
-  catch( sio::exception &e ) {
-    std::cout << "Caught SIO exception:" << std::endl ;
-    std::cout << e.what() << std::endl ;
-  }
+  sio::ifstream file;
+  file.open( fname , std::ios::in | std::ios::binary ) ;
+  sio::api::dump_records( file, skip, count, false ) ;
   
   return 0 ;
 }
