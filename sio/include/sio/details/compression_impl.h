@@ -5,20 +5,16 @@
 
 namespace sio {
   
-  template <typename T>
-  template <typename ...Args>
-  inline compression<T>::compression( Args &&...args ) :
-    _impl(args...) {
-    /* nop */
+  template <typename compT, typename ...Args>
+  inline buffer compression::uncompress( compT &compressor, const buffer_span &inbuf, Args ...args ) {
+    return compressor.uncompress( inbuf, args... ) ;
   }
   
   //--------------------------------------------------------------------------
   
-  template <typename T>
-  inline buffer compression<T>::uncompress( const buffer &inbuf, const uncompress_opts &opts ) {
-    byte_array bytes ;
-    _impl.uncompress( inbuf, bytes, opts ) ;
-    return buffer( std::move( bytes ) ) ;
+  template <typename compT, typename ...Args>
+  inline buffer compression::compress( compT &compressor, const buffer_span &inbuf, Args ...args ) {
+    return compressor.compress( inbuf, args... ) ;
   }
   
 }

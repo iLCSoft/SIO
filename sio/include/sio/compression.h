@@ -5,47 +5,33 @@
 
 namespace sio {
   
+  class buffer_span ;
   class buffer ;
-  class buffer_view ;
-      
-  class compression_helper {
-  public:
-    static inline bool is_compressed( options_type opts ) {
-      return static_cast<bool>( opts & sio::compression_bit ) ;
-    }
-  };
   
-  
-  template <typename T>
   class compression {
   public:
-    using impl_type = T ;
-    using compress_opts = typename impl_type::compress_opts ;
-    using uncompress_opts = typename impl_type::uncompress_opts ;
-  
-  public:
-    /// Default destructor
-    ~compression() = default ;
-    
-    /**
-     *  @brief  Constructor
-     * 
-     *  @param  args optional arguments to pass to the underlying implementation
-     */
-    template <typename ...Args>
-    compression( Args &&...args ) ;
+    // static API only
+    compression() = delete ;
 
     /**
      *  @brief  Uncompress the buffer and return a new buffer
-     * 
+     *
+     *  @param  compressor the compression implementation
      *  @param  inbuf the input buffer to uncompress
-     *  @param  opts the uncompression options
+     *  @param  args the uncompression options (implementation dependant)
      */
-    buffer uncompress( const buffer &inbuf, const uncompress_opts &opts ) ;
+    template <typename compT, typename ...Args>
+    static buffer uncompress( compT &compressor, const buffer_span &inbuf, Args ...args ) ;
     
-  private:
-    ///< The compression real implementation
-    impl_type              _impl ;
+    /**
+     *  @brief  Compress the buffer and return a new buffer
+     *
+     *  @param  compressor the compression implementation
+     *  @param  inbuf the input buffer to compress
+     *  @param  args the compression options (implementation dependant)
+     */
+    template <typename compT, typename ...Args>
+    static buffer compress( compT &compressor, const buffer_span &inbuf, Args ...args ) ;
   };
     
 }
