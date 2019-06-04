@@ -4,6 +4,49 @@
 #include <sio/definitions.h>
 
 namespace sio {
+  
+  class buffer ;
+  
+  /**
+   *  @brief  record_info struct.
+   *
+   *  Holds simple descriptive fields on record
+   */
+  struct record_info {
+    ///< Position of the record start in the file
+    sio::ifstream::pos_type       _file_start {0} ;
+    ///< Position of the record end in the file
+    sio::ifstream::pos_type       _file_end {0} ;
+    ///< The size of the record header in memory
+    unsigned int                  _header_length {0} ;
+    ///< The record options
+    unsigned int                  _options {0} ;
+    ///< The size of the record data read out from the file
+    unsigned int                  _data_length {0} ;
+    ///< The size of the record data after uncompression (if compressed)
+    unsigned int                  _uncompressed_length {0} ;
+    ///< The record name
+    std::string                   _name {} ;
+  };
+  
+  //--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
+  
+  /**
+   *  @brief  compression_helper class
+   */
+  class compression_helper {
+  public:
+    /**
+     *  @brief  Extract the compression bit from the option word
+     * 
+     *  @param  opts the options word
+     */
+    static bool is_compressed( options_type opts ) ;
+  };
+  
+  //--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
 
   /**
    *  @brief  version_helper class.
@@ -64,7 +107,7 @@ namespace sio {
      *  @param  size the size of the element in the bytes
      *  @param  count the number of elements to copy
      */
-    static void reverse_copy( const byte *const from, byte *dest, std::size_t size, std::size_t count ) ;
+    static void reverse_copy( const unsigned char *const from, unsigned char *dest, std::size_t size, std::size_t count ) ;
 
     /**
      *  @brief  Perform a byte array copy
@@ -74,7 +117,7 @@ namespace sio {
      *  @param  size the size of the element in the bytes
      *  @param  count the number of elements to copy
      */
-    static void copy( const byte *const from, byte *dest, std::size_t size, std::size_t count ) ;
+    static void copy( const unsigned char *const from, unsigned char *dest, std::size_t size, std::size_t count ) ;
   };
 
   //--------------------------------------------------------------------------
@@ -174,6 +217,10 @@ namespace sio {
      */
     template <class bufT>
     static typename bufT::size_type write( bufT &buffer, typename bufT::const_pointer const ptr, typename bufT::size_type length, typename bufT::index_type position, typename bufT::size_type count ) ;
+
+    // static record_info read_record_info( sio::ifstream &stream, bool rewind ) ;
+    
+    static std::pair<record_info, buffer> read_record( sio::ifstream &stream ) ;
   };
 
 }
