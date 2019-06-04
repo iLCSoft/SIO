@@ -162,6 +162,13 @@ namespace sio {
      *  @param  name the target record name
      */
     static void go_to_record( sio::ifstream &stream, const std::string &name ) ;
+    
+    /**
+     *  @brief  Extract all the block info from the buffer. Skip block reading
+     *  
+     *  @param  buf the input block buffer
+     */
+    static std::vector<block_info> read_block_infos( const buffer_span &buf ) ;
     ///@}
 
     /**
@@ -169,24 +176,33 @@ namespace sio {
      */
     ///@{
     /**
+     *  @brief  Extract the compression bit from the option word
+     * 
+     *  @param  opts the options word
+     */
+    static bool is_compressed( options_type opts ) ;
+    
+    /**
      *  @brief  Uncompress the buffer and return a new buffer
      *
      *  @param  compressor the compression implementation
      *  @param  inbuf the input buffer to uncompress
+     *  @param  outbuf the output buffer to receive
      *  @param  args the uncompression options (implementation dependant)
      */
     template <typename compT, typename ...Args>
-    static buffer uncompress( compT &compressor, const buffer_span &inbuf, Args ...args ) ;
+    static void uncompress( compT &compressor, const buffer_span &inbuf, buffer &outbuf, Args ...args ) ;
     
     /**
      *  @brief  Compress the buffer and return a new buffer
      *
      *  @param  compressor the compression implementation
      *  @param  inbuf the input buffer to compress
+     *  @param  outbuf the output buffer to receive
      *  @param  args the compression options (implementation dependant)
      */
     template <typename compT, typename ...Args>
-    static buffer compress( compT &compressor, const buffer_span &inbuf, Args ...args ) ;
+    static void compress( compT &compressor, const buffer_span &inbuf, buffer &outbuf, Args ...args ) ;
     ///@}
   };
   
