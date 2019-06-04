@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <type_traits>
+#include <fstream>
 #ifdef __APPLE__
 #include <_types.h>
 #include <_types/_uint16_t.h>
@@ -81,11 +82,15 @@ namespace sio {
 #endif
 
   // Bytes related types
-  using byte = unsigned char ;
-  using byte_array = std::vector<unsigned char> ;
+  using byte = char ;
+  using byte_array = std::vector<byte> ;
   using byte_traits = std::char_traits<byte> ;
   using index_type = std::size_t ;
   using options_type = unsigned int ;
+  // using ifstream = std::basic_ifstream<byte> ;
+  // using ofstream = std::basic_ofstream<byte> ;
+  using ifstream = std::ifstream ;
+  using ofstream = std::ofstream ;
 
   /// The null byte definition
   static constexpr byte null_byte = '\0' ;
@@ -127,25 +132,25 @@ namespace sio {
 #define SIO_LOGLVL 2
 #endif
 
-#if SIO_LOGLVL > 0
+#if SIO_LOGLVL > 3
 #define SIO_DEBUG( message ) std::cout << "[SIO DEBUG] - " << message << std::endl
 #else
 #define SIO_DEBUG( message )
 #endif
 
-#if SIO_LOGLVL > 1
+#if SIO_LOGLVL > 2
 #define SIO_INFO( message ) std::cout << "[SIO INFO] - " << message << std::endl
 #else
 #define SIO_INFO( message )
 #endif
 
-#if SIO_LOGLVL > 2
+#if SIO_LOGLVL > 1
 #define SIO_WARNING( message ) std::cout << "[SIO WARNING] - " << message << std::endl
 #else
 #define SIO_WARNING( message )
 #endif
 
-#if SIO_LOGLVL > 3
+#if SIO_LOGLVL > 0
 #define SIO_ERROR( message ) std::cout << "[SIO ERROR] - " << message << std::endl
 #else
 #define SIO_ERROR( message )
@@ -153,3 +158,6 @@ namespace sio {
 
 #define SIO_BYTE_CAST(pntr)    (reinterpret_cast<sio::byte*>((pntr)))
 #define SIO_CBYTE_CAST(pntr)    (reinterpret_cast<const sio::byte*>((pntr)))
+
+#define SIO_UCHAR_CAST(pntr)    (reinterpret_cast<unsigned char*>((pntr)))
+#define SIO_CUCHAR_CAST(pntr)    (reinterpret_cast<const unsigned char*>((pntr)))
