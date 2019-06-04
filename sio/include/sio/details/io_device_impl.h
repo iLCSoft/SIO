@@ -1,5 +1,5 @@
 
-#include <sio/helpers.h>
+#include <sio/api.h>
 
 namespace sio {
   
@@ -44,7 +44,7 @@ namespace sio {
 
   template <typename T>
   inline void read_device::read( T *var, size_type count ) {
-    _cursor += sio::io_helper::read( _buffer, var, _cursor, count ) ;
+    _cursor += sio::api::read( _buffer, var, _cursor, count ) ;
   }
 
 }

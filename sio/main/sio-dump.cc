@@ -1,6 +1,7 @@
 // -- sio headers
 #include <sio/definitions.h>
-#include <sio/helpers.h>
+#include <sio/buffer.h>
+#include <sio/api.h>
 
 // -- std headers
 #include <iostream>
@@ -47,7 +48,7 @@ int main( int argc, char **argv ) {
         if( record_counter >= max_record_number ) {
           break ;
         }
-        sio::io_helper::read_record_info( file, rec_info, rec_buffer ) ;
+        sio::api::read_record_info( file, rec_info, rec_buffer ) ;
         // seek after the record to read the next record info
         file.seekg( rec_info._file_end ) ;
         ++ record_counter ;
