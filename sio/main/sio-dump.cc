@@ -40,20 +40,23 @@ int main( int argc, char **argv ) {
   try {
     sio::ifstream file;
     file.open( fname , std::ios::in | std::ios::binary ) ;
-    
     try {
+      sio::record_info rec_info ;
+      sio::buffer rec_buffer( sio::max_record_info_len ) ;
       while(1) {
         if( record_counter >= max_record_number ) {
           break ;
         }
-        auto read_result = sio::io_helper::read_record( file ) ;
+        sio::io_helper::read_record_info( file, rec_info, rec_buffer ) ;
+        // seek after the record to read the next record info
+        file.seekg( rec_info._file_end ) ;
         ++ record_counter ;
         // skip printing if requested so
         if( (skip_record_number > 0) and skip_record_number >= record_counter ) {
           continue ;
         }
         std::cout << "======== SIO record ========" << std::endl ;
-        std::cout << read_result.first << std::endl ;
+        std::cout << rec_info << std::endl ;
       }
     }
     catch( sio::exception &e ) {
