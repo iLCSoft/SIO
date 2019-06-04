@@ -265,5 +265,62 @@ namespace sio {
     io_helper::read_record( stream, rec_info, outbuf ) ;
     return std::make_pair( rec_info, std::move( outbuf ) ) ;
   }
+  
+  //--------------------------------------------------------------------------
+  
+  template <class UnaryPredicate>
+  inline void io_helper::skip_records( sio::ifstream &stream, UnaryPredicate pred ) {
+    sio::record_info rec_info ;
+    sio::buffer rec_buffer( sio::max_record_info_len ) ;
+    while( 1 ) {
+      // read record header
+      io_helper::read_record_info( stream, rec_info, rec_buffer ) ;
+      // skip record data
+      stream.seekg( rec_info._file_end ) ;
+      if( not stream.good() ) {
+        SIO_THROW( sio::error_code::bad_state, "ifstream is in a bad state after a seek operation!" ) ;
+      }
+      if( not pred( rec_info ) ) {
+        break ;
+      }
+    }
+  }
+  
+  inline void io_helper::skip_records( sio::ifstream &stream, std::size_t nskip ) {
+    std::size_t counter = 0 ;
+    io_helper::skip_records( stream, [&]( const record_info & ) {
+      ++ counter ;
+      return ( counter < nskip ) ;
+    }) ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  inline void io_helper::skip_records( sio::ifstream &stream, std::size_t nskip, const std::string &name ) {
+    std::size_t counter = 0 ;
+    io_helper::skip_records( stream, [&]( const record_info &rec_info ) {
+      if( name == rec_info._name ) {
+        ++ counter ;  
+      }
+      return ( counter < nskip ) ;
+    }) ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  inline void io_helper::go_to_record( sio::ifstream &stream, const std::string &name ) {
+    record_info goto_info ;
+    io_helper::skip_records( stream, [&]( const record_info &rec_info ) {
+      if( name == rec_info._name ) {
+        goto_info = rec_info ;
+        return false ;
+      }
+      return true ;
+    }) ;
+    stream.seekg( goto_info._file_start ) ;
+    if( not stream.good() ) {
+      SIO_THROW( sio::error_code::bad_state, "ifstream is in a bad state after a seek operation!" ) ;
+    }
+  }
 
 }

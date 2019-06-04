@@ -239,6 +239,43 @@ namespace sio {
      *  @param  stream the input stream
      */
     static std::pair<record_info, buffer> read_record( sio::ifstream &stream ) ;
+    
+    /**
+     *  @brief  Skip the next records while the unary predicate is true.
+     *          The predicate must be of the following form :
+     *          'bool predicate(const record_info&)'.
+     *          
+     *  @param  stream the input stream
+     *  @param  pred the unary predicate
+     */
+    template <class UnaryPredicate>
+    static void skip_records( sio::ifstream &stream, UnaryPredicate pred ) ;
+    
+    /**
+     *  @brief  Skip the N next records from the input stream
+     *  
+     *  @param  stream the input stream
+     *  @param  nskip the number of record to skip
+     */
+    static void skip_records( sio::ifstream &stream, std::size_t nskip ) ;
+    
+    /**
+     *  @brief  Skip the N next records with a specific name.
+     *          If a record with a different name is encountered, it is also skipped.
+     *           
+     *  @param  stream the input stream
+     *  @param  nskip the number of record to skip
+     *  @param  name the record name to skip (only)
+     */
+    static void skip_records( sio::ifstream &stream, std::size_t nskip, const std::string &name ) ;
+    
+    /**
+     *  @brief  Got to the next record with the spcified name
+     *  
+     *  @param  stream the input stream
+     *  @param  name the target record name
+     */
+    static void go_to_record( sio::ifstream &stream, const std::string &name ) ;
   };
 
 }
