@@ -31,6 +31,13 @@ namespace sio {
     ~read_device() = default ;
     
     /**
+     *  @brief  Constructor with buffer span
+     * 
+     *  @param  buf the input buffer span
+     */
+    read_device( buffer_span buf ) ;
+    
+    /**
      *  @name Buffer
      */
     ///{@

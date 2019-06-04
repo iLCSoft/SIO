@@ -2,6 +2,14 @@
 #include <sio/helpers.h>
 
 namespace sio {
+  
+  
+  inline read_device::read_device( buffer_span buf ) :
+    _buffer(std::move(buf)) {
+    /* nop */
+  }
+  
+  //--------------------------------------------------------------------------
 
   inline void read_device::set_buffer( const buffer_span &buf ) {
     _buffer = buf ;
