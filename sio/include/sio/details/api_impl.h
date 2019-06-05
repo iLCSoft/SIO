@@ -143,8 +143,8 @@ namespace sio {
     read_device device( outbuf.span() ) ;
     // Interpret: 1) The length of the record header.
     //            2) The record marker.
-    device.read( rec_info._header_length ) ;
-    device.read( marker ) ;
+    device.data( rec_info._header_length ) ;
+    device.data( marker ) ;
     if( marker != sio::record_marker ) {
       stream.setstate( sio::ifstream::failbit ) ;
       SIO_THROW( sio::error_code::no_marker, "Record marker not found!" ) ;
@@ -156,16 +156,16 @@ namespace sio {
     //            7) The record name.
     stream.read( outbuf.ptr(8), rec_info._header_length-8 ) ;
     device.seek( 8 ) ;
-    device.read( rec_info._options ) ;
-    device.read( rec_info._data_length ) ;
-    device.read( rec_info._uncompressed_length ) ;
+    device.data( rec_info._options ) ;
+    device.data( rec_info._data_length ) ;
+    device.data( rec_info._uncompressed_length ) ;
     unsigned int name_length(0) ;
-    device.read( name_length ) ;
+    device.data( name_length ) ;
     if( name_length > sio::max_record_name_len ) {
       SIO_THROW( sio::error_code::no_marker, "Invalid record name size (limited)" ) ;
     }
     rec_info._name.assign( name_length, '\0' ) ;
-    device.read( &(rec_info._name[0]), name_length ) ;
+    device.data( &(rec_info._name[0]), name_length ) ;
     // a bit of debugging ...
     SIO_DEBUG( "=== Read record info ====" ) ;
     SIO_DEBUG( rec_info ) ;
@@ -329,17 +329,17 @@ namespace sio {
     read_device device( rec_buf.subspan( index ) ) ;
     info._record_start = index ;
     unsigned int marker(0), block_len(0) ;
-    device.read( block_len ) ;
-    device.read( marker ) ;
+    device.data( block_len ) ;
+    device.data( marker ) ;
     // check for a block marker
     if( sio::block_marker != marker ) {
       SIO_THROW( sio::error_code::no_marker, "Block marker not found!" ) ;
     }
-    device.read( info._version ) ;
+    device.data( info._version ) ;
     unsigned int name_len(0) ;
-    device.read( name_len ) ;
+    device.data( name_len ) ;
     info._name.assign( name_len, '\0' ) ;
-    device.read( &(info._name[0]), name_len ) ;
+    device.data( &(info._name[0]), name_len ) ;
     info._header_length = device.position() ;
     info._data_length = block_len - info._header_length ;
     device.seek( block_len ) ;
