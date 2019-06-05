@@ -5,6 +5,8 @@
 #include <vector>
 #include <type_traits>
 #include <fstream>
+#include <map>
+#include <multimap>
 #ifdef __APPLE__
 #include <_types.h>
 #include <_types/_uint16_t.h>
@@ -88,8 +90,8 @@ namespace sio {
   using index_type = std::size_t ;
   using options_type = unsigned int ;
   using version_type = uint32_t ;
-  // using ifstream = std::basic_ifstream<byte> ;
-  // using ofstream = std::basic_ofstream<byte> ;
+  using pointed_at_map = std::map< void*, void* > ;
+  using pointer_to_map = std::multimap< void*, void* > ;
   using ifstream = std::ifstream ;
   using ofstream = std::ofstream ;
 
