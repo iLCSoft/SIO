@@ -252,34 +252,45 @@ namespace sio {
       SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
     }
     std::vector<block_info> block_infos ;
-    read_device device( buf ) ;
+    buffer_span::index_type current_pos (0) ;
     while( 1 ) {
       // end of block buffer ?
-      if( device.position() >= buf.size() ) {
+      if( current_pos >= buf.size() ) {
         break ;
       }
-      block_info info ;
-      info._record_start = device.position() ;
-      unsigned int marker(0), block_len(0) ;
-      device.read( block_len ) ;
-      device.read( marker ) ;
-      // check for a block marker
-      if( sio::block_marker != marker ) {
-        SIO_THROW( sio::error_code::no_marker, "Block marker not found!" ) ;
-      }
-      device.read( info._version ) ;
-      unsigned int name_len(0) ;
-      device.read( name_len ) ;
-      info._name.assign( name_len, '\0' ) ;
-      device.read( &(info._name[0]), name_len ) ;
-      info._header_length = device.position() - info._record_start ;
-      info._data_length = block_len - info._header_length ;
-      device.seek( info._record_start + block_len ) ;
-      info._record_end = device.position() ;
-      // add block info
-      block_infos.push_back( info ) ;
+      auto block_data = sio::api::extract_block( buf, current_pos ) ;
+      current_pos = block_data.first._record_end ;
+      block_infos.push_back( block_data.first ) ;
     }
     return block_infos ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  inline std::pair<block_info, buffer_span> api::extract_block( const buffer_span &rec_buf, buffer_span::index_type index ) {
+    if( index >= rec_buf.size() ) {
+      SIO_THROW( sio::error_code::invalid_argument, "Start of block pointing after end of record!" ) ;
+    }
+    block_info info ;
+    read_device device( rec_buf.subspan( index ) ) ;
+    info._record_start = index ;
+    unsigned int marker(0), block_len(0) ;
+    device.read( block_len ) ;
+    device.read( marker ) ;
+    // check for a block marker
+    if( sio::block_marker != marker ) {
+      SIO_THROW( sio::error_code::no_marker, "Block marker not found!" ) ;
+    }
+    device.read( info._version ) ;
+    unsigned int name_len(0) ;
+    device.read( name_len ) ;
+    info._name.assign( name_len, '\0' ) ;
+    device.read( &(info._name[0]), name_len ) ;
+    info._header_length = device.position() ;
+    info._data_length = block_len - info._header_length ;
+    device.seek( block_len ) ;
+    info._record_end = index + block_len ;
+    return std::make_pair( info, rec_buf.subspan( index, block_len ) ) ;
   }
   
   //--------------------------------------------------------------------------
@@ -303,7 +314,7 @@ namespace sio {
           std::setw(15) << "Start" << " | " << 
           std::setw(15) << "End" << " | " << 
           std::setw(12) << "Options" << " | " << 
-          std::setw(15) << "Header len" << " | " <<
+          std::setw(10) << "Header len" << " | " <<
           std::setw(15) << "Data len" <<
           std::endl ;
         std::cout << std::string( tab_len, '-' ) << std::endl ;
@@ -326,17 +337,19 @@ namespace sio {
             std::setw(15) << "Start" << " | " << 
             std::setw(15) << "End" << " | " << 
             std::setw(12) << "Options" << " | " << 
-            std::setw(15) << "Header len" << " | " <<
+            std::setw(10) << "Header len" << " | " <<
             std::setw(15) << "Data len" <<
             std::endl ;
         }
+        std::stringstream size_str ;
+        size_str << rec_info._data_length << " (" << rec_info._uncompressed_length << ")" ;
         std::cout << 
           std::setw(30) << std::left << rec_info._name << " | " << 
           std::setw(15) << rec_info._file_start << " | " << 
           std::setw(15) << rec_info._file_end << " | " << 
           std::setw(12) << rec_info._options << " | " << 
-          std::setw(15) << rec_info._header_length << " | " << 
-          std::setw(15) << rec_info._data_length <<
+          std::setw(10) << rec_info._header_length << " | " << 
+          std::setw(15) << size_str.str() <<
           std::endl ;
         if( detailed ) {
           std::cout << std::string( tab_len, '-' ) << std::endl ;
@@ -345,7 +358,7 @@ namespace sio {
             std::setw(15) << "Start" << " | " << 
             std::setw(15) << "End" << " | " << 
             std::setw(12) << "Version" << " | " << 
-            std::setw(15) << "Header len" << " | " <<
+            std::setw(10) << "Header len" << " | " <<
             std::setw(15) << "Data len" <<
             std::endl ;
           std::cout << std::string( tab_len, '-' ) << std::endl ;
@@ -366,7 +379,7 @@ namespace sio {
               std::setw(15) << binfo._record_start << " | " << 
               std::setw(15) << binfo._record_end << " | " << 
               std::setw(12) << version_str.str() << " | " << 
-              std::setw(15) << binfo._header_length << " | " << 
+              std::setw(10) << binfo._header_length << " | " << 
               std::setw(15) << binfo._data_length <<
               std::endl ;
           }
