@@ -1,25 +1,6 @@
 
 namespace sio {
   
-  inline version_helper::version_type version_helper::encode_version( major_type major, minor_type minor ) noexcept {
-    return (((major) << 16) + (minor)) ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  inline version_helper::minor_type version_helper::minor_version( version_type version ) noexcept {
-    return ((version) & 0x0000ffff) ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  inline version_helper::major_type version_helper::major_version( version_type version ) noexcept {
-    return (((version) & 0xffff0000) >> 16) ;
-  }
-
-  //--------------------------------------------------------------------------
-  //--------------------------------------------------------------------------
-
   void memcpy_helper::reverse_copy( const unsigned char *const from, unsigned char *dest, std::size_t size, std::size_t count ) {
     dest += size;
     std::size_t jump = size << 1;
