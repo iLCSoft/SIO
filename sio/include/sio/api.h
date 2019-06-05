@@ -170,6 +170,25 @@ namespace sio {
      */
     static std::vector<block_info> read_block_infos( const buffer_span &buf ) ;
     
+    /**
+     *  @brief  Extract the block info and get a buffer span of the block at the given index
+     *  
+     *  @param  rec_buf the record buffer
+     *  @param  index the index of block header start in the record buffer
+     */
+    static std::pair<block_info, buffer_span> extract_block( const buffer_span &rec_buf, buffer_span::index_type index ) ;
+    
+    /**
+     *  @brief  Dump the records from the input stream to the console.
+     *          Note that if you use a detailed printout, the record 
+     *          is first uncompressed using zlib and the block infos 
+     *          are printed out too.
+     *  
+     *  @param  stream the input stream
+     *  @param  skip the number of records to skip from the current position
+     *  @param  count the number of record to printout
+     *  @param  detailed whether to printout detailed information (block info)
+     */
     static void dump_records( sio::ifstream &stream, std::size_t skip, std::size_t count, bool detailed ) ;
     ///@}
 
