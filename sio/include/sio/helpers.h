@@ -6,40 +6,6 @@
 namespace sio {
 
   /**
-   *  @brief  memcpy_helper class
-   *
-   *  Perform raw data copy and deals with plateform endian-ness
-   */
-  class memcpy_helper {
-  public:
-    // static API only
-    memcpy_helper() = delete ;
-
-    /**
-     *  @brief  Perform a reverse byte copy
-     *
-     *  @param  from the input bytes address to copy
-     *  @param  dest the output destination of copied bytes
-     *  @param  size the size of the element in the bytes
-     *  @param  count the number of elements to copy
-     */
-    static void reverse_copy( const unsigned char *const from, unsigned char *dest, std::size_t size, std::size_t count ) ;
-
-    /**
-     *  @brief  Perform a byte array copy
-     *
-     *  @param  from the input bytes address to copy
-     *  @param  dest the output destination of copied bytes
-     *  @param  size the size of the element in the bytes
-     *  @param  count the number of elements to copy
-     */
-    static void copy( const unsigned char *const from, unsigned char *dest, std::size_t size, std::size_t count ) ;
-  };
-
-  //--------------------------------------------------------------------------
-  //--------------------------------------------------------------------------
-
-  /**
    *  @brief  string_helper class
    *
    *  Collection of static helper method related to strings
