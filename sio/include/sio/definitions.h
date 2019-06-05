@@ -87,6 +87,7 @@ namespace sio {
   using byte_traits = std::char_traits<byte> ;
   using index_type = std::size_t ;
   using options_type = unsigned int ;
+  using version_type = uint32_t ;
   // using ifstream = std::basic_ifstream<byte> ;
   // using ofstream = std::basic_ofstream<byte> ;
   using ifstream = std::ifstream ;

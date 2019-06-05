@@ -12,7 +12,7 @@ namespace sio {
    */
   class version_helper {
   public:
-    using version_type   = uint32_t ;
+    using version_type   = sio::version_type ;
     using major_type     = uint16_t ;
     using minor_type     = uint16_t ;
 
