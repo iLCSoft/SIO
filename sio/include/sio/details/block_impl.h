@@ -8,7 +8,7 @@ namespace sio {
     _version(vers),
     _name(nam) {
     if( not sio::string_helper::validate( _name ) ) {
-      SIO_THROW( sio::error_code::invalid_argument, "Block name '" + name + "' is invalid!" ) ;
+      SIO_THROW( sio::error_code::invalid_argument, "Block name '" + _name + "' is invalid!" ) ;
     }
   }
   
