@@ -47,7 +47,6 @@ namespace sio {
     static void write_relocation( const sio::byte* rec_start, pointed_at_map& pointed_at, pointer_to_map& pointer_to ) ;
     ///@}
 
-
     /**
      *  @name Buffer I/O
      */
@@ -210,7 +209,14 @@ namespace sio {
      */
     static std::pair<block_info, buffer_span> extract_block( const buffer_span &rec_buf, buffer_span::index_type index ) ;
     
-    
+    /**
+     *  @brief  Decode the record buffer using the block decoder.
+     *          Loop over the blocks found in the buffer and try to decode it.
+     *          If the block decoder is not available, it is skipped
+     *  
+     *  @param  rec_buf the record buffer pointing on the first block to decode
+     *  @param  blocks the list of block decoder to use 
+     */
     static void read_blocks( const buffer_span &rec_buf, std::vector<std::shared_ptr<block>> blocks ) ;
     
     /**
