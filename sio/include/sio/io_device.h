@@ -1,6 +1,7 @@
 #pragma once
 
 // -- sio headers
+#include <sio/definitions.h>
 #include <sio/buffer.h>
 
 namespace sio {
@@ -93,6 +94,31 @@ namespace sio {
      */
     template <typename T>
     void read( T *var, size_type count ) ;
+    
+    /**
+     *  @brief  Read out a "pointer to" pointer from the buffer.
+     *          A new entry is created for a future relocation.
+     *          The pointer relocation is performed at the end of record reading
+     *          
+     *  @param  ptr the address to register
+     */
+    void read_pointer_to( ptr_type *ptr ) ;
+    
+    /**
+     *  @brief  Read out a "pointed at" pointer from the buffer.
+     *          A new entry is created for a future relocation.
+     *          The pointer relocation is performed at the end of record reading
+     *          
+     *  @param  ptr the address to register
+     */
+    void read_pointed_at( ptr_type *ptr ) ;
+    
+    /**
+     *  @brief  Perform the pointer relocation after the whole record has
+     *          been read. The pointers are relocated and the pointer maps
+     *          are cleared
+     */
+    void pointer_relocation() ;
     ///@}
 
   private:
@@ -100,6 +126,10 @@ namespace sio {
     buffer_span         _buffer {} ;
     ///< The device cursor
     cursor_type         _cursor {0} ;
+    ///< The map of pointer "pointed at"
+    pointed_at_map      _pointed_at {} ;
+    ///< The map of pointer "pointer to"
+    pointer_to_map      _pointer_to {} ;
   };
 
 }
