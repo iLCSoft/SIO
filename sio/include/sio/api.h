@@ -3,9 +3,13 @@
 // -- sio headers
 #include <sio/definitions.h>
 
+// -- std headers
+#include <memory>
+
 namespace sio {
   
   class buffer ;
+  class block ;
 
   /**
    *  @brief  api class.
@@ -177,6 +181,9 @@ namespace sio {
      *  @param  index the index of block header start in the record buffer
      */
     static std::pair<block_info, buffer_span> extract_block( const buffer_span &rec_buf, buffer_span::index_type index ) ;
+    
+    
+    static void read_blocks( const buffer_span &rec_buf, std::vector<std::shared_ptr<block>> blocks ) ;
     
     /**
      *  @brief  Dump the records from the input stream to the console.

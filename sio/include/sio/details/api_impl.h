@@ -3,12 +3,14 @@
 #include <sio/buffer.h>
 #include <sio/io_device.h>
 #include <sio/compression/zlib.h>
+#include <sio/block.h>
 
 // -- std headers
 #include <iostream>
 #include <iomanip>
 #include <limits>
 #include <string>
+#include <algorithm>
 
 namespace sio {
 
@@ -291,6 +293,42 @@ namespace sio {
     device.seek( block_len ) ;
     info._record_end = index + block_len ;
     return std::make_pair( info, rec_buf.subspan( index, block_len ) ) ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  inline void api::read_blocks( const buffer_span &rec_buf, std::vector<std::shared_ptr<block>> blocks ) {
+    if( not rec_buf.valid() ) {
+      SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
+    }
+    buffer_span::index_type current_pos (0) ;
+    read_device device ;
+    while( 1 ) {
+      // end of block buffer ?
+      if( current_pos >= rec_buf.size() ) {
+        break ;
+      }
+      auto block_data = sio::api::extract_block( rec_buf, current_pos ) ;
+      current_pos = block_data.first._record_end ;
+      // look for the block decoder
+      auto block_iter = std::find_if( blocks.begin(), blocks.end(), [&]( std::shared_ptr<block> blk ) {
+        return ( blk->name() == block_data.first._name ) ;
+      }) ;
+      // skip the block if no decoder
+      if( blocks.end() == block_iter ) {
+        continue ;
+      }
+      // prepare the read device
+      device.set_buffer( block_data.second ) ;
+      device.seek( 0 ) ;
+      try {
+        (*block_iter)->read( device, block_data.first._version ) ;        
+      }
+      catch( sio::exception &e ) {
+        SIO_RETHROW( e, sio::error_code::io_failure, "Failed to decode block buffer (" + block_data.first._name + ")" ) ;
+      }
+    }
+    // TODO do pointer relocation on read !
   }
   
   //--------------------------------------------------------------------------
