@@ -8,6 +8,7 @@
 #include <fstream>
 #include <map>
 #include <string>
+#include <memory>
 #ifdef __APPLE__
 #include <_types.h>
 #include <_types/_uint16_t.h>
@@ -84,10 +85,13 @@ namespace sio {
   using ptr_type = unsigned int ;
 #endif
 
+  class block ;
+
   // Bytes related types
   using byte = char ;
   using byte_array = std::vector<byte> ;
   using byte_traits = std::char_traits<byte> ;
+  // Other types
   using index_type = std::size_t ;
   using options_type = unsigned int ;
   using version_type = uint32_t ;
@@ -95,6 +99,8 @@ namespace sio {
   using pointer_to_map = std::multimap< void*, void* > ;
   using ifstream = std::ifstream ;
   using ofstream = std::ofstream ;
+  using block_ptr = std::shared_ptr<block> ;
+  using block_list = std::vector<block_ptr> ;
 
   /// The null byte definition
   static constexpr byte null_byte = '\0' ;
