@@ -15,6 +15,56 @@
 #include <algorithm>
 
 namespace sio {
+  
+  inline void api::read_relocation( pointed_at_map& pointed_at, pointer_to_map& pointer_to ) {
+    // Pointer relocation on read.
+    // Some of these variables are a little terse!  Expanded meanings:
+    // ptol:  Iterator pointing to lower bound in the 'pointer to' multimap
+    // ptoh:  Iterator pointing to upper bound in the 'pointer to' multimap
+    // ptoi:  Iterator for the 'pointer to' multimap (runs [ptol, ptoh) )
+    // pati:  Iterator in the 'pointed at' map (search map for ptol->first)
+    auto ptol  = pointer_to.begin() ;
+    while( ptol != pointer_to.end() ) {
+      auto ptoh = pointer_to.upper_bound( ptol->first ) ;
+      auto pati = pointed_at.find( ptol->first ) ;
+      bool pat_found( pati != pointed_at.end() ) ;
+      // if the pointed at object is not found we set the pointer to null
+      for( auto ptoi = ptol; ptoi != ptoh; ptoi++ ) {
+        auto pointer = static_cast<sio::ptr_type *>( ptoi->second ) ;
+        *pointer = ( pat_found ? reinterpret_cast<sio::ptr_type>( pati->second ) : 0 ) ;
+      }
+      ptol = ptoh ;
+    }
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  inline void api::write_relocation( buffer::const_pointer rec_start, pointed_at_map& pointed_at, pointer_to_map& pointer_to ) {
+    // Pointer relocation on write.
+    // Some of these variables are a little terse!  Expanded meanings:
+    // ptol:  Iterator pointing to lower bound in the 'pointer to' multimap
+    // ptoh:  Iterator pointing to upper bound in the 'pointer to' multimap
+    // ptoi:  Iterator for the 'pointer to' multimap (runs [ptol, ptoh) )
+    // pati:  Iterator in the 'pointed at' map (search map for ptol->first)
+    unsigned int match = 0x00000001 ;
+    auto ptol = pointer_to.begin() ;
+    while( ptol != pointer_to.end() ) {
+      auto ptoh = pointer_to.upper_bound( ptol->first ) ;
+      auto pati = pointed_at.find( ptol->first ) ;
+      if( pati != pointed_at.end() ) {
+        auto pointer = rec_start + reinterpret_cast<sio::ptr_type>( pati->second ) ;
+        sio::memcpy::copy( SIO_CUCHAR_CAST( &match ), (unsigned char*)pointer, 4, 1 ) ;
+        for( auto ptoi = ptol; ptoi != ptoh; ptoi++ ) {
+          pointer = rec_start + reinterpret_cast<sio::ptr_type>( ptoi->second ) ;
+          sio::memcpy::copy( SIO_CUCHAR_CAST( &match ), (unsigned char*)pointer, 4, 1 ) ;
+        }
+      }
+      match++ ;
+      ptol = ptoh ;
+    }
+  }
+  
+  //--------------------------------------------------------------------------
 
   template <class bufT, typename T>
   inline typename bufT::size_type api::read( const bufT &buffer, T *ptr, typename bufT::index_type position, typename bufT::size_type count ) {
@@ -330,7 +380,7 @@ namespace sio {
         SIO_RETHROW( e, sio::error_code::io_failure, "Failed to decode block buffer (" + block_data.first._name + ")" ) ;
       }
     }
-    // TODO do pointer relocation on read !
+    device.pointer_relocation() ;
   }
   
   //--------------------------------------------------------------------------

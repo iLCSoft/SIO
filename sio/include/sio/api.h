@@ -22,6 +22,31 @@ namespace sio {
   public:
     // static API only
     api() = delete ;
+    
+    /**
+     *  @name Pointer relocation
+     */
+    ///@{
+    /**
+     *  @brief  Perform the pointer relocation after the record has been read.
+     *  
+     *  @param  pointed_at the map of pointers "pointed at"
+     *  @param  pointer_to the map of pointers "pointer to"
+     */
+    static void read_relocation( pointed_at_map& pointed_at, pointer_to_map& pointer_to ) ;
+    
+    /**
+     *  @brief  Perform the pointer relocation after the record has been written.
+     *          This operation requires to know the beginning of the record buffer 
+     *          address to compute the address shift
+     *
+     *  @param  rec_start the address of the start of the record
+     *  @param  pointed_at the map of pointers "pointed at"
+     *  @param  pointer_to the map of pointers "pointer to"
+     */
+    static void write_relocation( const sio::byte* rec_start, pointed_at_map& pointed_at, pointer_to_map& pointer_to ) ;
+    ///@}
+
 
     /**
      *  @name Buffer I/O
