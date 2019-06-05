@@ -113,9 +113,9 @@ namespace sio {
   static constexpr unsigned int record_marker = 0xabadcafe ;
   /// The block marker
   static constexpr unsigned int block_marker  = 0xdeadbeef ;
-  
+  /// The maximum length of a record name
   static constexpr std::size_t max_record_name_len = 64 ;
-
+  /// The maximum length of a record_info in memory
   static constexpr std::size_t max_record_info_len = 2*sizeof(sio::ifstream::pos_type) + 5*sizeof(unsigned int) + max_record_name_len ;
 
   // TODO: Do we still need all of this ??
