@@ -349,7 +349,7 @@ namespace sio {
   
   //--------------------------------------------------------------------------
   
-  inline void api::read_blocks( const buffer_span &rec_buf, std::vector<std::shared_ptr<block>> blocks ) {
+  inline void api::read_blocks( const buffer_span &rec_buf, const std::vector<std::shared_ptr<block>>& blocks ) {
     if( not rec_buf.valid() ) {
       SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
     }
@@ -484,6 +484,50 @@ namespace sio {
       }
       throw e ;
     }
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  inline void api::write_blocks( write_device &device, const block_list &blocks ) {
+    for( auto blk : blocks ) {
+      auto blk_ptr = blk ;
+      try {
+        auto block_start = device.position() ;
+        auto block_name = blk_ptr->name() ;
+        unsigned int blkname_len = block_name.size() ;
+        // write the block header. It will be update after 
+        // the block has been written
+        device.data( sio::block_marker ) ;
+        device.data( sio::block_marker ) ;
+        device.data( blk_ptr->version() ) ;
+        device.data( blkname_len ) ;
+        device.data( block_name.c_str(), blkname_len ) ;
+        // write the block data
+        blk_ptr->write( device ) ;
+        // fill back the block length in block header
+        auto blk_end = device.position() ;
+        unsigned int blklen = blk_end - block_start ;
+        device.seek( block_start ) ;
+        device.data( blklen ) ;
+        device.seek( blk_end ) ;  
+      }
+      catch( sio::exception &e ) {
+        SIO_RETHROW( e, sio::error_code::io_failure, "Couldn't write block to buffer (" + blk_ptr->name() + ")" ) ;
+      }
+    }
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  inline void api::write_record( const std::string &name, sio::ofstream &stream, const buffer &rec_buf ) {
+    
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  template <typename compT>
+  inline void api::write_record( const std::string &name, sio::ofstream &stream, const buffer &rec_buf, compT &compressor ) {
+    
   }
   
   //--------------------------------------------------------------------------
