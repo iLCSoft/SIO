@@ -2,10 +2,12 @@
 
 // -- std headers
 #include <iostream>
+#include <cctype>
 #include <vector>
 #include <type_traits>
 #include <fstream>
 #include <map>
+#include <string>
 #include <multimap>
 #ifdef __APPLE__
 #include <_types.h>
@@ -189,6 +191,49 @@ namespace sio {
     stream << "- version:               " << info._version << std::endl ;
     stream << "- data len:              " << info._data_length << std::endl ;
     return stream ;
+  }
+  
+  /**
+   *  @brief  Validate a name.
+   *
+   *  SIO only accepts names starting with (regular expression) [A-Za-z_]
+   *  and continuing with [A-Za-z0-9_] (which most people will recognize
+   *  as the definition of a C/C++ variable name).
+   *
+   *  @param  name the string name to test
+   */
+  inline bool validate( const std::string &name ) {
+    auto cname = name.c_str() ;
+    if( *cname < 0 ) {
+      return false;
+    }
+    if( !isalpha( (int)*cname ) && *cname != '_' ) {
+      return false;
+    }
+    for( cname += 1; *cname != '\0'; cname++ ) {
+      if( *cname < 0 ) {
+        return false;
+      }
+      if( !isalnum( (int)*cname ) && *cname != '_' ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   *  @brief  Validate a record name
+   *
+   *  @param  name the record name to validate
+   */
+  inline bool valid_record_name( const std::string &name ) {
+    if( not sio::validate( name ) ) {
+      return false ;
+    }
+    if( name.size() > sio::max_record_name_len ) {
+      return false ;
+    }
+    return true ;
   }
 }
 
