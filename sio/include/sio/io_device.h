@@ -84,7 +84,7 @@ namespace sio {
      *  @param  var the variable to receive
      */
     template <typename T>
-    void read( T &var ) ;
+    void data( T &var ) ;
 
     /**
      *  @brief  Read out an array of variables from the buffer. Move the cursor accordingly
@@ -93,7 +93,7 @@ namespace sio {
      *  @param  count the number of element to read out
      */
     template <typename T>
-    void read( T *var, size_type count ) ;
+    void data( T *var, size_type count ) ;
     
     /**
      *  @brief  Read out a "pointer to" pointer from the buffer.
@@ -102,7 +102,7 @@ namespace sio {
      *          
      *  @param  ptr the address to register
      */
-    void read_pointer_to( ptr_type *ptr ) ;
+    void pointer_to( ptr_type *ptr ) ;
     
     /**
      *  @brief  Read out a "pointed at" pointer from the buffer.
@@ -111,7 +111,7 @@ namespace sio {
      *          
      *  @param  ptr the address to register
      */
-    void read_pointed_at( ptr_type *ptr ) ;
+    void pointed_at( ptr_type *ptr ) ;
     
     /**
      *  @brief  Perform the pointer relocation after the whole record has

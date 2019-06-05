@@ -36,25 +36,25 @@ namespace sio {
   //--------------------------------------------------------------------------
 
   template <typename T>
-  inline void read_device::read( T &var ) {
-    read( &var, 1 ) ;
+  inline void read_device::data( T &var ) {
+    data( &var, 1 ) ;
   }
 
   //--------------------------------------------------------------------------
 
   template <typename T>
-  inline void read_device::read( T *var, size_type count ) {
+  inline void read_device::data( T *var, size_type count ) {
     _cursor += sio::api::read( _buffer, var, _cursor, count ) ;
   }
   
   //--------------------------------------------------------------------------
   
-  void read_device::read_pointer_to( ptr_type *ptr ) {
+  void read_device::pointer_to( ptr_type *ptr ) {
     // Read.  Keep a record of the "match" quantity read from the buffer and
     // the location in memory which will need relocating.
     // Placeholder value for 'pointer to'
     unsigned int match = 0 ;
-    read( match ) ;
+    data( match ) ;
     // Ignore match = 0x00000000.  This is basically a null pointer which can
     // never be relocated, so don't fill the multimap with a lot of useless
     // information.
@@ -67,11 +67,11 @@ namespace sio {
   
   //--------------------------------------------------------------------------
   
-  void read_device::read_pointed_at( ptr_type *ptr ) {
+  void read_device::pointed_at( ptr_type *ptr ) {
     // Read.  Keep a record of the "match" quantity read from the buffer and
     // the location in memory which will need relocating.
     unsigned int match = 0 ;
-    read( match ) ;
+    data( match ) ;
     // Ignore match = SIO_ptag. This is basically a pointer target which was
     // never relocated when the record was written. i.e. nothing points to it!
     // Don't clutter the maps with information that can never be used. 
