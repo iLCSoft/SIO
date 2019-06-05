@@ -9,6 +9,7 @@
 namespace sio {
   
   class read_device ;
+  class write_device ;
   
   /**
    *  @brief  block class.
@@ -59,8 +60,13 @@ namespace sio {
      */
     virtual void read( sio::read_device &device, sio::version_type vers ) = 0 ;
     
-    // TODO make a write() method
-    
+    /**
+     *  @brief  Perform encoding of block data in a buffer using the device
+     *  
+     *  @param  device the write device containing the block buffer
+     */
+    virtual void write( sio::write_device &device ) = 0 ;
+        
   private:
     ///< The block version
     const sio::version_type            _version ;
