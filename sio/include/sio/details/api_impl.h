@@ -2,8 +2,10 @@
 #include <sio/exception.h>
 #include <sio/buffer.h>
 #include <sio/io_device.h>
+#include <sio/memcpy.h>
 #include <sio/compression/zlib.h>
 #include <sio/block.h>
+#include <sio/version.h>
 
 // -- std headers
 #include <iostream>
@@ -35,7 +37,7 @@ namespace sio {
       SIO_THROW( sio::error_code::invalid_argument, ss.str() ) ;
     }
     auto ptr_read = buffer.ptr( position ) ;
-    sio::memcpy_helper::copy( SIO_CUCHAR_CAST(ptr_read), SIO_UCHAR_CAST(ptr), length, count ) ;
+    sio::memcpy::copy( SIO_CUCHAR_CAST(ptr_read), SIO_UCHAR_CAST(ptr), length, count ) ;
     return padlen ;
   }
 
@@ -59,7 +61,7 @@ namespace sio {
       buffer.expand( padlen ) ;
     }
     auto ptr_write = buffer.ptr( position ) ;
-    sio::memcpy_helper::copy( SIO_CUCHAR_CAST(ptr), SIO_UCHAR_CAST(ptr_write), length, count ) ;
+    sio::memcpy::copy( SIO_CUCHAR_CAST(ptr), SIO_UCHAR_CAST(ptr_write), length, count ) ;
     for( auto bytcnt = bytelen; bytcnt < padlen; bytcnt++ ) {
       *(ptr_write + bytcnt) = sio::null_byte ;
     }
@@ -411,7 +413,7 @@ namespace sio {
           auto block_infos = sio::api::read_block_infos( device_buffer.span() ) ;
           for( auto binfo : block_infos ) {
             std::stringstream version_str ;
-            version_str << sio::version_helper::major_version( binfo._version ) << "." << sio::version_helper::minor_version( binfo._version ) ;
+            version_str << sio::version::major_version( binfo._version ) << "." << sio::version::minor_version( binfo._version ) ;
             std::cout << 
               std::setw(30) << std::left << binfo._name << " | " << 
               std::setw(15) << binfo._record_start << " | " << 

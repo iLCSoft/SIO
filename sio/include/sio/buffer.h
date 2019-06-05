@@ -22,7 +22,7 @@ namespace sio {
   class buffer_span {
   public:
     // traits
-    using container = byte_array ;
+    using container = sio::byte_array ;
     using element_type = container::value_type ;
     using const_iterator = container::const_iterator ;
     using index_type = std::size_t ;
@@ -70,7 +70,7 @@ namespace sio {
      *  @param  first the start of the span
      *  @param  count the number of bytes to the end of the span
      */
-    buffer_span( const_iterator first, std::size_t count ) ;
+    buffer_span( const_iterator first, size_type count ) ;
 
     /**
      *  @name Iterators
@@ -135,7 +135,7 @@ namespace sio {
     /**
      *  @brief  Get the size of the span
      */
-    std::size_t size() const ;
+    size_type size() const ;
 
     /**
      *  @brief  Whether the span is empty
@@ -191,7 +191,7 @@ namespace sio {
    */
   class buffer {
   public:
-    using container = byte_array ;
+    using container = sio::byte_array ;
     using element_type = container::value_type ;
     using iterator = container::iterator ;
     using const_iterator = container::const_iterator ;

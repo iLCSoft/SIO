@@ -1,10 +1,6 @@
 #include <SIO_testing.h>
 #include <sio/definitions.h>
 #include <sio/exception.h>
-#include <sio/buffer.h>
-#include <sio/compression/zlib.h>
-#include <sio/helpers.h>
-#include <sio/io_device.h>
 
 using UnitTest = sio::test::UnitTest;
 

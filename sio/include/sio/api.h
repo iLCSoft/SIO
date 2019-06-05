@@ -5,6 +5,9 @@
 
 // -- std headers
 #include <memory>
+#include <utility>
+#include <string>
+#include <vector>
 
 namespace sio {
   

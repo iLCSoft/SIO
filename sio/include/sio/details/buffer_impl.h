@@ -5,7 +5,6 @@
 
 // -- sio headers
 #include <sio/exception.h>
-#include <sio/helpers.h>
 
 namespace sio {
 

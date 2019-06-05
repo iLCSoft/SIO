@@ -1,5 +1,6 @@
 #pragma once
 
+// -- sio headers
 #include <sio/definitions.h>
 
 namespace sio {
