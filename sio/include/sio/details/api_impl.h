@@ -495,7 +495,7 @@ namespace sio {
         auto block_start = device.position() ;
         auto block_name = blk_ptr->name() ;
         unsigned int blkname_len = block_name.size() ;
-        // write the block header. It will be update after 
+        // write the block header. It will be updated after 
         // the block has been written
         device.data( sio::block_marker ) ;
         device.data( sio::block_marker ) ;
@@ -515,25 +515,166 @@ namespace sio {
         SIO_RETHROW( e, sio::error_code::io_failure, "Couldn't write block to buffer (" + blk_ptr->name() + ")" ) ;
       }
     }
+    device.pointer_relocation() ;
   }
   
   //--------------------------------------------------------------------------
   
-  inline void api::write_record( const std::string &name, sio::ofstream &stream, const buffer &rec_buf ) {
-    
+  inline record_info api::write_record( const std::string &name, buffer &rec_buf, const block_list& blocks, sio::options_type opts ) {
+    if( not sio::valid_record_name( name ) ) {
+      SIO_THROW( sio::error_code::invalid_argument, "Record name '" + name + "' is invalid" ) ;
+    }
+    if( not rec_buf.valid() ) {
+      SIO_THROW( sio::error_code::invalid_argument, "Buffer is invalid" ) ;
+    }
+    try {
+      sio::api::set_compression( opts, false ) ;
+      record_info info ;
+      info._options = opts ;
+      info._name = name ;
+      write_device device ;
+      device.set_buffer( std::move(rec_buf) ) ;
+      // Output: 1) A placeholder for the record header length.
+      //         2) A 'framing' marker (to help in debugging).
+      //         3) An options word.
+      //         4) A placeholder for the record data length (compressed).
+      //         5) A placeholder for the record data length (uncompressed).
+      //         6) The length of the record name.
+      //         7) The record name.
+      device.data( sio::record_marker ) ;
+      device.data( sio::record_marker ) ;
+      device.data( opts ) ;
+      auto datalen_pos = device.position() ;
+      device.data( sio::record_marker ) ;
+      device.data( sio::record_marker ) ;
+      unsigned int name_len = name.size() ;
+      device.data( name_len ) ;
+      device.data( &(name[0]), name_len ) ;
+      // write back the header len
+      info._header_length = device.position() ;
+      device.seek( 0 ) ;
+      device.data( info._header_length ) ;
+      device.seek( info._header_length ) ;
+      // write the blocks
+      sio::api::write_blocks( device, blocks ) ;
+      // fill the data length and uncompressed record length
+      auto end_pos = device.position() ;
+      device.seek( datalen_pos ) ;
+      info._data_length = end_pos - info._header_length ;
+      info._uncompressed_length = end_pos - info._header_length ;
+      device.data( info._data_length ) ;
+      device.data( info._uncompressed_length ) ;
+      // get back the buffer
+      rec_buf = std::move( device.take_buffer() ) ;
+      return info ;
+    }
+    catch( sio::exception &e ) {
+      SIO_RETHROW( e, sio::error_code::io_failure, "Couldn't write record into buffer" ) ;
+    }
   }
   
   //--------------------------------------------------------------------------
   
   template <typename compT>
-  inline void api::write_record( const std::string &name, sio::ofstream &stream, const buffer &rec_buf, compT &compressor ) {
-    
+  inline void api::compress_record( record_info &rec_info, buffer &rec_buf, buffer &comp_buf, compT &compressor ) {
+    if( not rec_buf.valid() ) {
+      SIO_THROW( sio::error_code::invalid_argument, "Record buffer is invalid" ) ;
+    }
+    if( not comp_buf.valid() ) {
+      SIO_THROW( sio::error_code::invalid_argument, "Compression buffer is invalid" ) ;
+    }
+    try {
+      // set the compression bit in the record options
+      sio::api::set_compression( rec_info._options, true ) ;
+      // compress the record buffer (but not the record header)
+      auto rec_span = rec_buf.span( rec_info._header_length ) ;
+      compressor.compress( rec_span, comp_buf ) ;
+      rec_info._data_length = comp_buf.size() ;
+      write_device device ;
+      device.set_buffer( std::move(rec_buf) ) ;
+      // fill back the record buffer with updated information on header
+      device.data( rec_info._header_length ) ;
+      device.data( sio::record_marker ) ;
+      device.data( rec_info._options ) ;
+      device.data( rec_info._data_length ) ;
+      // get back the buffer
+      rec_buf = std::move( device.take_buffer() ) ;
+    }
+    catch( sio::exception &e ) {
+      SIO_RETHROW( e, sio::error_code::io_failure, "Couldn't compress record buffer" ) ;
+    }
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  inline void api::write_record( sio::ofstream &stream, const buffer_span &rec_buf, record_info &rec_info ) {
+    if( not stream.is_open() ) {
+      SIO_THROW( sio::error_code::not_open, "ofstream is not open!" ) ;
+    }
+    if( not stream.good() ) {
+      SIO_THROW( sio::error_code::bad_state, "ofstream is in a bad state!" ) ;
+    }
+    if( not rec_buf.valid() ) {
+      SIO_THROW( sio::error_code::invalid_argument, "The record buffer is not valid" ) ;
+    }
+    rec_info._file_start = stream.tellp() ;
+    // write data
+    if( not stream.write( rec_buf.data(), rec_buf.size() ).good() ) {
+      SIO_THROW( sio::error_code::io_failure, "Couldn't write record buffer to output stream" ) ;
+    }
+    // flush the stream
+    if( not stream.flush().good() ) {
+      SIO_THROW( sio::error_code::io_failure, "Couldn't flush output stream" ) ;
+    }
+    rec_info._file_end = stream.tellp() ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  inline void api::write_record( sio::ofstream &stream, const buffer_span &hdr_span, const buffer_span &data_span, record_info &rec_info ) {
+    if( not stream.is_open() ) {
+      SIO_THROW( sio::error_code::not_open, "ofstream is not open!" ) ;
+    }
+    if( not stream.good() ) {
+      SIO_THROW( sio::error_code::bad_state, "ofstream is in a bad state!" ) ;
+    }
+    if( not hdr_span.valid() ) {
+      SIO_THROW( sio::error_code::invalid_argument, "The record header buffer is not valid" ) ;
+    }
+    if( not data_span.valid() ) {
+      SIO_THROW( sio::error_code::invalid_argument, "The record data buffer is not valid" ) ;
+    }
+    rec_info._file_start = stream.tellp() ;
+    // write record header
+    if( not stream.write( hdr_span.data(), hdr_span.size() ).good() ) {
+      SIO_THROW( sio::error_code::io_failure, "Couldn't write record header buffer to output stream" ) ;
+    }
+    // write record data
+    if( not stream.write( data_span.data(), data_span.size() ).good() ) {
+      SIO_THROW( sio::error_code::io_failure, "Couldn't write record data buffer to output stream" ) ;
+    }
+    // flush the stream
+    if( not stream.flush().good() ) {
+      SIO_THROW( sio::error_code::io_failure, "Couldn't flush output stream" ) ;
+    }
+    rec_info._file_end = stream.tellp() ;
   }
   
   //--------------------------------------------------------------------------
   
   inline bool api::is_compressed( options_type opts ) {
     return static_cast<bool>( opts & sio::compression_bit ) ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  inline bool api::set_compression( options_type &opts, bool value ) {
+    bool out = sio::api::is_compressed( opts ) ;
+    opts &= ~sio::compression_bit ;
+    if( value ) {
+      opts |= sio::compression_bit ;
+    }
+    return out ;
   }
   
   //--------------------------------------------------------------------------

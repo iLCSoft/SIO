@@ -13,6 +13,7 @@ namespace sio {
   
   class buffer ;
   class block ;
+  class write_device ;
 
   /**
    *  @brief  api class.
@@ -217,7 +218,7 @@ namespace sio {
      *  @param  rec_buf the record buffer pointing on the first block to decode
      *  @param  blocks the list of block decoder to use 
      */
-    static void read_blocks( const buffer_span &rec_buf, std::vector<std::shared_ptr<block>> blocks ) ;
+    static void read_blocks( const buffer_span &rec_buf, const block_list &blocks ) ;
     
     /**
      *  @brief  Dump the records from the input stream to the console.
@@ -231,6 +232,67 @@ namespace sio {
      *  @param  detailed whether to printout detailed information (block info)
      */
     static void dump_records( sio::ifstream &stream, std::size_t skip, std::size_t count, bool detailed ) ;
+    
+    /**
+     *  @brief  Write the blocks in the buffer contained in the write_device.
+     *          For each block, a block header and the block data is written
+     *  
+     *  @param  device the write device to write to
+     *  @param  blocks the block encoder
+     */
+    static void write_blocks( write_device &device, const block_list &blocks ) ;
+
+    /**
+     *  @brief  Write a record in a buffer. A record_info object is returned. 
+     *          Note that in the returned structure the fields _file_start and
+     *          _file_end are not filled since the writting is only done in the
+     *          buffer at this step. Note also that this function doesn't call
+     *          any compression algorithm. See overloads to get a compressed 
+     *          buffer.
+     *  
+     *  @param  name the record name
+     *  @param  rec_buf the record buffer to receive
+     *  @param  blocks the block list for writting
+     *  @param  opts the record options
+     */
+    static record_info write_record( const std::string &name, buffer &rec_buf, const block_list& blocks, sio::options_type opts ) ;
+    
+    /**
+     *  @brief  Compress the record buffer. Note that several operation are done 
+     *          in this function:
+     *          - the record buffer is compressed and receive in the comp_buf
+     *          - the record info is updated with the compressed record data length
+     *          - the record header is overwritten in the record buffer 
+     *          
+     *  @param  rec_info the record info instance
+     *  @param  rec_buf the record buffer
+     *  @param  comp_buf the compressed buffer to receive
+     */
+    template <typename compT>
+    static void compress_record( record_info &rec_info, buffer &rec_buf, buffer &comp_buf, compT &compressor ) ;
+    
+    /**
+     *  @brief  Write the full record buffer in the output stream. The stream 
+     *          is flushed after writing the buffer
+     *  
+     *  @param  stream the output stream
+     *  @param  rec_buf the full record buffer (header + data)
+     *  @param  rec_info the record info to update (file start and end positions)
+     */
+    static void write_record( sio::ofstream &stream, const buffer_span &rec_buf, record_info &rec_info ) ;
+    
+    /**
+     *  @brief  Write the record buffer in two step from two buffers. The first 
+     *          buffer contains the record header buffer and the second the 
+     *          record data, either compressed or uncompressed. The stream is 
+     *          flushed after writing the two buffers
+     *          
+     *  @param  stream the output stream
+     *  @param  hdr_span the record header buffer span
+     *  @param  data_span the record data buffer span
+     *  @param  rec_info the record info to update (file start and end positions)
+     */
+    static void write_record( sio::ofstream &stream, const buffer_span &hdr_span, const buffer_span &data_span, record_info &rec_info ) ;
     ///@}
 
     /**
@@ -243,6 +305,15 @@ namespace sio {
      *  @param  opts the options word
      */
     static bool is_compressed( options_type opts ) ;
+    
+    /**
+     *  @brief  Turn on/off the compression bit in the options word
+     *  
+     *  @param  opts the option word
+     *  @param  value whether to set on/off the compression bit
+     *  @return the old compression bit value
+     */
+    static bool set_compression( options_type &opts, bool value ) ;
     
     /**
      *  @brief  Uncompress the buffer and return a new buffer
