@@ -14,6 +14,22 @@ namespace sio {
     zlib_compression() = default ;
     /// Default destructor
     ~zlib_compression() = default ;
+    
+    /**
+     *  @brief  Set the compression level.
+     *          - Z_DEFAULT_COMPRESSION: default zlib compression level
+     *          - -1: no commpression
+     *          - [1-9] various levels
+     *          Note that above 9, the level is to 9
+     *          
+     *  @param  level the compression level to use
+     */
+    void set_level( int level ) ;
+    
+    /**
+     *  @brief  Get the compression level
+     */
+    int level() const ;
 
     /**
      *  @brief  Uncompress the buffer and return a new buffer (reference).
@@ -30,12 +46,35 @@ namespace sio {
      * 
      *  @param  inbuf the input buffer to compress
      *  @param  outbuf the output buffer to receive
-     *  @param  comp_level the compression level
      */
-    void compress( const buffer_span &inbuf, buffer &outbuf, int comp_level = Z_DEFAULT_COMPRESSION ) ;
+    void compress( const buffer_span &inbuf, buffer &outbuf ) ;
+    
+  private:
+    ///< The compression level (on compress)
+    int               _level {Z_DEFAULT_COMPRESSION} ;
   };
   
   //--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
+  
+  inline void zlib_compression::set_level( int level ) {
+    if(level < 0) {
+      _level = Z_DEFAULT_COMPRESSION;
+    }
+    else if(level > 9) {
+      _level = 9;
+    }
+    else {
+      _level = level;
+    }
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  inline int zlib_compression::level() const {
+    return _level ;
+  }
+  
   //--------------------------------------------------------------------------
   
   void zlib_compression::uncompress( const buffer_span &inbuf, buffer &outbuf ) {
@@ -55,12 +94,9 @@ namespace sio {
   
   //--------------------------------------------------------------------------
   
-  void zlib_compression::compress( const buffer_span &inbuf, buffer &outbuf, int comp_level ) {
+  void zlib_compression::compress( const buffer_span &inbuf, buffer &outbuf ) {
     if( not inbuf.valid() ) {
       SIO_THROW( sio::error_code::invalid_argument, "Buffer is not valid" ) ;
-    }
-    if( (comp_level < -1) or (comp_level > 9) ) {
-      SIO_THROW( sio::error_code::invalid_argument, "Invalid compression level" ) ;
     }
     // comp_bound is a first estimate of the compressed size.
     // After compression, the real output size is returned,
@@ -69,7 +105,7 @@ namespace sio {
     if( outbuf.size() < comp_bound ) {
       outbuf.resize( comp_bound ) ;
     }
-    auto zstat = ::compress2( (Bytef*)outbuf.data(), &comp_bound, (const Bytef*)inbuf.data(), inbuf.size(), comp_level ) ;
+    auto zstat = ::compress2( (Bytef*)outbuf.data(), &comp_bound, (const Bytef*)inbuf.data(), inbuf.size(), _level ) ;
     if( Z_OK != zstat ) {
       std::stringstream ss ;
       ss << "Zlib compression failed with status " << zstat ;
