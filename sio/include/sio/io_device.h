@@ -240,6 +240,7 @@ namespace sio {
      *          are cleared
      */
     void pointer_relocation() ;
+    ///@}
     
   private:
     ///< The buffer in which to write
