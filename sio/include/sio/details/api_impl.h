@@ -108,7 +108,7 @@ namespace sio {
     const auto bytelen = length*count ;
     const auto padlen = (bytelen + sio::padding) & sio::padding_mask ;
     if( position + padlen >= buffer.size() ) {
-      buffer.expand( padlen ) ;
+      buffer.expand() ;
     }
     auto ptr_write = buffer.ptr( position ) ;
     sio::memcpy::copy( SIO_CUCHAR_CAST(ptr), SIO_UCHAR_CAST(ptr_write), length, count ) ;

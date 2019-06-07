@@ -394,7 +394,7 @@ namespace sio {
      *  @param  nbytes the number of bytes to add
      *  @return the new buffer size
      */
-    size_type expand( size_type nbytes ) ;
+    size_type expand( size_type nbytes = 32*sio::kbyte*sio::kbyte ) ;
 
     /**
      *  @brief  Clear the buffer.
