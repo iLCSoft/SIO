@@ -285,27 +285,27 @@ namespace sio {
 #define SIO_CUCHAR_CAST(pntr)    (reinterpret_cast<const unsigned char*>((pntr)))
 
 // Read or write data
-#define SIO_DATA( dev, pnt, cnt ) { \
+#define SIO_DATA( dev, pnt, cnt ) \
   try { \
-    dev->data( pnt, cnt ) ; \
+    dev.data( pnt, cnt ) ; \
   } \
   catch( sio::exception &e ) { \
     SIO_RETHROW( e, sio::error_code::io_failure, "Failed to read or write data!" ) ; \
   }
   
 // Read or write a pointer (pointer to)
-#define SIO_PNTR( dev, pnt ) { \
+#define SIO_PNTR( dev, pnt ) \
   try { \
-    dev->pointer_to( (sio::ptr_type*)pnt ) ; \
+    dev.pointer_to( (sio::ptr_type*)pnt ) ; \
   } \
   catch( sio::exception &e ) { \
     SIO_RETHROW( e, sio::error_code::io_failure, "Failed to read or write pointer to!" ) ; \
   }
   
 // Read or write a pointer tag (pointed at)
-#define SIO_PTAG( rec, pnt ) { \
+#define SIO_PTAG( rec, pnt ) \
   try { \
-    dev->pointed_at( (sio::ptr_type*)pnt ) ; \
+    dev.pointed_at( (sio::ptr_type*)pnt ) ; \
   } \
   catch( sio::exception &e ) { \
     SIO_RETHROW( e, sio::error_code::io_failure, "Failed to read or write pointed at!" ) ; \
