@@ -40,6 +40,11 @@ int main( int argc, char **argv ) {
     auto part_blk = std::make_shared<sio::example::particle_block>() ;
     blocks.push_back( part_blk ) ;
     
+    /// Fill some data in our particle
+    sio::example::particle part ;
+    part._energy = 42.f ;
+    part_blk->set_particle( part ) ;
+    
     /// The record is first written in a buffer before being written 
     /// in a file. Let's create a buffer that will hold our record data.
     /// The buffer constructor requires a initial buffer size. Let's 
