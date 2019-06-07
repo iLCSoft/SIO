@@ -113,19 +113,21 @@ namespace sio {
     }
     rec_info._name.assign( name_length, '\0' ) ;
     device.data( &(rec_info._name[0]), name_length ) ;
-    // a bit of debugging ...
-    SIO_DEBUG( "=== Read record info ====" ) ;
-    SIO_DEBUG( rec_info ) ;
     const auto compressed = sio::api::is_compressed( rec_info._options ) ;
     // if the record is compressed skip the read pointer over 
     // any padding bytes that may have been inserted to make 
     // the next record header start on a four byte boundary in the file.
     auto tot_len = rec_info._data_length + rec_info._header_length ;
+    SIO_DEBUG( "Total len before: " << tot_len ) ;
     if( compressed ) {
       tot_len += ((4 - (rec_info._data_length & sio::bit_align)) & sio::bit_align) ;
     }
+    SIO_DEBUG( "Total len after padding: " << tot_len ) ;
     rec_info._file_end = rec_info._file_start ;
     rec_info._file_end += tot_len ;
+    // a bit of debugging ...
+    SIO_DEBUG( "=== Read record info ====" ) ;
+    SIO_DEBUG( rec_info ) ;
   }
 
   //--------------------------------------------------------------------------
@@ -154,17 +156,8 @@ namespace sio {
     if( not stream.good() ) {
       SIO_THROW( sio::error_code::io_failure, "ifstream is in a bad state after a read operation!" ) ;
     }
-    const auto compressed = sio::api::is_compressed( rec_info._options ) ;
-    // if the record is compressed skip the read pointer over 
-    // any padding bytes that may have been inserted to make 
-    // the next record header start on a four byte boundary in the file.
-    if( compressed ) {
-      auto pad_length = (4 - (rec_info._data_length & sio::bit_align)) & sio::bit_align ;
-      if( pad_length ) {
-        if( not stream.seekg( pad_length, std::ios_base::cur ).good() ) {
-          SIO_THROW( sio::error_code::bad_state, "ifstream is in a bad state after a seek operation!" ) ;
-        }
-      }
+    if( not stream.seekg( rec_info._file_end ).good() ) {
+      SIO_THROW( sio::error_code::bad_state, "ifstream is in a bad state after a seek operation!" ) ;
     }
   }
 
@@ -255,14 +248,19 @@ namespace sio {
       SIO_THROW( sio::error_code::invalid_argument, "Start of block pointing after end of record!" ) ;
     }
     block_info info ;
+    SIO_DEBUG( "Block buffer size is " << rec_buf.size() ) ;
+    SIO_DEBUG( "Block index is " << index ) ;
     read_device device( rec_buf.subspan( index ) ) ;
     info._record_start = index ;
     unsigned int marker(0), block_len(0) ;
     device.data( block_len ) ;
+    SIO_DEBUG( "Block len is " << block_len ) ;
     device.data( marker ) ;
     // check for a block marker
     if( sio::block_marker != marker ) {
-      SIO_THROW( sio::error_code::no_marker, "Block marker not found!" ) ;
+      std::stringstream ss ;
+      ss << "Block marker not found (expected " << sio::block_marker <<", got " << marker << ")" ;
+      SIO_THROW( sio::error_code::no_marker, ss.str() ) ;
     }
     device.data( info._version ) ;
     unsigned int name_len(0) ;
@@ -388,8 +386,8 @@ namespace sio {
             uncomp_rec_buffer.resize( rec_info._uncompressed_length ) ;
             compressor.uncompress( rec_buffer.span(), uncomp_rec_buffer ) ;
           }
-          sio::buffer &device_buffer = compressed ? uncomp_rec_buffer : rec_buffer ;
-          auto block_infos = sio::api::read_block_infos( device_buffer.span() ) ;
+          sio::buffer_span device_buffer = compressed ? uncomp_rec_buffer.span() : rec_buffer.span( 0, rec_info._data_length ) ;
+          auto block_infos = sio::api::read_block_infos( device_buffer ) ;
           for( auto binfo : block_infos ) {
             std::stringstream version_str ;
             version_str << sio::version::major_version( binfo._version ) << "." << sio::version::minor_version( binfo._version ) ;
@@ -436,6 +434,7 @@ namespace sio {
         // fill back the block length in block header
         auto blk_end = device.position() ;
         unsigned int blklen = blk_end - block_start ;
+        SIO_DEBUG( "Block len :" << blklen ) ;
         device.seek( block_start ) ;
         device.data( blklen ) ;
         device.seek( blk_end ) ;  
@@ -491,6 +490,7 @@ namespace sio {
       device.seek( datalen_pos ) ;
       info._data_length = end_pos - info._header_length ;
       info._uncompressed_length = end_pos - info._header_length ;
+      SIO_DEBUG( "Writing record info :\n" << info ) ;
       device.data( info._data_length ) ;
       device.data( info._uncompressed_length ) ;
       // get back the buffer
