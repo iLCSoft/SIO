@@ -2,6 +2,7 @@
 # cmake file for building SIO
 # @author Frank Gaede, DESY
 # @author Jan Engels, DESY
+# @author Remi Ete, DESY
 #################################
 
 # project name
@@ -11,18 +12,20 @@ PROJECT( SIO )
 SET( SIO_VERSION_MAJOR ${LCIO_VERSION_MAJOR} )
 SET( SIO_VERSION_MINOR ${LCIO_VERSION_MINOR} )
 SET( SIO_VERSION_PATCH ${LCIO_VERSION_PATCH} )
-
-# library *nix style versioning
 SET( SIO_SOVERSION "${SIO_VERSION_MAJOR}.${SIO_VERSION_MINOR}" )
 SET( SIO_VERSION "${SIO_SOVERSION}.${SIO_VERSION_PATCH}" )
 
+# options
+OPTION( SIO_EXAMPLES "Switch ON to build SIO examples" ON )
 SET( SIO_LOGLVL "0" CACHE STRING "The SIO verbosity level" )
 
 IF( NOT SIO_LOGLVL MATCHES "^[0-9]+$" )
     MESSAGE( SEND_ERROR "SIO log level variable not a number (${SIO_LOGLVL})" )
 ENDIF()
 
-#INCLUDE(FindZLIB)
+ADD_DEFINITIONS( "-DSIO_LOGLVL=${SIO_LOGLVL}" )
+
+# ZLIB package
 FIND_PACKAGE( ZLIB REQUIRED )
 #ZLIB_INCLUDE_DIR - where to find zlib.h, etc.
 #ZLIB_LIBRARIES   - List of libraries when using zlib.
@@ -35,27 +38,13 @@ IF( NOT BIG_ENDIAN )
     ADD_DEFINITIONS( "-D__LITTLE_ENDIAN__" )
 ENDIF()
 
-ADD_DEFINITIONS( "-DSIO_LOGLVL=${SIO_LOGLVL}" )
-
-#IF( LCIO_DCAP )
-#    INCLUDE_DIRECTORIES( ${DCAP_INCLUDE_DIRS} )
-#    ADD_DEFINITIONS( "-DSIO_USE_DCAP" )
-#ENDIF()
-
 INCLUDE_DIRECTORIES(
     ${SIO_SOURCE_DIR}/include
     ${ZLIB_INCLUDE_DIR}
 )
 
-SET (SIO_SRCS
-    ${SIO_SOURCE_DIR}/src/SIO_functions.cc
-    ${SIO_SOURCE_DIR}/src/SIO_stream.cc
-)
+FILE( GLOB SIO_SRCS src/*.cc )
 
-#------ require proper C++ -------
-#ADD_DEFINITIONS( "-Wall -ansi -pedantic" )
-#----- need long long for int64 for now ------
-#ADD_DEFINITIONS( "-Wno-long-long -Wno-sign-compare -fno-strict-aliasing" )
 IF( SIO_PRINT_DEBUG )
   ADD_DEFINITIONS( "-DSIO_PRINT_DEBUG" )
 ENDIF()
@@ -68,11 +57,11 @@ INSTALL_SHARED_LIBRARY( sio DESTINATION lib )
 INSTALL_DIRECTORY( include/ DESTINATION include )
 
 ADD_EXECUTABLE( sio-dump main/sio-dump.cc )
-TARGET_LINK_LIBRARIES( sio-dump ${ZLIB_LIBRARIES} )
+TARGET_LINK_LIBRARIES( sio-dump sio )
 INSTALL( TARGETS sio-dump RUNTIME DESTINATION bin )
 
 ADD_EXECUTABLE( sio-dump-detailed main/sio-dump-detailed.cc )
-TARGET_LINK_LIBRARIES( sio-dump-detailed ${ZLIB_LIBRARIES} )
+TARGET_LINK_LIBRARIES( sio-dump-detailed sio )
 INSTALL( TARGETS sio-dump-detailed RUNTIME DESTINATION bin )
 
 function ( add_test_reg test_name )
@@ -109,9 +98,6 @@ function ( add_test_reg test_name )
   endif()
 
   set ( args ${ARG_EXEC_ARGS} )
-  # if ( "${args}" STREQUAL "" )
-  #   set ( args ${test_name} )
-  # endif()
   add_test(NAME t_${test_name} COMMAND ${cmd} ${args} )
   if ( NOT "${passed}" STREQUAL "" )
     set_tests_properties( t_${test_name} PROPERTIES PASS_REGULAR_EXPRESSION "${passed}" )
@@ -127,19 +113,11 @@ endfunction()
 
 
 add_test_reg (
-  SIO_test_block_wr
-  BUILD_EXEC 
-  REGEX_FAIL "TEST_FAILED" 
-)
-
-add_test_reg (
-  SIO_test_functions
-  BUILD_EXEC 
-  REGEX_FAIL "TEST_FAILED" 
-)
-
-add_test_reg (
   test_exception
   BUILD_EXEC 
   REGEX_FAIL "TEST_FAILED" 
 )
+
+IF( SIO_EXAMPLES )
+  ADD_SUBDIRECTORY( examples )
+ENDIF()
