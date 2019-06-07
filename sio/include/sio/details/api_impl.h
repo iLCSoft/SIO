@@ -457,7 +457,7 @@ namespace sio {
             // FIXME use zlib by default ??
             sio::zlib_compression compressor ;
             uncomp_rec_buffer.resize( rec_info._uncompressed_length ) ;
-            sio::api::uncompress( compressor, rec_buffer.span(), uncomp_rec_buffer ) ;
+            compressor.uncompress( rec_buffer.span(), uncomp_rec_buffer ) ;
           }
           sio::buffer &device_buffer = compressed ? uncomp_rec_buffer : rec_buffer ;
           auto block_infos = sio::api::read_block_infos( device_buffer.span() ) ;
@@ -675,20 +675,6 @@ namespace sio {
       opts |= sio::compression_bit ;
     }
     return out ;
-  }
-  
-  //--------------------------------------------------------------------------
-  
-  template <typename compT, typename ...Args>
-  inline void api::uncompress( compT &compressor, const buffer_span &inbuf, buffer &outbuf, Args ...args ) {
-    compressor.uncompress( inbuf, outbuf, args... ) ;
-  }
-  
-  //--------------------------------------------------------------------------
-  
-  template <typename compT, typename ...Args>
-  inline void api::compress( compT &compressor, const buffer_span &inbuf, buffer &outbuf, Args ...args ) {
-    compressor.compress( inbuf, outbuf, args... ) ;
   }
 
 }

@@ -314,28 +314,6 @@ namespace sio {
      *  @return the old compression bit value
      */
     static bool set_compression( options_type &opts, bool value ) ;
-    
-    /**
-     *  @brief  Uncompress the buffer and return a new buffer
-     *
-     *  @param  compressor the compression implementation
-     *  @param  inbuf the input buffer to uncompress
-     *  @param  outbuf the output buffer to receive
-     *  @param  args the uncompression options (implementation dependant)
-     */
-    template <typename compT, typename ...Args>
-    static void uncompress( compT &compressor, const buffer_span &inbuf, buffer &outbuf, Args ...args ) ;
-    
-    /**
-     *  @brief  Compress the buffer and return a new buffer
-     *
-     *  @param  compressor the compression implementation
-     *  @param  inbuf the input buffer to compress
-     *  @param  outbuf the output buffer to receive
-     *  @param  args the compression options (implementation dependant)
-     */
-    template <typename compT, typename ...Args>
-    static void compress( compT &compressor, const buffer_span &inbuf, buffer &outbuf, Args ...args ) ;
     ///@}
   };
   
