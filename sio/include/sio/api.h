@@ -342,7 +342,7 @@ namespace sio {
     }
     const auto bytelen = length*count ;
     const auto padlen = (bytelen + sio::padding) & sio::padding_mask ;
-    SIO_DEBUG( "Reading... len: " << length << ", count: " << count << ", padlen: " << padlen ) ;
+    SIO_DEBUG( "Reading... len: " << length << ", count: " << count << ", padlen: " << padlen << ", position: " << position ) ;
     if( position + padlen > buffer.size() ) {
       std::stringstream ss ;
       ss << "Can't read " << padlen << " bytes out of buffer (pos=" << position << ")" ;
@@ -370,9 +370,10 @@ namespace sio {
     const auto bytelen = length*count ;
     const auto padlen = (bytelen + sio::padding) & sio::padding_mask ;
     if( position + padlen >= buffer.size() ) {
-      buffer.expand() ;
+      buffer.expand() ; // FIXME if position + padlen is greater than default exapnd size : problem !!
     }
     auto ptr_write = buffer.ptr( position ) ;
+    SIO_DEBUG( "Writing... len=" << length << ", count=" << count << ", bytelen=" << bytelen << ", padlen=" << padlen << ", position:" << position ) ;
     sio::memcpy::copy( SIO_CUCHAR_CAST(ptr), SIO_UCHAR_CAST(ptr_write), length, count ) ;
     for( auto bytcnt = bytelen; bytcnt < padlen; bytcnt++ ) {
       *(ptr_write + bytcnt) = sio::null_byte ;
