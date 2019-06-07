@@ -1,53 +1,39 @@
-
+// -- sio headers
+#include <sio/io_device.h>
 #include <sio/api.h>
 
 namespace sio {
   
-  
-  inline read_device::read_device( buffer_span buf ) :
+  read_device::read_device( buffer_span buf ) :
     _buffer(std::move(buf)) {
     /* nop */
   }
   
   //--------------------------------------------------------------------------
 
-  inline void read_device::set_buffer( const buffer_span &buf ) {
+  void read_device::set_buffer( const buffer_span &buf ) {
     _buffer = buf ;
   }
 
   //--------------------------------------------------------------------------
 
-  inline void read_device::set_buffer( buffer_span &&buf ) {
+  void read_device::set_buffer( buffer_span &&buf ) {
     _buffer = buf ;
   }
 
   //--------------------------------------------------------------------------
 
-  inline read_device::cursor_type read_device::position() const {
+  read_device::cursor_type read_device::position() const {
     return _cursor ;
   }
 
   //--------------------------------------------------------------------------
 
-  inline void read_device::seek( cursor_type pos ) {
+  void read_device::seek( cursor_type pos ) {
     if( pos > _buffer.size() ) {
       SIO_THROW( sio::error_code::out_of_range, "Can't seek device cursor: out of range!" ) ;
     }
     _cursor = pos ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  template <typename T>
-  inline void read_device::data( T &var ) {
-    data( &var, 1 ) ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  template <typename T>
-  inline void read_device::data( T *var, size_type count ) {
-    _cursor += sio::api::read( _buffer, var, _cursor, count ) ;
   }
   
   //--------------------------------------------------------------------------
@@ -119,20 +105,6 @@ namespace sio {
     }
     _cursor = pos ;
   }
-
-  //--------------------------------------------------------------------------
-
-  template <typename T>
-  void write_device::data( const T &var ) {
-    data( &var, 1 ) ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  template <typename T>
-  void write_device::data( const T *const var, size_type count ) {
-    _cursor += sio::api::write( _buffer, var, _cursor, count ) ;
-  }
   
   //--------------------------------------------------------------------------
   
@@ -172,6 +144,14 @@ namespace sio {
     sio::pointed_at_map::value_type entry = { ptr, reinterpret_cast<void *>( _buffer.ptr(_cursor) - _buffer.data() ) } ;
     _pointed_at.insert( entry ) ;
     data( SIO_ptag ) ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  void write_device::pointer_relocation() {
+    sio::api::write_relocation( _buffer.data(), _pointed_at, _pointer_to ) ;
+    _pointer_to.clear() ;
+    _pointed_at.clear() ;
   }
 
 }

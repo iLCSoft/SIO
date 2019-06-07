@@ -128,7 +128,20 @@ namespace sio {
     ///< The full exception message
     const std::string       _message ;
   };
+  
+  //--------------------------------------------------------------------------
+
+  template <typename T>
+  inline exception::exception(
+    const T &rhs,
+    error_code code,
+    unsigned int line,
+    const std::string &func,
+    const std::string &fname,
+    const std::string &msg ) :
+    _code( code ) ,
+    _message( message(rhs.what(), code, line, func, fname, msg) ) {
+    /* nop */
+  }
 
 }
-
-#include <sio/details/exception_impl.h>

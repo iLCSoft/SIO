@@ -5,6 +5,9 @@
 #include <sio/buffer.h>
 
 namespace sio {
+  
+  class buffer ;
+  class buffer_span ;
 
   /**
    *  @brief  read_device class.
@@ -255,4 +258,35 @@ namespace sio {
 
 }
 
-#include <sio/details/io_device_impl.h>
+#include <sio/api.h>
+
+namespace sio {
+
+  template <typename T>
+  inline void read_device::data( T &var ) {
+    data( &var, 1 ) ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  template <typename T>
+  inline void read_device::data( T *var, size_type count ) {
+    _cursor += sio::api::read( _buffer, var, _cursor, count ) ;
+  }
+  
+  //--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
+
+  template <typename T>
+  inline void write_device::data( const T &var ) {
+    data( &var, 1 ) ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  template <typename T>
+  inline void write_device::data( const T *const var, size_type count ) {
+    _cursor += sio::api::write( _buffer, var, _cursor, count ) ;
+  }
+
+}

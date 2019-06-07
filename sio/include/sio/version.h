@@ -45,4 +45,3 @@ namespace sio {
   
 }
 
-#include <sio/details/version_impl.h>

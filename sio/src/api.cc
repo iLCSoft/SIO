@@ -1,4 +1,5 @@
 // -- sio headers
+#include <sio/api.h>
 #include <sio/exception.h>
 #include <sio/buffer.h>
 #include <sio/io_device.h>
@@ -16,7 +17,7 @@
 
 namespace sio {
   
-  inline void api::read_relocation( pointed_at_map& pointed_at, pointer_to_map& pointer_to ) {
+  void api::read_relocation( pointed_at_map& pointed_at, pointer_to_map& pointer_to ) {
     // Pointer relocation on read.
     // Some of these variables are a little terse!  Expanded meanings:
     // ptol:  Iterator pointing to lower bound in the 'pointer to' multimap
@@ -39,7 +40,7 @@ namespace sio {
   
   //--------------------------------------------------------------------------
   
-  inline void api::write_relocation( buffer::const_pointer rec_start, pointed_at_map& pointed_at, pointer_to_map& pointer_to ) {
+  void api::write_relocation( buffer::const_pointer rec_start, pointed_at_map& pointed_at, pointer_to_map& pointer_to ) {
     // Pointer relocation on write.
     // Some of these variables are a little terse!  Expanded meanings:
     // ptol:  Iterator pointing to lower bound in the 'pointer to' multimap
@@ -66,61 +67,7 @@ namespace sio {
   
   //--------------------------------------------------------------------------
 
-  template <class bufT, typename T>
-  inline typename bufT::size_type api::read( const bufT &buffer, T *ptr, typename bufT::index_type position, typename bufT::size_type count ) {
-    return api::read( buffer, SIO_BYTE_CAST(ptr), sizeof(T), position, count ) ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  template <class bufT>
-  inline typename bufT::size_type api::read( const bufT &buffer, typename bufT::pointer ptr, typename bufT::size_type length, typename bufT::index_type position, typename bufT::size_type count ) {
-    if( not buffer.valid() ) {
-      SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
-    }
-    const auto bytelen = length*count ;
-    const auto padlen = (bytelen + sio::padding) & sio::padding_mask ;
-    SIO_DEBUG( "Reading... len: " << length << ", count: " << count << ", padlen: " << padlen ) ;
-    if( position + padlen > buffer.size() ) {
-      std::stringstream ss ;
-      ss << "Can't read " << padlen << " bytes out of buffer (pos=" << position << ")" ;
-      SIO_THROW( sio::error_code::invalid_argument, ss.str() ) ;
-    }
-    auto ptr_read = buffer.ptr( position ) ;
-    sio::memcpy::copy( SIO_CUCHAR_CAST(ptr_read), SIO_UCHAR_CAST(ptr), length, count ) ;
-    return padlen ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  template <class bufT, typename T>
-  inline typename bufT::size_type api::write( bufT &buffer, const T *const ptr, typename bufT::index_type position, typename bufT::size_type count ) {
-    return api::write( buffer, SIO_CBYTE_CAST(ptr), sizeof(T), position, count ) ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  template <class bufT>
-  inline typename bufT::size_type api::write( bufT &buffer, typename bufT::const_pointer const ptr, typename bufT::size_type length, typename bufT::index_type position, typename bufT::size_type count ) {
-    if( not buffer.valid() ) {
-      SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
-    }
-    const auto bytelen = length*count ;
-    const auto padlen = (bytelen + sio::padding) & sio::padding_mask ;
-    if( position + padlen >= buffer.size() ) {
-      buffer.expand() ;
-    }
-    auto ptr_write = buffer.ptr( position ) ;
-    sio::memcpy::copy( SIO_CUCHAR_CAST(ptr), SIO_UCHAR_CAST(ptr_write), length, count ) ;
-    for( auto bytcnt = bytelen; bytcnt < padlen; bytcnt++ ) {
-      *(ptr_write + bytcnt) = sio::null_byte ;
-    }
-    return padlen ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  inline void api::read_record_info( sio::ifstream &stream, record_info &rec_info, buffer &outbuf ) {
+  void api::read_record_info( sio::ifstream &stream, record_info &rec_info, buffer &outbuf ) {
     if( not stream.is_open() ) {
       SIO_THROW( sio::error_code::not_open, "ifstream is not open!" ) ;
     }
@@ -183,7 +130,7 @@ namespace sio {
 
   //--------------------------------------------------------------------------
 
-  inline void api::read_record_data( sio::ifstream &stream, const record_info &rec_info, buffer &outbuf, std::size_t buffer_shift ) {
+  void api::read_record_data( sio::ifstream &stream, const record_info &rec_info, buffer &outbuf, std::size_t buffer_shift ) {
     if( not stream.is_open() ) {
       SIO_THROW( sio::error_code::not_open, "ifstream is not open!" ) ;
     }
@@ -223,7 +170,7 @@ namespace sio {
 
   //--------------------------------------------------------------------------
 
-  inline void api::read_record( sio::ifstream &stream, record_info &rec_info, buffer &outbuf ) {
+  void api::read_record( sio::ifstream &stream, record_info &rec_info, buffer &outbuf ) {
     // read out the record info
     api::read_record_info( stream, rec_info, outbuf ) ;
     // read out the record data in the buffer. Shift the buffer position by the
@@ -233,36 +180,18 @@ namespace sio {
 
   //--------------------------------------------------------------------------
 
-  inline std::pair<record_info, buffer> api::read_record( sio::ifstream &stream ) {
+  std::pair<record_info, buffer> api::read_record( sio::ifstream &stream ) {
     record_info rec_info ;
     buffer outbuf( sio::mbyte ) ;
     api::read_record( stream, rec_info, outbuf ) ;
     return std::make_pair( rec_info, std::move( outbuf ) ) ;
   }
 
-  //--------------------------------------------------------------------------
 
-  template <class UnaryPredicate>
-  inline void api::skip_records( sio::ifstream &stream, UnaryPredicate pred ) {
-    sio::record_info rec_info ;
-    sio::buffer rec_buffer( sio::max_record_info_len ) ;
-    while( 1 ) {
-      // read record header
-      api::read_record_info( stream, rec_info, rec_buffer ) ;
-      // skip record data
-      stream.seekg( rec_info._file_end ) ;
-      if( not stream.good() ) {
-        SIO_THROW( sio::error_code::bad_state, "ifstream is in a bad state after a seek operation!" ) ;
-      }
-      if( not pred( rec_info ) ) {
-        break ;
-      }
-    }
-  }
   
   //--------------------------------------------------------------------------
 
-  inline void api::skip_records( sio::ifstream &stream, std::size_t nskip ) {
+  void api::skip_records( sio::ifstream &stream, std::size_t nskip ) {
     std::size_t counter = 0 ;
     api::skip_records( stream, [&]( const record_info & ) {
       ++ counter ;
@@ -272,7 +201,7 @@ namespace sio {
 
   //--------------------------------------------------------------------------
 
-  inline void api::skip_records( sio::ifstream &stream, std::size_t nskip, const std::string &name ) {
+  void api::skip_records( sio::ifstream &stream, std::size_t nskip, const std::string &name ) {
     std::size_t counter = 0 ;
     api::skip_records( stream, [&]( const record_info &rec_info ) {
       if( name == rec_info._name ) {
@@ -284,7 +213,7 @@ namespace sio {
 
   //--------------------------------------------------------------------------
 
-  inline void api::go_to_record( sio::ifstream &stream, const std::string &name ) {
+  void api::go_to_record( sio::ifstream &stream, const std::string &name ) {
     record_info goto_info ;
     api::skip_records( stream, [&]( const record_info &rec_info ) {
       if( name == rec_info._name ) {
@@ -301,7 +230,7 @@ namespace sio {
   
   //--------------------------------------------------------------------------
   
-  inline std::vector<block_info> api::read_block_infos( const buffer_span &buf ) {
+  std::vector<block_info> api::read_block_infos( const buffer_span &buf ) {
     if( not buf.valid() ) {
       SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
     }
@@ -321,7 +250,7 @@ namespace sio {
   
   //--------------------------------------------------------------------------
   
-  inline std::pair<block_info, buffer_span> api::extract_block( const buffer_span &rec_buf, buffer_span::index_type index ) {
+  std::pair<block_info, buffer_span> api::extract_block( const buffer_span &rec_buf, buffer_span::index_type index ) {
     if( index >= rec_buf.size() ) {
       SIO_THROW( sio::error_code::invalid_argument, "Start of block pointing after end of record!" ) ;
     }
@@ -349,7 +278,7 @@ namespace sio {
   
   //--------------------------------------------------------------------------
   
-  inline void api::read_blocks( const buffer_span &rec_buf, const std::vector<std::shared_ptr<block>>& blocks ) {
+  void api::read_blocks( const buffer_span &rec_buf, const std::vector<std::shared_ptr<block>>& blocks ) {
     if( not rec_buf.valid() ) {
       SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
     }
@@ -385,7 +314,7 @@ namespace sio {
   
   //--------------------------------------------------------------------------
   
-  inline void api::dump_records( sio::ifstream &stream, std::size_t skip, std::size_t count, bool detailed ) {
+  void api::dump_records( sio::ifstream &stream, std::size_t skip, std::size_t count, bool detailed ) {
     try {
       // skip records first
       if( skip > 0 ) {
@@ -488,7 +417,7 @@ namespace sio {
   
   //--------------------------------------------------------------------------
   
-  inline void api::write_blocks( write_device &device, const block_list &blocks ) {
+  void api::write_blocks( write_device &device, const block_list &blocks ) {
     for( auto blk : blocks ) {
       auto blk_ptr = blk ;
       try {
@@ -520,7 +449,7 @@ namespace sio {
   
   //--------------------------------------------------------------------------
   
-  inline record_info api::write_record( const std::string &name, buffer &rec_buf, const block_list& blocks, sio::options_type opts ) {
+  record_info api::write_record( const std::string &name, buffer &rec_buf, const block_list& blocks, sio::options_type opts ) {
     if( not sio::valid_record_name( name ) ) {
       SIO_THROW( sio::error_code::invalid_argument, "Record name '" + name + "' is invalid" ) ;
     }
@@ -575,39 +504,7 @@ namespace sio {
   
   //--------------------------------------------------------------------------
   
-  template <typename compT>
-  inline void api::compress_record( record_info &rec_info, buffer &rec_buf, buffer &comp_buf, compT &compressor ) {
-    if( not rec_buf.valid() ) {
-      SIO_THROW( sio::error_code::invalid_argument, "Record buffer is invalid" ) ;
-    }
-    if( not comp_buf.valid() ) {
-      SIO_THROW( sio::error_code::invalid_argument, "Compression buffer is invalid" ) ;
-    }
-    try {
-      // set the compression bit in the record options
-      sio::api::set_compression( rec_info._options, true ) ;
-      // compress the record buffer (but not the record header)
-      auto rec_span = rec_buf.span( rec_info._header_length ) ;
-      compressor.compress( rec_span, comp_buf ) ;
-      rec_info._data_length = comp_buf.size() ;
-      write_device device ;
-      device.set_buffer( std::move(rec_buf) ) ;
-      // fill back the record buffer with updated information on header
-      device.data( rec_info._header_length ) ;
-      device.data( sio::record_marker ) ;
-      device.data( rec_info._options ) ;
-      device.data( rec_info._data_length ) ;
-      // get back the buffer
-      rec_buf = std::move( device.take_buffer() ) ;
-    }
-    catch( sio::exception &e ) {
-      SIO_RETHROW( e, sio::error_code::io_failure, "Couldn't compress record buffer" ) ;
-    }
-  }
-  
-  //--------------------------------------------------------------------------
-  
-  inline void api::write_record( sio::ofstream &stream, const buffer_span &rec_buf, record_info &rec_info ) {
+  void api::write_record( sio::ofstream &stream, const buffer_span &rec_buf, record_info &rec_info ) {
     if( not stream.is_open() ) {
       SIO_THROW( sio::error_code::not_open, "ofstream is not open!" ) ;
     }
@@ -631,7 +528,7 @@ namespace sio {
   
   //--------------------------------------------------------------------------
   
-  inline void api::write_record( sio::ofstream &stream, const buffer_span &hdr_span, const buffer_span &data_span, record_info &rec_info ) {
+  void api::write_record( sio::ofstream &stream, const buffer_span &hdr_span, const buffer_span &data_span, record_info &rec_info ) {
     if( not stream.is_open() ) {
       SIO_THROW( sio::error_code::not_open, "ofstream is not open!" ) ;
     }
@@ -662,13 +559,13 @@ namespace sio {
   
   //--------------------------------------------------------------------------
   
-  inline bool api::is_compressed( options_type opts ) {
+  bool api::is_compressed( options_type opts ) {
     return static_cast<bool>( opts & sio::compression_bit ) ;
   }
   
   //--------------------------------------------------------------------------
   
-  inline bool api::set_compression( options_type &opts, bool value ) {
+  bool api::set_compression( options_type &opts, bool value ) {
     bool out = sio::api::is_compressed( opts ) ;
     opts &= ~sio::compression_bit ;
     if( value ) {

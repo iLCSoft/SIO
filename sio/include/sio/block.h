@@ -75,5 +75,3 @@ namespace sio {
   };
   
 }
-
-#include <sio/details/block_impl.h>

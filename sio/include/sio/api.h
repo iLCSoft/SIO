@@ -2,16 +2,19 @@
 
 // -- sio headers
 #include <sio/definitions.h>
+#include <sio/buffer.h>
 
 // -- std headers
 #include <memory>
 #include <utility>
 #include <string>
+#include <sstream>
 #include <vector>
 
 namespace sio {
   
   class buffer ;
+  class buffer_span ;
   class block ;
   class write_device ;
 
@@ -319,4 +322,114 @@ namespace sio {
   
 }
 
-#include <sio/details/api_impl.h>
+#include <sio/exception.h>
+#include <sio/memcpy.h>
+#include <sio/io_device.h>
+
+namespace sio {
+
+  template <class bufT, typename T>
+  inline typename bufT::size_type api::read( const bufT &buffer, T *ptr, typename bufT::index_type position, typename bufT::size_type count ) {
+    return api::read( buffer, SIO_BYTE_CAST(ptr), sizeof(T), position, count ) ;
+  }
+  
+  //--------------------------------------------------------------------------
+
+  template <class bufT>
+  inline typename bufT::size_type api::read( const bufT &buffer, typename bufT::pointer ptr, typename bufT::size_type length, typename bufT::index_type position, typename bufT::size_type count ) {
+    if( not buffer.valid() ) {
+      SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
+    }
+    const auto bytelen = length*count ;
+    const auto padlen = (bytelen + sio::padding) & sio::padding_mask ;
+    SIO_DEBUG( "Reading... len: " << length << ", count: " << count << ", padlen: " << padlen ) ;
+    if( position + padlen > buffer.size() ) {
+      std::stringstream ss ;
+      ss << "Can't read " << padlen << " bytes out of buffer (pos=" << position << ")" ;
+      SIO_THROW( sio::error_code::invalid_argument, ss.str() ) ;
+    }
+    auto ptr_read = buffer.ptr( position ) ;
+    sio::memcpy::copy( SIO_CUCHAR_CAST(ptr_read), SIO_UCHAR_CAST(ptr), length, count ) ;
+    return padlen ;
+  }
+  
+  //--------------------------------------------------------------------------
+
+  template <class bufT, typename T>
+  inline typename bufT::size_type api::write( bufT &buffer, const T *const ptr, typename bufT::index_type position, typename bufT::size_type count ) {
+    return api::write( buffer, SIO_CBYTE_CAST(ptr), sizeof(T), position, count ) ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  template <class bufT>
+  inline typename bufT::size_type api::write( bufT &buffer, typename bufT::const_pointer const ptr, typename bufT::size_type length, typename bufT::index_type position, typename bufT::size_type count ) {
+    if( not buffer.valid() ) {
+      SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
+    }
+    const auto bytelen = length*count ;
+    const auto padlen = (bytelen + sio::padding) & sio::padding_mask ;
+    if( position + padlen >= buffer.size() ) {
+      buffer.expand() ;
+    }
+    auto ptr_write = buffer.ptr( position ) ;
+    sio::memcpy::copy( SIO_CUCHAR_CAST(ptr), SIO_UCHAR_CAST(ptr_write), length, count ) ;
+    for( auto bytcnt = bytelen; bytcnt < padlen; bytcnt++ ) {
+      *(ptr_write + bytcnt) = sio::null_byte ;
+    }
+    return padlen ;
+  }
+  
+  //--------------------------------------------------------------------------
+
+  template <class UnaryPredicate>
+  inline void api::skip_records( sio::ifstream &stream, UnaryPredicate pred ) {
+    sio::record_info rec_info ;
+    sio::buffer rec_buffer( sio::max_record_info_len ) ;
+    while( 1 ) {
+      // read record header
+      api::read_record_info( stream, rec_info, rec_buffer ) ;
+      // skip record data
+      stream.seekg( rec_info._file_end ) ;
+      if( not stream.good() ) {
+        SIO_THROW( sio::error_code::bad_state, "ifstream is in a bad state after a seek operation!" ) ;
+      }
+      if( not pred( rec_info ) ) {
+        break ;
+      }
+    }
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  template <typename compT>
+  inline void api::compress_record( record_info &rec_info, buffer &rec_buf, buffer &comp_buf, compT &compressor ) {
+    if( not rec_buf.valid() ) {
+      SIO_THROW( sio::error_code::invalid_argument, "Record buffer is invalid" ) ;
+    }
+    if( not comp_buf.valid() ) {
+      SIO_THROW( sio::error_code::invalid_argument, "Compression buffer is invalid" ) ;
+    }
+    try {
+      // set the compression bit in the record options
+      sio::api::set_compression( rec_info._options, true ) ;
+      // compress the record buffer (but not the record header)
+      auto rec_span = rec_buf.span( rec_info._header_length ) ;
+      compressor.compress( rec_span, comp_buf ) ;
+      rec_info._data_length = comp_buf.size() ;
+      write_device device ;
+      device.set_buffer( std::move(rec_buf) ) ;
+      // fill back the record buffer with updated information on header
+      device.data( rec_info._header_length ) ;
+      device.data( sio::record_marker ) ;
+      device.data( rec_info._options ) ;
+      device.data( rec_info._data_length ) ;
+      // get back the buffer
+      rec_buf = std::move( device.take_buffer() ) ;
+    }
+    catch( sio::exception &e ) {
+      SIO_RETHROW( e, sio::error_code::io_failure, "Couldn't compress record buffer" ) ;
+    }
+  }
+  
+}

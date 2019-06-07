@@ -456,5 +456,3 @@ namespace sio {
   };
 
 }
-
-#include <sio/details/buffer_impl.h>

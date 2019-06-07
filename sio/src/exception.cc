@@ -1,4 +1,5 @@
-#pragma once
+// -- std headers
+#include <sio/exception.h>
 
 namespace sio {
 
@@ -23,7 +24,7 @@ namespace sio {
   //--------------------------------------------------------------------------
   //--------------------------------------------------------------------------
 
-  inline exception::exception(
+  exception::exception(
     error_code code,
     unsigned int line,
     const std::string &func,
@@ -36,34 +37,19 @@ namespace sio {
 
   //--------------------------------------------------------------------------
 
-  template <typename T>
-  inline exception::exception(
-    const T &rhs,
-    error_code code,
-    unsigned int line,
-    const std::string &func,
-    const std::string &fname,
-    const std::string &msg ) :
-    _code( code ) ,
-    _message( message(rhs.what(), code, line, func, fname, msg) ) {
-    /* nop */
-  }
-
-  //--------------------------------------------------------------------------
-
-  inline const char* exception::what() const noexcept {
+  const char* exception::what() const noexcept {
     return _message.c_str() ;
   }
   
   //--------------------------------------------------------------------------
   
-  inline sio::error_code exception::code() const {
+  sio::error_code exception::code() const {
     return _code ;
   }
 
   //--------------------------------------------------------------------------
 
-  inline std::string exception::message(
+  std::string exception::message(
     error_code code,
     unsigned int line,
     const std::string &func,
@@ -77,7 +63,7 @@ namespace sio {
 
   //--------------------------------------------------------------------------
 
-  inline std::string exception::message(
+  std::string exception::message(
     const std::string &previous,
     error_code code,
     unsigned int line,

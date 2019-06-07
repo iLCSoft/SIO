@@ -37,5 +37,3 @@ namespace sio {
   };
   
 }
-
-#include <sio/details/memcpy_impl.h>
