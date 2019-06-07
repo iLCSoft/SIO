@@ -287,6 +287,7 @@ namespace sio {
 // Read or write data
 #define SIO_DATA( dev, pnt, cnt ) \
   try { \
+    SIO_DEBUG( "Reading/writing " << #pnt << " of size " << cnt ); \
     dev.data( pnt, cnt ) ; \
   } \
   catch( sio::exception &e ) { \
@@ -296,6 +297,7 @@ namespace sio {
 // Read or write a pointer (pointer to)
 #define SIO_PNTR( dev, pnt ) \
   try { \
+    SIO_DEBUG( "Reading/writing pointer to" << #pnt ); \
     dev.pointer_to( (sio::ptr_type*)pnt ) ; \
   } \
   catch( sio::exception &e ) { \
@@ -305,6 +307,7 @@ namespace sio {
 // Read or write a pointer tag (pointed at)
 #define SIO_PTAG( rec, pnt ) \
   try { \
+    SIO_DEBUG( "Reading/writing pointed at" << #pnt ); \
     dev.pointed_at( (sio::ptr_type*)pnt ) ; \
   } \
   catch( sio::exception &e ) { \
