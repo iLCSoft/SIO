@@ -4,6 +4,9 @@
 #include <sio/api.h>
 #include <sio/compression/zlib.h>
 
+// -- std headers
+#include <limits>
+
 /**
  *  @brief  Utility in sio to dump all records from a file on disk
  */
