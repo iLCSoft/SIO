@@ -1,8 +1,9 @@
-
+// -- sio headers
 #include <sio/definitions.h>
 #include <sio/exception.h>
 #include <sio/api.h>
 
+// -- sio examples headers
 #include <sioexamples/data.h>
 #include <sioexamples/blocks.h>
 
