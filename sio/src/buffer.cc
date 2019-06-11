@@ -347,7 +347,7 @@ namespace sio {
   //--------------------------------------------------------------------------
 
   buffer_span buffer::span( index_type start ) const {
-    if( start >= size() ) {
+    if( start > size() ) {
       std::stringstream ss ;
       ss << "start: " << start << ", size: " << size() ;
       SIO_THROW( error_code::out_of_range, ss.str() ) ;
@@ -358,7 +358,7 @@ namespace sio {
   //--------------------------------------------------------------------------
 
   buffer_span buffer::span( index_type start, size_type count ) const {
-    if( start+count >= size() ) {
+    if( start+count > size() ) {
       std::stringstream ss ;
       ss << "start: " << start << ", count: " << count << ", size: " << size() ;
       SIO_THROW( error_code::out_of_range, ss.str() ) ;
