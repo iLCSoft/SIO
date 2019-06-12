@@ -1,4 +1,4 @@
-# Contribution Guidelines for LCIO
+# Contribution Guidelines for SIO
 
 
 ## Pull Requests
