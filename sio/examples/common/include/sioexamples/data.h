@@ -20,10 +20,15 @@ namespace sio {
     template <typename devT>
     inline void particle_data( particle &part, devT &device ) {
       SIO_DATA( device, &part._pid, 1 ) ;
+      SIO_DEBUG( "Reading/writing particle, pid: " << part._pid ) ;
       SIO_DATA( device, &part._energy, 1 ) ;
+      SIO_DEBUG( "Reading/writing particle, energy: " << part._energy ) ;
       SIO_DATA( device, &part._x, 1 ) ;
+      SIO_DEBUG( "Reading/writing particle, x: " << part._x ) ;
       SIO_DATA( device, &part._y, 1 ) ;
+      SIO_DEBUG( "Reading/writing particle, y: " << part._y ) ;
       SIO_DATA( device, &part._z, 1 ) ;
+      SIO_DEBUG( "Reading/writing particle, z: " << part._z ) ;
     }
     
     // simple example of data referencing another 
