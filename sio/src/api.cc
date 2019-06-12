@@ -128,6 +128,8 @@ namespace sio {
     // a bit of debugging ...
     SIO_DEBUG( "=== Read record info ====" ) ;
     SIO_DEBUG( rec_info ) ;
+    SIO_DEBUG( "read_record_info: Resizing buffer to " << rec_info._header_length ) ;
+    outbuf.resize( rec_info._header_length ) ;
   }
 
   //--------------------------------------------------------------------------
@@ -140,9 +142,10 @@ namespace sio {
       SIO_THROW( sio::error_code::bad_state, "ifstream is in a bad state!" ) ;
     }
     // if the user provide large enough buffer, there is maybe no need to expand it
-    auto total_len = rec_info._data_length + rec_info._header_length ;
+    auto total_len = rec_info._data_length ;
     if( outbuf.size() + buffer_shift < total_len ) {
-      auto mis_len = outbuf.size() - (total_len + buffer_shift) ;
+      auto mis_len = static_cast<long int>(outbuf.size()) - static_cast<long int>(total_len + buffer_shift) ;
+      SIO_DEBUG( "read_record_data: Expanding buffer by " << mis_len << " (buf len=" << outbuf.size() << ")" ) ;
       outbuf.expand( mis_len ) ;
     }
     // go to record start
@@ -159,6 +162,8 @@ namespace sio {
     if( not stream.seekg( rec_info._file_end ).good() ) {
       SIO_THROW( sio::error_code::bad_state, "ifstream is in a bad state after a seek operation!" ) ;
     }
+    SIO_DEBUG( "read_record_data: Resizing buffer to " << buffer_shift + rec_info._data_length ) ;
+    outbuf.resize( buffer_shift + rec_info._data_length ) ;
   }
 
   //--------------------------------------------------------------------------
@@ -299,7 +304,7 @@ namespace sio {
       }
       // prepare the read device
       device.set_buffer( block_data.second ) ;
-      device.seek( 0 ) ;
+      device.seek( block_data.first._header_length ) ;
       try {
         (*block_iter)->read( device, block_data.first._version ) ;        
       }
