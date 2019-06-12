@@ -76,8 +76,7 @@ namespace sio {
     }
     rec_info._file_start = stream.tellg() ;
     if( outbuf.size() < sio::max_record_info_len ) {
-      auto mis_len = outbuf.size() - sio::max_record_info_len ;
-      outbuf.resize( mis_len ) ;
+      outbuf.resize( sio::max_record_info_len ) ;
     }
     stream.read( outbuf.data(), 8 ) ;
     if( stream.eof() ) {
@@ -393,6 +392,7 @@ namespace sio {
           }
           sio::buffer_span device_buffer = compressed ? uncomp_rec_buffer.span() : rec_buffer.span( 0, rec_info._data_length ) ;
           auto block_infos = sio::api::read_block_infos( device_buffer ) ;
+          SIO_DEBUG( "Number of blocks found: " << block_infos.size() ) ;
           for( auto binfo : block_infos ) {
             std::stringstream version_str ;
             version_str << sio::version::major_version( binfo._version ) << "." << sio::version::minor_version( binfo._version ) ;
