@@ -1,0 +1,6 @@
+/include
+/lib
+/build
+/bin
+/SIOConfig.cmake
+/SIOConfigVersion.cmake
