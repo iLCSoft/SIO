@@ -24,17 +24,20 @@ ELSE()
   SET( DOC_INSTALL_PREFIX doc/sio )
 ENDIF()
 
+FILE( GLOB_RECURSE SIO_HEADERS ${PROJECT_SOURCE_DIR}/source/include/sio/*.h )
+
 # ---------- c++ documentation -----------------------------------------------
 IF( DOXYGEN_FOUND )
   ADD_CUSTOM_COMMAND(
     OUTPUT  "${DOC_BIN_DIR}/html/index.html"
+    COMMAND mkdir -p ${DOC_BIN_DIR}
     COMMAND DOX_PROJECT_NUMBER="${${PROJECT_NAME}_VERSION}"
             DOX_OUTPUT_DIRECTORY="${DOC_BIN_DIR}"
-            DOX_INPUT="${PROJECT_SOURCE_DIR}/sio/include/sio"
+            DOX_INPUT="${PROJECT_SOURCE_DIR}/source/include/sio"
             "${DOXYGEN_EXECUTABLE}"
     WORKING_DIRECTORY ${DOC_SRC_DIR}
     COMMENT "Building C++ API Documentation..."
-    DEPENDS Doxyfile CMakeLists.txt ${PROJECT_SOURCE_DIR}/sio/include/*
+    DEPENDS Doxyfile CMakeLists.txt ${SIO_HEADERS}
   )
   ADD_CUSTOM_TARGET( doc_cpp DEPENDS "${DOC_BIN_DIR}/html/index.html" )
   ADD_DEPENDENCIES( doc doc_cpp )
