@@ -48,5 +48,3 @@ SIO_DISPLAY_STD_VARIABLES()
 
 # generate and install following configuration files
 SIO_GENERATE_PACKAGE_CONFIGURATION_FILES( SIOConfig.cmake SIOConfigVersion.cmake )
-
-INSTALL( FILES cmake/MacroCheckPackageLibs.cmake cmake/MacroCheckPackageVersion.cmake DESTINATION lib/cmake )
