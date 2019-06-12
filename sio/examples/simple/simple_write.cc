@@ -44,6 +44,10 @@ int main( int argc, char **argv ) {
     /// Fill some data in our particle
     sio::example::particle part ;
     part._energy = 42.f ;
+    part._pid = 12 ;
+    part._x = 0.01 ;
+    part._y = 0.02 ;
+    part._z = 0.03 ;
     part_blk->set_particle( part ) ;
     
     /// The record is first written in a buffer before being written 
