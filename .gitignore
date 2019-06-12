@@ -4,3 +4,4 @@
 /bin
 /SIOConfig.cmake
 /SIOConfigVersion.cmake
+/doc/doxygen_api
