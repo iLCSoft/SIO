@@ -299,6 +299,16 @@ namespace sio {
     SIO_RETHROW( e, sio::error_code::io_failure, "Failed to read or write data!" ) ; \
   }
 
+// Specialized macro for simple data writing
+#define SIO_WRITE( dev, dat ) \
+  try { \
+    SIO_DEBUG( "Simple writing " << dat ); \
+    dev.data( dat ) ; \
+  } \
+  catch( sio::exception &e ) { \
+    SIO_RETHROW( e, sio::error_code::io_failure, "Failed to read or write data!" ) ; \
+  }
+
 // Read or write a pointer (pointer to)
 #define SIO_PNTR( dev, pnt ) \
   try { \
