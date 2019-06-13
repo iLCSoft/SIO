@@ -85,6 +85,18 @@ namespace sio {
   using ptr_type = unsigned int ;
 #endif
 
+// FIXME: This has been taken from old version of SIO
+// It is difficult to judge if we can remove this typedef
+// and use std::int64_t instead without breaking anything
+#if defined(_AIX)      ||  defined(__alpha__) || defined(__i386__)  || defined(__sparc__) || defined(__APPLE_CC__) || defined(_LP64)
+// fg: gcc complains about long long - what to do about it ?
+// warning: ANSI C++ does not support `long long'
+  using int64 = long long ;
+#endif
+#else
+  using int64 = __int64 ;
+#endif
+
   class block ;
 
   // Bytes related types
