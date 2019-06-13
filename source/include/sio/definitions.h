@@ -130,7 +130,7 @@ namespace sio {
   static constexpr std::size_t double_len = 2 ;
   static constexpr std::size_t quad_len = 4 ;
   static constexpr std::size_t octo_len = 8 ;
-  
+
   /**
    *  @brief  record_info struct.
    *
@@ -152,7 +152,7 @@ namespace sio {
     ///< The record name
     std::string                   _name {} ;
   };
-  
+
   /**
    *  @brief  block_info struct.
    *
@@ -172,7 +172,7 @@ namespace sio {
     ///< The block name
     std::string                   _name {} ;
   };
-  
+
   /**
    *  @brief  Streaming operator for record_info
    */
@@ -185,7 +185,7 @@ namespace sio {
     stream << "- uncompressed len:      " << info._uncompressed_length << std::endl ;
     return stream ;
   }
-  
+
   /**
    *  @brief  Streaming operator for block_info
    */
@@ -197,7 +197,7 @@ namespace sio {
     stream << "- data len:              " << info._data_length << std::endl ;
     return stream ;
   }
-  
+
   /**
    *  @brief  Validate a name.
    *
@@ -284,6 +284,11 @@ namespace sio {
 #define SIO_UCHAR_CAST(pntr)    (reinterpret_cast<unsigned char*>((pntr)))
 #define SIO_CUCHAR_CAST(pntr)    (reinterpret_cast<const unsigned char*>((pntr)))
 
+// version decoding/encoding for backward compatibility
+#define SIO_VERSION_MAJOR( v ) sio::version_helper::major_version( v )
+#define SIO_VERSION_MINOR( v ) sio::version_helper::minor_version( v )
+#define SIO_VERSION_ENCODE( maj, min ) sio::version_helper::encode_version( maj, min )
+
 // Read or write data
 #define SIO_DATA( dev, pnt, cnt ) \
   try { \
@@ -293,7 +298,7 @@ namespace sio {
   catch( sio::exception &e ) { \
     SIO_RETHROW( e, sio::error_code::io_failure, "Failed to read or write data!" ) ; \
   }
-  
+
 // Read or write a pointer (pointer to)
 #define SIO_PNTR( dev, pnt ) \
   try { \
@@ -303,7 +308,7 @@ namespace sio {
   catch( sio::exception &e ) { \
     SIO_RETHROW( e, sio::error_code::io_failure, "Failed to read or write pointer to!" ) ; \
   }
-  
+
 // Read or write a pointer tag (pointed at)
 #define SIO_PTAG( rec, pnt ) \
   try { \
