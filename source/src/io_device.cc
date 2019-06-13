@@ -3,12 +3,12 @@
 #include <sio/api.h>
 
 namespace sio {
-  
+
   read_device::read_device( buffer_span buf ) :
     _buffer(std::move(buf)) {
     /* nop */
   }
-  
+
   //--------------------------------------------------------------------------
 
   void read_device::set_buffer( const buffer_span &buf ) {
@@ -35,9 +35,20 @@ namespace sio {
     }
     _cursor = pos ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
+  // specialization of string
+  template <>
+  void read_device::data( std::string &var ) {
+    int len(0) ;
+    data( len ) ;
+    var.resize( len ) ;
+    data( &var[0], len ) ;
+  }
+
+  //--------------------------------------------------------------------------
+
   void read_device::pointer_to( ptr_type *ptr ) {
     // Read.  Keep a record of the "match" quantity read from the buffer and
     // the location in memory which will need relocating.
@@ -53,9 +64,9 @@ namespace sio {
     }
     *ptr = static_cast<sio::ptr_type>( match ) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   void read_device::pointed_at( ptr_type *ptr ) {
     // Read.  Keep a record of the "match" quantity read from the buffer and
     // the location in memory which will need relocating.
@@ -63,40 +74,40 @@ namespace sio {
     data( match ) ;
     // Ignore match = SIO_ptag. This is basically a pointer target which was
     // never relocated when the record was written. i.e. nothing points to it!
-    // Don't clutter the maps with information that can never be used. 
+    // Don't clutter the maps with information that can never be used.
     if( match != 0xffffffff ) {
       pointed_at_map::value_type entry = { reinterpret_cast<void *>( match ), ptr } ;
       _pointed_at.insert( entry ) ;
     }
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   void read_device::pointer_relocation() {
     sio::api::read_relocation( _pointed_at, _pointer_to ) ;
     _pointer_to.clear() ;
     _pointed_at.clear() ;
   }
-  
+
   //--------------------------------------------------------------------------
   //--------------------------------------------------------------------------
-  
+
   void write_device::set_buffer( buffer&& buf ) {
     _buffer = std::move( buf ) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   buffer write_device::take_buffer() {
     return std::move( _buffer ) ;
   }
-  
+
   //--------------------------------------------------------------------------
 
   write_device::cursor_type write_device::position() const {
     return _cursor ;
   }
-  
+
   //--------------------------------------------------------------------------
 
   void write_device::seek( cursor_type pos ) {
@@ -105,15 +116,25 @@ namespace sio {
     }
     _cursor = pos ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
+  // specialization for string
+  template <>
+  void write_device::data( const std::string &var ) {
+    int len = var.size() ;
+    data( len ) ;
+    data( &var[0], len ) ;
+  }
+
+  //--------------------------------------------------------------------------
+
   void write_device::pointer_to( ptr_type *ptr ) {
     // Write.  Keep a record of the "match" quantity (i.e. the value of the
     // pointer (which may be different lengths on different machines!)) and
     // the current offset in the output buffer.  Put a placeholder in the
     // output buffer (it will be overwritten at the "output relocation" stage).
-    // 
+    //
     // Placeholder value for 'pointer to'
     unsigned int SIO_pntr = 0x00000000 ;
     // ptr is really a pointer-to-a-pointer.  This routine is most interested
@@ -132,7 +153,7 @@ namespace sio {
     }
     data( SIO_pntr ) ;
   }
-  
+
   //--------------------------------------------------------------------------
 
   void write_device::pointed_at( ptr_type *ptr ) {
@@ -145,9 +166,9 @@ namespace sio {
     _pointed_at.insert( entry ) ;
     data( SIO_ptag ) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   void write_device::pointer_relocation() {
     sio::api::write_relocation( _buffer.data(), _pointed_at, _pointer_to ) ;
     _pointer_to.clear() ;
