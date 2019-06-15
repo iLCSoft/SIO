@@ -16,7 +16,7 @@
 #include <algorithm>
 
 namespace sio {
-  
+
   void api::read_relocation( pointed_at_map& pointed_at, pointer_to_map& pointer_to ) {
     // Pointer relocation on read.
     // Some of these variables are a little terse!  Expanded meanings:
@@ -37,9 +37,9 @@ namespace sio {
       ptol = ptoh ;
     }
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   void api::write_relocation( buffer::const_pointer rec_start, pointed_at_map& pointed_at, pointer_to_map& pointer_to ) {
     // Pointer relocation on write.
     // Some of these variables are a little terse!  Expanded meanings:
@@ -64,7 +64,7 @@ namespace sio {
       ptol = ptoh ;
     }
   }
-  
+
   //--------------------------------------------------------------------------
 
   void api::read_record_info( sio::ifstream &stream, record_info &rec_info, buffer &outbuf ) {
@@ -113,8 +113,8 @@ namespace sio {
     rec_info._name.assign( name_length, '\0' ) ;
     device.data( &(rec_info._name[0]), name_length ) ;
     const auto compressed = sio::api::is_compressed( rec_info._options ) ;
-    // if the record is compressed skip the read pointer over 
-    // any padding bytes that may have been inserted to make 
+    // if the record is compressed skip the read pointer over
+    // any padding bytes that may have been inserted to make
     // the next record header start on a four byte boundary in the file.
     auto tot_len = rec_info._data_length + rec_info._header_length ;
     SIO_DEBUG( "Total len before: " << tot_len ) ;
@@ -143,7 +143,7 @@ namespace sio {
     // if the user provide large enough buffer, there is maybe no need to expand it
     auto total_len = rec_info._data_length ;
     if( outbuf.size() + buffer_shift < total_len ) {
-      auto mis_len = static_cast<long int>(outbuf.size()) - static_cast<long int>(total_len + buffer_shift) ;
+      auto mis_len = static_cast<long int>(total_len + buffer_shift) - static_cast<long int>(outbuf.size()) ;
       SIO_DEBUG( "read_record_data: Expanding buffer by " << mis_len << " (buf len=" << outbuf.size() << ")" ) ;
       outbuf.expand( mis_len ) ;
     }
@@ -185,7 +185,7 @@ namespace sio {
   }
 
 
-  
+
   //--------------------------------------------------------------------------
 
   void api::skip_records( sio::ifstream &stream, std::size_t nskip ) {
@@ -202,7 +202,7 @@ namespace sio {
     std::size_t counter = 0 ;
     api::skip_records( stream, [&]( const record_info &rec_info ) {
       if( name == rec_info._name ) {
-        ++ counter ;  
+        ++ counter ;
       }
       return ( counter < nskip ) ;
     }) ;
@@ -224,9 +224,9 @@ namespace sio {
       SIO_THROW( sio::error_code::bad_state, "ifstream is in a bad state after a seek operation!" ) ;
     }
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   std::vector<block_info> api::read_block_infos( const buffer_span &buf ) {
     if( not buf.valid() ) {
       SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
@@ -244,9 +244,9 @@ namespace sio {
     }
     return block_infos ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   std::pair<block_info, buffer_span> api::extract_block( const buffer_span &rec_buf, buffer_span::index_type index ) {
     if( index >= rec_buf.size() ) {
       SIO_THROW( sio::error_code::invalid_argument, "Start of block pointing after end of record!" ) ;
@@ -277,9 +277,9 @@ namespace sio {
     info._record_end = index + block_len ;
     return std::make_pair( info, rec_buf.subspan( index, block_len ) ) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   void api::read_blocks( const buffer_span &rec_buf, const std::vector<std::shared_ptr<block>>& blocks ) {
     if( not rec_buf.valid() ) {
       SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
@@ -305,7 +305,7 @@ namespace sio {
       device.set_buffer( block_data.second ) ;
       device.seek( block_data.first._header_length ) ;
       try {
-        (*block_iter)->read( device, block_data.first._version ) ;        
+        (*block_iter)->read( device, block_data.first._version ) ;
       }
       catch( sio::exception &e ) {
         SIO_RETHROW( e, sio::error_code::io_failure, "Failed to decode block buffer (" + block_data.first._name + ")" ) ;
@@ -313,14 +313,14 @@ namespace sio {
     }
     device.pointer_relocation() ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   void api::dump_records( sio::ifstream &stream, std::size_t skip, std::size_t count, bool detailed ) {
     try {
       // skip records first
       if( skip > 0 ) {
-        sio::api::skip_records( stream, skip ) ;        
+        sio::api::skip_records( stream, skip ) ;
       }
       sio::record_info rec_info ;
       sio::buffer info_buffer( sio::max_record_info_len ) ;
@@ -330,11 +330,11 @@ namespace sio {
       const unsigned int tab_len = 117 ;
       if( not detailed ) {
         std::cout << std::string( tab_len, '-' ) << std::endl ;
-        std::cout << 
-          std::setw(30) << std::left << "Record name " << " | " << 
-          std::setw(15) << "Start" << " | " << 
-          std::setw(15) << "End" << " | " << 
-          std::setw(12) << "Options" << " | " << 
+        std::cout <<
+          std::setw(30) << std::left << "Record name " << " | " <<
+          std::setw(15) << "Start" << " | " <<
+          std::setw(15) << "End" << " | " <<
+          std::setw(12) << "Options" << " | " <<
           std::setw(10) << "Header len" << " | " <<
           std::setw(15) << "Data len" <<
           std::endl ;
@@ -353,32 +353,32 @@ namespace sio {
         ++ record_counter ;
         if( detailed ) {
           std::cout << std::string( tab_len, '-' ) << std::endl ;
-          std::cout << 
-            std::setw(30) << std::left << "Record name " << " | " << 
-            std::setw(15) << "Start" << " | " << 
-            std::setw(15) << "End" << " | " << 
-            std::setw(12) << "Options" << " | " << 
+          std::cout <<
+            std::setw(30) << std::left << "Record name " << " | " <<
+            std::setw(15) << "Start" << " | " <<
+            std::setw(15) << "End" << " | " <<
+            std::setw(12) << "Options" << " | " <<
             std::setw(10) << "Header len" << " | " <<
             std::setw(15) << "Data len" <<
             std::endl ;
         }
         std::stringstream size_str ;
         size_str << rec_info._data_length << " (" << rec_info._uncompressed_length << ")" ;
-        std::cout << 
-          std::setw(30) << std::left << rec_info._name << " | " << 
-          std::setw(15) << rec_info._file_start << " | " << 
-          std::setw(15) << rec_info._file_end << " | " << 
-          std::setw(12) << rec_info._options << " | " << 
-          std::setw(10) << rec_info._header_length << " | " << 
+        std::cout <<
+          std::setw(30) << std::left << rec_info._name << " | " <<
+          std::setw(15) << rec_info._file_start << " | " <<
+          std::setw(15) << rec_info._file_end << " | " <<
+          std::setw(12) << rec_info._options << " | " <<
+          std::setw(10) << rec_info._header_length << " | " <<
           std::setw(15) << size_str.str() <<
           std::endl ;
         if( detailed ) {
           std::cout << std::string( tab_len, '-' ) << std::endl ;
-          std::cout << 
-            std::setw(30) << std::left << "Block name " << " | " << 
-            std::setw(15) << "Start" << " | " << 
-            std::setw(15) << "End" << " | " << 
-            std::setw(12) << "Version" << " | " << 
+          std::cout <<
+            std::setw(30) << std::left << "Block name " << " | " <<
+            std::setw(15) << "Start" << " | " <<
+            std::setw(15) << "End" << " | " <<
+            std::setw(12) << "Version" << " | " <<
             std::setw(10) << "Header len" << " | " <<
             std::setw(15) << "Data len" <<
             std::endl ;
@@ -396,12 +396,12 @@ namespace sio {
           for( auto binfo : block_infos ) {
             std::stringstream version_str ;
             version_str << sio::version::major_version( binfo._version ) << "." << sio::version::minor_version( binfo._version ) ;
-            std::cout << 
-              std::setw(30) << std::left << binfo._name << " | " << 
-              std::setw(15) << binfo._record_start << " | " << 
-              std::setw(15) << binfo._record_end << " | " << 
-              std::setw(12) << version_str.str() << " | " << 
-              std::setw(10) << binfo._header_length << " | " << 
+            std::cout <<
+              std::setw(30) << std::left << binfo._name << " | " <<
+              std::setw(15) << binfo._record_start << " | " <<
+              std::setw(15) << binfo._record_end << " | " <<
+              std::setw(12) << version_str.str() << " | " <<
+              std::setw(10) << binfo._header_length << " | " <<
               std::setw(15) << binfo._data_length <<
               std::endl ;
           }
@@ -417,9 +417,9 @@ namespace sio {
       throw e ;
     }
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   void api::write_blocks( write_device &device, const block_list &blocks ) {
     for( auto blk : blocks ) {
       auto blk_ptr = blk ;
@@ -427,7 +427,7 @@ namespace sio {
         auto block_start = device.position() ;
         auto block_name = blk_ptr->name() ;
         unsigned int blkname_len = block_name.size() ;
-        // write the block header. It will be updated after 
+        // write the block header. It will be updated after
         // the block has been written
         device.data( sio::block_marker ) ;
         device.data( sio::block_marker ) ;
@@ -442,7 +442,7 @@ namespace sio {
         SIO_DEBUG( "Block len :" << blklen ) ;
         device.seek( block_start ) ;
         device.data( blklen ) ;
-        device.seek( blk_end ) ;  
+        device.seek( blk_end ) ;
       }
       catch( sio::exception &e ) {
         SIO_RETHROW( e, sio::error_code::io_failure, "Couldn't write block to buffer (" + blk_ptr->name() + ")" ) ;
@@ -450,9 +450,9 @@ namespace sio {
     }
     device.pointer_relocation() ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   record_info api::write_record( const std::string &name, buffer &rec_buf, const block_list& blocks, sio::options_type opts ) {
     if( not sio::valid_record_name( name ) ) {
       SIO_THROW( sio::error_code::invalid_argument, "Record name '" + name + "' is invalid" ) ;
@@ -507,9 +507,9 @@ namespace sio {
       SIO_RETHROW( e, sio::error_code::io_failure, "Couldn't write record into buffer" ) ;
     }
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   void api::write_record( sio::ofstream &stream, const buffer_span &rec_buf, record_info &rec_info ) {
     if( not stream.is_open() ) {
       SIO_THROW( sio::error_code::not_open, "ofstream is not open!" ) ;
@@ -531,9 +531,9 @@ namespace sio {
     }
     rec_info._file_end = stream.tellp() ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   void api::write_record( sio::ofstream &stream, const buffer_span &hdr_span, const buffer_span &data_span, record_info &rec_info ) {
     if( not stream.is_open() ) {
       SIO_THROW( sio::error_code::not_open, "ofstream is not open!" ) ;
@@ -562,15 +562,15 @@ namespace sio {
     }
     rec_info._file_end = stream.tellp() ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   bool api::is_compressed( options_type opts ) {
     return static_cast<bool>( opts & sio::compression_bit ) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   bool api::set_compression( options_type &opts, bool value ) {
     bool out = sio::api::is_compressed( opts ) ;
     opts &= ~sio::compression_bit ;
