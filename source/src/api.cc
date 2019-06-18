@@ -54,10 +54,10 @@ namespace sio {
       auto pati = pointed_at.find( ptol->first ) ;
       if( pati != pointed_at.end() ) {
         auto pointer = rec_start + reinterpret_cast<sio::ptr_type>( pati->second ) ;
-        sio::memcpy::copy( SIO_CUCHAR_CAST( &match ), (unsigned char*)pointer, 4, 1 ) ;
+        sio::memcpy::write( &match, (sio::byte*)pointer, 1 ) ;
         for( auto ptoi = ptol; ptoi != ptoh; ptoi++ ) {
           pointer = rec_start + reinterpret_cast<sio::ptr_type>( ptoi->second ) ;
-          sio::memcpy::copy( SIO_CUCHAR_CAST( &match ), (unsigned char*)pointer, 4, 1 ) ;
+          sio::memcpy::write( &match, (sio::byte*)pointer, 1 ) ;
         }
       }
       match++ ;

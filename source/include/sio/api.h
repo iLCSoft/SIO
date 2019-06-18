@@ -322,59 +322,27 @@ namespace sio {
 
 }
 
-namespace details {
-  template <typename bufT, typename T>
-  typename bufT::size_type read_buffer( const bufT &buffer, T *ptr, typename bufT::index_type position, typename bufT::size_type count ) ;
-  template <typename bufT, typename T>
-  typename bufT::size_type write_buffer( bufT &buffer, const T *const ptr, typename bufT::index_type position, typename bufT::size_type count ) ;
-}
-
 #include <sio/exception.h>
 #include <sio/memcpy.h>
 #include <sio/io_device.h>
 
 namespace sio {
 
-  namespace details {
-
-    template <typename bufT, typename T>
-    inline typename bufT::size_type read_buffer( const bufT &buffer, T *ptr, typename bufT::index_type position, typename bufT::size_type count ) {
-      return api::read( buffer, SIO_BYTE_CAST(ptr), sizeof(T), position, count ) ;
-    }
-
-    //--------------------------------------------------------------------------
-
-    template <typename bufT, typename T>
-    inline typename bufT::size_type write_buffer( bufT &buffer, const T *const ptr, typename bufT::index_type position, typename bufT::size_type count ) {
-      return api::write( buffer, SIO_CBYTE_CAST(ptr), sizeof(T), position, count ) ;
-    }
-
-  }
-
-  //--------------------------------------------------------------------------
-
   template <class bufT, typename T>
   inline typename bufT::size_type api::read( const bufT &buffer, T *ptr, typename bufT::index_type position, typename bufT::size_type count ) {
-    return details::read_buffer( buffer, ptr, position, count ) ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  template <class bufT>
-  inline typename bufT::size_type api::read( const bufT &buffer, typename bufT::pointer ptr, typename bufT::size_type length, typename bufT::index_type position, typename bufT::size_type count ) {
     if( not buffer.valid() ) {
       SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
     }
-    const auto bytelen = length*count ;
+    const auto bytelen = sizeof_helper<T>::size*count ;
     const auto padlen = (bytelen + sio::padding) & sio::padding_mask ;
-    SIO_DEBUG( "Reading... len: " << length << ", count: " << count << ", padlen: " << padlen << ", position: " << position ) ;
+    SIO_DEBUG( "Reading... len: " << sizeof_helper<T>::size << ", count: " << count << ", padlen: " << padlen << ", position: " << position ) ;
     if( position + padlen > buffer.size() ) {
       std::stringstream ss ;
       ss << "Can't read " << padlen << " bytes out of buffer (pos=" << position << ")" ;
       SIO_THROW( sio::error_code::invalid_argument, ss.str() ) ;
     }
     auto ptr_read = buffer.ptr( position ) ;
-    sio::memcpy::copy( SIO_CUCHAR_CAST(ptr_read), SIO_UCHAR_CAST(ptr), length, count ) ;
+    sio::memcpy::read<T>( ptr_read, ptr, count ) ;
     return padlen ;
   }
 
@@ -382,61 +350,22 @@ namespace sio {
 
   template <class bufT, typename T>
   inline typename bufT::size_type api::write( bufT &buffer, const T *const ptr, typename bufT::index_type position, typename bufT::size_type count ) {
-    return details::write_buffer( buffer, ptr, position, count ) ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  template <class bufT>
-  inline typename bufT::size_type api::write( bufT &buffer, typename bufT::const_pointer const ptr, typename bufT::size_type length, typename bufT::index_type position, typename bufT::size_type count ) {
     if( not buffer.valid() ) {
       SIO_THROW( sio::error_code::bad_state, "Buffer is invalid." ) ;
     }
-    const auto bytelen = length*count ;
+    const auto bytelen = sizeof_helper<T>::size*count ;
     const auto padlen = (bytelen + sio::padding) & sio::padding_mask ;
     if( position + padlen >= buffer.size() ) {
       buffer.expand() ; // FIXME if position + padlen is greater than default exapnd size : problem !!
     }
     auto ptr_write = buffer.ptr( position ) ;
-    SIO_DEBUG( "Writing... len=" << length << ", count=" << count << ", bytelen=" << bytelen << ", padlen=" << padlen << ", position:" << position ) ;
-    sio::memcpy::copy( SIO_CUCHAR_CAST(ptr), SIO_UCHAR_CAST(ptr_write), length, count ) ;
+    SIO_DEBUG( "Writing... len=" << sizeof_helper<T>::size << ", count=" << count << ", bytelen=" << bytelen << ", padlen=" << padlen << ", position:" << position ) ;
+    sio::memcpy::write( ptr, ptr_write, count ) ;
     for( auto bytcnt = bytelen; bytcnt < padlen; bytcnt++ ) {
       *(ptr_write + bytcnt) = sio::null_byte ;
     }
     return padlen ;
   }
-
-  //--------------------------------------------------------------------------
-
-#define SIO_API_RW_SPEC( TYPE, TYPE_SIZE ) \
-  namespace details { \
-    template <class bufT> \
-    inline typename bufT::size_type read_buffer( const bufT &buffer, TYPE *ptr, typename bufT::index_type position, typename bufT::size_type count ) { \
-      return api::read( buffer, SIO_BYTE_CAST(ptr), TYPE_SIZE, position, count ) ; \
-    } \
-    template <class bufT> \
-    inline typename bufT::size_type write_buffer( bufT &buffer, const TYPE *const ptr, typename bufT::index_type position, typename bufT::size_type count ) { \
-      return api::write( buffer, SIO_CBYTE_CAST(ptr), TYPE_SIZE, position, count ) ; \
-    } \
-  }
-
-  SIO_API_RW_SPEC( char, 1 )
-  SIO_API_RW_SPEC( unsigned char, 1 )
-  SIO_API_RW_SPEC( short, 2 )
-  SIO_API_RW_SPEC( unsigned short, 2 )
-  SIO_API_RW_SPEC( int , 4 )
-  SIO_API_RW_SPEC( unsigned int , 4 )
-#if defined(_AIX)      ||  defined(__alpha__) || defined(__i386__)  || defined(__sparc__) || defined(__APPLE_CC__) || defined(_LP64)
-  SIO_API_RW_SPEC( long long , 8 )
-  SIO_API_RW_SPEC( unsigned long long , 8 )
-#else
-  SIO_API_RW_SPEC( __int64 , 8 )
-  SIO_API_RW_SPEC( unsigned __int64 , 8 )
-#endif
-  SIO_API_RW_SPEC( float , 4 )
-  SIO_API_RW_SPEC( double , 8 )
-
-#undef SIO_API_RW_SPEC
 
   //--------------------------------------------------------------------------
 
