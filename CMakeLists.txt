@@ -25,6 +25,8 @@ INCLUDE_DIRECTORIES( SYSTEM ${ZLIB_INCLUDE_DIR} )
 # options
 OPTION( SIO_EXAMPLES        "Switch ON to build SIO examples" ON )
 OPTION( INSTALL_DOC         "Set to OFF to skip build/install Documentation" OFF )
+OPTION( SIO_WITH_SIMD       "Set to OFF to disable SIMD cxx flags" ON )
+OPTION( SIO_WITH_OFAST      "Set to OFF to disable -Ofast cxx flags" OFF )
 SET(    SIO_LOGLVL          "0" CACHE STRING "The SIO verbosity level" )
 
 IF( NOT SIO_LOGLVL MATCHES "^[0-9]+$" )
