@@ -218,6 +218,7 @@ SET( COMPILER_FLAGS
   -Wno-non-virtual-dtor
   -Wheader-hygiene
   -std=c++11
+  -fopt-info-vec
   -ftree-vectorize
 )
 
