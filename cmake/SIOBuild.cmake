@@ -1,4 +1,6 @@
 
+INCLUDE( OptimizeForArchitecture )
+OptimizeForArchitecture()
 
 
 MACRO( SIO_ADD_SHARED_LIBRARY _name )
@@ -199,24 +201,35 @@ MARK_AS_ADVANCED( CMAKE_INSTALL_RPATH_USE_LINK_PATH )
 ## this will create a humongous amount of warnings when compiling :)
 INCLUDE(CheckCXXCompilerFlag)
 
-SET( COMPILER_FLAGS 
-  -Wformat-security 
-  -Wreturn-type 
-  -Wlogical-op 
-  -Wredundant-decls 
-  -Wno-deprecated-declarations 
-  -Wall 
-  -Wunused-value 
-  -Wextra 
-  -Wshadow 
-  -Weffc++ 
-  -pedantic 
-  -Wno-long-long 
-  -Wuninitialized 
-  -Wno-non-virtual-dtor 
+SET( COMPILER_FLAGS
+  -Wformat-security
+  -Wreturn-type
+  -Wlogical-op
+  -Wredundant-decls
+  -Wno-deprecated-declarations
+  -Wall
+  -Wunused-value
+  -Wextra
+  -Wshadow
+  -Weffc++
+  -pedantic
+  -Wno-long-long
+  -Wuninitialized
+  -Wno-non-virtual-dtor
   -Wheader-hygiene
   -std=c++11
+  -ftree-vectorize
 )
+
+IF( SIO_WITH_SIMD AND SIO_ARCHITECTURE_FLAGS )
+  LIST( APPEND COMPILER_FLAGS ${SIO_ARCHITECTURE_FLAGS} )
+ENDIF()
+
+IF( SIO_WITH_OFAST )
+  LIST( APPEND COMPILER_FLAGS -Ofast )
+ELSE()
+  LIST( APPEND COMPILER_FLAGS -O3 )
+ENDIF()
 
 IF( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
  LIST( APPEND COMPILER_FLAGS -Wl,-no-undefined )
@@ -249,6 +262,3 @@ IF( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VER
 ENDIF()
 
 INSTALL( FILES cmake/MacroCheckPackageLibs.cmake cmake/MacroCheckPackageVersion.cmake DESTINATION lib/cmake )
-
-
-
