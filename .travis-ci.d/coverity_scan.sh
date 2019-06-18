@@ -6,7 +6,7 @@ source $ILCSOFT/init_ilcsoft.sh
 cd /Package
 mkdir build
 cd build
-cmake -DSIO_EXAMPLES=ON .. && \
+cmake -DSIO_WITH_SIMD=OFF -DSIO_EXAMPLES=ON .. && \
 export PATH=/Package/cov-analysis-linux64/bin:$PATH && \
 cov-build --dir cov-int make -j2 && \
 tar czvf myproject.tgz cov-int
