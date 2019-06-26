@@ -1,8 +1,4 @@
 
-INCLUDE( OptimizeForArchitecture )
-OptimizeForArchitecture()
-
-
 MACRO( SIO_ADD_SHARED_LIBRARY _name )
   ADD_LIBRARY( ${_name} SHARED ${ARGN} )
   # change lib_target properties
@@ -218,18 +214,16 @@ SET( COMPILER_FLAGS
   -Wno-non-virtual-dtor
   -Wheader-hygiene
   -std=c++11
-  -fopt-info-vec
-  -ftree-vectorize
 )
 
-IF( SIO_WITH_SIMD AND SIO_ARCHITECTURE_FLAGS )
-  LIST( APPEND COMPILER_FLAGS ${SIO_ARCHITECTURE_FLAGS} )
+IF( SIO_PROFILING AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
+  LIST( APPEND COMPILER_FLAGS -pg )
 ENDIF()
 
 IF( SIO_WITH_OFAST )
-  LIST( APPEND COMPILER_FLAGS -Ofast )
+  SET( CMAKE_CXX_FLAGS_RELEASE "-Ofast" )
 ELSE()
-  LIST( APPEND COMPILER_FLAGS -O3 )
+  SET( CMAKE_CXX_FLAGS_RELEASE "-O3" )
 ENDIF()
 
 IF( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
