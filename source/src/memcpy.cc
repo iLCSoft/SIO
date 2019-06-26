@@ -3,13 +3,13 @@
 
 namespace sio {
 
-  void memcpy::reverse_copy( const sio::byte *const from, sio::byte *dest, std::size_t size, std::size_t count ) {
-    for( std::size_t icnt = 0; icnt < count; icnt++ ) {
-      for( std::size_t i=0 ; i<size ; i++ ) {
-        dest [ i ] = from [ size - (i+1) ] ;
+  void memcpy::reverse_copy( const sio::byte *const __restrict__ from, sio::byte * __restrict__ dest, std::size_t size, std::size_t count ) {
+    for( std::size_t s=0 ; s<size ; s++ ) {
+      for( std::size_t c=0 ; c<count ; c++ ) {
+        dest [ (size-1) - s + c*size ] = from [ s + c*size ] ;
       }
     }
-  }
+  }  
 
   //--------------------------------------------------------------------------
 

@@ -64,7 +64,7 @@ namespace sio {
      *  @param  size the size of the element in the bytes
      *  @param  count the number of elements to copy
      */
-    static void reverse_copy( const sio::byte *const from, sio::byte *dest, std::size_t size, std::size_t count ) ;
+    static void reverse_copy( const sio::byte *const __restrict__ from, sio::byte *__restrict__ dest, std::size_t size, std::size_t count ) ;
 
     /**
      *  @brief  Perform a byte array copy
