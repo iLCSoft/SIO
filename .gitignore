@@ -5,3 +5,4 @@
 /SIOConfig.cmake
 /SIOConfigVersion.cmake
 /doc/doxygen_api
+/callgrind.out.*
