@@ -88,6 +88,14 @@ namespace sio {
      */
     template <typename T>
     void data( T &var ) ;
+    
+    /**
+     *  @brief  Read out a vector from the buffer. Move the cursor accordingly
+     * 
+     *  @param  vars the vector to receive
+     */
+    template <typename T>
+    void data( std::vector<T> &vars ) ;
 
     /**
      *  @brief  Read out an array of variables from the buffer. Move the cursor accordingly
@@ -209,6 +217,14 @@ namespace sio {
      */
     template <typename T>
     void data( const T &var ) ;
+    
+    /**
+     *  @brief  Write out a vector to the buffer. Move the cursor accordingly
+     * 
+     *  @param  vars the vector to write
+     */
+    template <typename T>
+    void data( const std::vector<T> &vars ) ;
 
     /**
      *  @brief  Write out an array of variables to the buffer. Move the cursor accordingly
@@ -266,6 +282,18 @@ namespace sio {
   inline void read_device::data( T &var ) {
     data( &var, 1 ) ;
   }
+  
+  //--------------------------------------------------------------------------
+  
+  template <typename T>
+  inline void read_device::data( std::vector<T> &vars ) {
+    int len (0) ;
+    data( len ) ;
+    if( len > 0 ) {
+      vars.resize( len ) ;
+      data( &vars[0], len ) ;
+    }
+  }
 
   //--------------------------------------------------------------------------
 
@@ -280,6 +308,16 @@ namespace sio {
   template <typename T>
   inline void write_device::data( const T &var ) {
     data( &var, 1 ) ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  template <typename T>
+  inline void write_device::data( const std::vector<T> &vars ) {
+    data( (int)vars.size() ) ;
+    if( not vars.empty() ) {
+      data( &vars[0], vars.size() ) ;      
+    }
   }
 
   //--------------------------------------------------------------------------
