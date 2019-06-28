@@ -86,6 +86,10 @@ namespace sio {
 #endif
 
   class block ;
+  class read_device ;
+  class write_device ;
+  class buffer ;
+  class buffer_span ;
 
   // Bytes related types
   using byte = char ;
