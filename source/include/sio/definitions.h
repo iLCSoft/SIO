@@ -324,7 +324,7 @@ namespace sio {
   }
 
 // Read or write a pointer tag (pointed at)
-#define SIO_PTAG( rec, pnt ) \
+#define SIO_PTAG( dev, pnt ) \
   try { \
     SIO_DEBUG( "Reading/writing pointed at" << #pnt ); \
     dev.pointed_at( (sio::ptr_type*)pnt ) ; \
