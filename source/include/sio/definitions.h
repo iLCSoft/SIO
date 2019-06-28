@@ -285,9 +285,9 @@ namespace sio {
 #define SIO_CUCHAR_CAST(pntr)    (reinterpret_cast<const unsigned char*>((pntr)))
 
 // version decoding/encoding for backward compatibility
-#define SIO_VERSION_MAJOR( v ) sio::version_helper::major_version( v )
-#define SIO_VERSION_MINOR( v ) sio::version_helper::minor_version( v )
-#define SIO_VERSION_ENCODE( maj, min ) sio::version_helper::encode_version( maj, min )
+#define SIO_VERSION_MAJOR( v ) sio::version::major_version( v )
+#define SIO_VERSION_MINOR( v ) sio::version::minor_version( v )
+#define SIO_VERSION_ENCODE( maj, min ) sio::version::encode_version( maj, min )
 
 // Read or write data
 #define SIO_DATA( dev, pnt, cnt ) \
