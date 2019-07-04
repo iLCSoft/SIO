@@ -1,9 +1,9 @@
 # SIO - Simple IO
 
 [![Build Status](https://travis-ci.org/iLCSoft/SIO.svg?branch=master)](https://travis-ci.org/iLCSoft/SIO)
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/11178/badge.svg)](https://scan.coverity.com/projects/ilcsoft-sio)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/18659/badge.svg)](https://scan.coverity.com/projects/ilcsoft-sio)
 
-SIO is a persistency solution for reading and writing binary data in SIO structures called *record* and *block*. 
+SIO is a persistency solution for reading and writing binary data in SIO structures called *record* and *block*.
 SIO has originally been implemented as persistency layer for [LCIO](https://github.com/iLCSoft/LCIO).
 
 ## Installation
@@ -36,6 +36,3 @@ Copyright (c) 2003-2016, DESY, Deutsches Elektronen Synchrotron
 Copyright (c) 2003-2016, SLAC, National Accelerator Laboratory
 
 SIO is distributed under the [BSD-3-Clause licence](http://opensource.org/licenses/BSD-3-Clause).
-
-
-
