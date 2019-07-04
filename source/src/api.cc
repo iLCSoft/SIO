@@ -188,7 +188,7 @@ namespace sio {
 
   //--------------------------------------------------------------------------
 
-  void api::skip_records( sio::ifstream &stream, std::size_t nskip ) {
+  void api::skip_n_records( sio::ifstream &stream, std::size_t nskip ) {
     std::size_t counter = 0 ;
     api::skip_records( stream, [&]( const record_info & ) {
       ++ counter ;
@@ -320,7 +320,7 @@ namespace sio {
     try {
       // skip records first
       if( skip > 0 ) {
-        sio::api::skip_records( stream, skip ) ;
+        sio::api::skip_n_records( stream, skip ) ;
       }
       sio::record_info rec_info ;
       sio::buffer info_buffer( sio::max_record_info_len ) ;

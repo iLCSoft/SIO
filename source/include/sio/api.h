@@ -152,6 +152,39 @@ namespace sio {
     static void read_record( sio::ifstream &stream, record_info &rec_info, buffer &outbuf ) ;
 
     /**
+     *  @brief  Read out the next record (header + data) from the input stream.
+     *          The 'valid' arguments is used for validating the record info.
+     *          You might want to skip a record before extracting the full data
+     *          buffer. In this case the 'valid' function should return false.
+     *          If the record info is validated, the record data is extracted
+     *          out from the stream and passed to a second callback function
+     *          to process it. This function also returns a boolean value
+     *          specifying whether the next record should be read out.
+     *          Example reading out a single specific record:
+     *          @code{cpp}
+     *          sio::buffer buf( 32*sio::kbyte ) ;
+     *          sio::ifstream stream ;
+     *          // ... open the stream ...
+     *          sio::api::read_records( stream, buf,
+     *            []( const sio::record_info &recinfo ) {
+     *              // looking for a specific record
+     *              return (recinfo._name == "MyRecord") ;
+     *            },
+     *            []( const sio::record_info &recinfo, buffer_span recdata ){
+     *              // do something the record data
+     *              // return false saying stop reading records
+     *              return false ;
+     *            }) ;
+     *          @endcode
+     *
+     *  @param  stream the input stream
+     *  @param  rec_info the record info to receive
+     *  @param  outbuf the record header + data bytes to receive
+     */
+    template <typename ValidPred, typename ReadFunc>
+    static void read_records( sio::ifstream &stream, buffer &outbuf, ValidPred valid, ReadFunc func ) ;
+
+    /**
      *  @brief  Read out the record (header + data) from the input stream.
      *          Simple combination of the functions above. Returns the record
      *          info and the buffer. The initial buffer size is set to 1 Mo and
@@ -178,7 +211,7 @@ namespace sio {
      *  @param  stream the input stream
      *  @param  nskip the number of record to skip
      */
-    static void skip_records( sio::ifstream &stream, std::size_t nskip ) ;
+    static void skip_n_records( sio::ifstream &stream, std::size_t nskip ) ;
 
     /**
      *  @brief  Skip the N next records with a specific name.
@@ -365,6 +398,25 @@ namespace sio {
       *(ptr_write + bytcnt) = sio::null_byte ;
     }
     return padlen ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  template <typename ValidPred, typename ReadFunc>
+  inline void api::read_records( sio::ifstream &stream, buffer &outbuf, ValidPred valid, ReadFunc func ) {
+    sio::record_info rec_info {} ;
+    api::read_record_info( stream, rec_info, outbuf ) ;
+    bool continue_extract = true ;
+    while( continue_extract ) {
+      // if user validates the record info object, we extract the record data
+      if( valid( rec_info ) ) {
+        // extract the record data
+        api::read_record_data( stream, rec_info, outbuf, rec_info._header_length ) ;
+        // pass the record data buffer to the user (as a span)
+        // stop extracting records if the function returns false
+        continue_extract = func( rec_info, outbuf.span( rec_info._header_length, rec_info._data_length ) ) ;
+      }
+    }
   }
 
   //--------------------------------------------------------------------------
