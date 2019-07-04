@@ -103,6 +103,7 @@ namespace sio {
   using pointer_to_map = std::multimap< void*, void* > ;
   using ifstream = std::ifstream ;
   using ofstream = std::ofstream ;
+  using fstream  = std::fstream ;
   using block_ptr = std::shared_ptr<block> ;
   using block_list = std::vector<block_ptr> ;
 
