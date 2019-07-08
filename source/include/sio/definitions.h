@@ -294,6 +294,7 @@ namespace sio {
 #define SIO_VERSION_MINOR( v ) sio::version::minor_version( v )
 #define SIO_VERSION_ENCODE( maj, min ) sio::version::encode_version( maj, min )
 
+#ifdef SIO_MACROS_WITH_EXCEPTION
 // Read or write data
 #define SIO_DATA( dev, pnt, cnt ) \
   try { \
@@ -333,3 +334,14 @@ namespace sio {
   catch( sio::exception &e ) { \
     SIO_RETHROW( e, sio::error_code::io_failure, "Failed to read or write pointed at!" ) ; \
   }
+#else
+// Read or write data
+#define SIO_DATA( dev, pnt, cnt ) dev.data( pnt, cnt )
+// Specialized macro for simple data reading/writing
+#define SIO_SDATA( dev, dat ) dev.data( dat )
+// Read or write a pointer (pointer to)
+#define SIO_PNTR( dev, pnt ) dev.pointer_to( (sio::ptr_type*)pnt )
+// Read or write a pointer tag (pointed at)
+#define SIO_PTAG( dev, pnt ) dev.pointed_at( (sio::ptr_type*)pnt )
+
+#endif
