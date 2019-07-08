@@ -389,7 +389,8 @@ namespace sio {
     const auto bytelen = sizeof_helper<T>::size*count ;
     const auto padlen = (bytelen + sio::padding) & sio::padding_mask ;
     if( position + padlen >= buffer.size() ) {
-      buffer.expand() ; // FIXME if position + padlen is greater than default exapnd size : problem !!
+      auto expand_size = std::max( buffer.size(), padlen ) ;
+      buffer.expand( expand_size ) ;
     }
     auto ptr_write = buffer.ptr( position ) ;
     SIO_DEBUG( "Writing... len=" << sizeof_helper<T>::size << ", count=" << count << ", bytelen=" << bytelen << ", padlen=" << padlen << ", position:" << position ) ;
@@ -456,8 +457,7 @@ namespace sio {
       auto rec_span = rec_buf.span( rec_info._header_length ) ;
       compressor.compress( rec_span, comp_buf ) ;
       rec_info._data_length = comp_buf.size() ;
-      write_device device ;
-      device.set_buffer( std::move(rec_buf) ) ;
+      write_device device ( std::move(rec_buf) ) ;
       // fill back the record buffer with updated information on header
       device.data( rec_info._header_length ) ;
       device.data( sio::record_marker ) ;
