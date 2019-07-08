@@ -465,8 +465,7 @@ namespace sio {
       record_info info ;
       info._options = opts ;
       info._name = name ;
-      write_device device ;
-      device.set_buffer( std::move(rec_buf) ) ;
+      write_device device( std::move(rec_buf) ) ;
       // Output: 1) A placeholder for the record header length.
       //         2) A 'framing' marker (to help in debugging).
       //         3) An options word.
