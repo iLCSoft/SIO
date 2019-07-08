@@ -5,14 +5,14 @@
 #include <sio/buffer.h>
 
 namespace sio {
-  
+
   class buffer ;
   class buffer_span ;
 
   /**
    *  @brief  read_device class.
    *
-   *  Holds a buffer_span and a cursor allowing to read 
+   *  Holds a buffer_span and a cursor allowing to read
    *  data sequentially, moving the cursor after reading.
    */
   class read_device {
@@ -33,28 +33,28 @@ namespace sio {
     read_device& operator=( read_device && ) = default ;
     /// Default destructor
     ~read_device() = default ;
-    
+
     /**
      *  @brief  Constructor with buffer span
-     * 
+     *
      *  @param  buf the input buffer span
      */
     read_device( buffer_span buf ) ;
-    
+
     /**
      *  @name Buffer
      */
     ///{@
     /**
      *  @brief  Set the buffer span to use (move)
-     * 
+     *
      *  @param  buf the buffer to use
      */
     void set_buffer( buffer_span &&buf ) ;
-    
+
     /**
      *  @brief  Set the buffer span to use (copy)
-     * 
+     *
      *  @param  buf the buffer to use
      */
     void set_buffer( const buffer_span &buf ) ;
@@ -68,10 +68,10 @@ namespace sio {
      *  @brief  Get the cursor position
      */
     cursor_type position() const ;
-    
+
     /**
      *  @brief  Seek the cursor at a given position
-     * 
+     *
      *  @param  pos the new cursor position
      */
     void seek( cursor_type pos ) ;
@@ -83,15 +83,15 @@ namespace sio {
     ///{@
     /**
      *  @brief  Read out a variable from the buffer. Move the cursor accordingly
-     * 
+     *
      *  @param  var the variable to receive
      */
     template <typename T>
     void data( T &var ) ;
-    
+
     /**
      *  @brief  Read out a vector from the buffer. Move the cursor accordingly
-     * 
+     *
      *  @param  vars the vector to receive
      */
     template <typename T>
@@ -99,31 +99,31 @@ namespace sio {
 
     /**
      *  @brief  Read out an array of variables from the buffer. Move the cursor accordingly
-     * 
+     *
      *  @param  var the address of the array
      *  @param  count the number of element to read out
      */
     template <typename T>
     void data( T *var, size_type count ) ;
-    
+
     /**
      *  @brief  Read out a "pointer to" pointer from the buffer.
      *          A new entry is created for a future relocation.
      *          The pointer relocation is performed at the end of record reading
-     *          
+     *
      *  @param  ptr the address to register
      */
     void pointer_to( ptr_type *ptr ) ;
-    
+
     /**
      *  @brief  Read out a "pointed at" pointer from the buffer.
      *          A new entry is created for a future relocation.
      *          The pointer relocation is performed at the end of record reading
-     *          
+     *
      *  @param  ptr the address to register
      */
     void pointed_at( ptr_type *ptr ) ;
-    
+
     /**
      *  @brief  Perform the pointer relocation after the whole record has
      *          been read. The pointers are relocated and the pointer maps
@@ -142,14 +142,14 @@ namespace sio {
     ///< The map of pointer "pointer to"
     pointer_to_map      _pointer_to {} ;
   };
-  
+
   //--------------------------------------------------------------------------
   //--------------------------------------------------------------------------
-  
+
   /**
    *  @brief  write_device class.
    *
-   *  Holds a buffer and provide a api to write data sequentially 
+   *  Holds a buffer and provide a api to write data sequentially
    *  to this buffer by using a cursor
    */
   class write_device {
@@ -158,8 +158,8 @@ namespace sio {
     using size_type = std::size_t ;
 
   public:
-    /// Default constructor
-    write_device() = default ;
+    /// No default constructor
+    write_device() = delete ;
     /// Default copy constructor
     write_device( const write_device & ) = default ;
     /// Default move constructor
@@ -170,25 +170,27 @@ namespace sio {
     write_device& operator=( write_device && ) = default ;
     /// Default destructor
     ~write_device() = default ;
-    
+    /// Constructor with buffer
+    write_device( buffer&& buf ) ;
+
     /**
      *  @name Buffer
      */
     ///{@
     /**
      *  @brief  Set the buffer to use (move)
-     * 
+     *
      *  @param  buf the buffer to use
      */
     void set_buffer( buffer&& buf ) ;
-    
+
     /**
      *  @brief  Take out the buffer from the device.
      *          The buffer in the device becomes invalid
      */
     buffer take_buffer() ;
     ///@}
-    
+
     /**
      *  @name Cursor
      */
@@ -197,10 +199,10 @@ namespace sio {
      *  @brief  Get the cursor position
      */
     cursor_type position() const ;
-    
+
     /**
      *  @brief  Seek the cursor at a given position
-     * 
+     *
      *  @param  pos the new cursor position
      */
     void seek( cursor_type pos ) ;
@@ -212,15 +214,15 @@ namespace sio {
     ///{@
     /**
      *  @brief  Write out a variable to the buffer. Move the cursor accordingly
-     * 
+     *
      *  @param  var the variable to write
      */
     template <typename T>
     void data( const T &var ) ;
-    
+
     /**
      *  @brief  Write out a vector to the buffer. Move the cursor accordingly
-     * 
+     *
      *  @param  vars the vector to write
      */
     template <typename T>
@@ -228,31 +230,31 @@ namespace sio {
 
     /**
      *  @brief  Write out an array of variables to the buffer. Move the cursor accordingly
-     * 
+     *
      *  @param  var the address of the array
      *  @param  count the number of element to write out
      */
     template <typename T>
     void data( const T *const var, size_type count ) ;
-    
+
     /**
      *  @brief  Write out a "pointer to" pointer to the buffer.
      *          A new entry is created for a future relocation.
      *          The pointer relocation is performed at the end of record writting
-     *          
+     *
      *  @param  ptr the address to register
      */
     void pointer_to( ptr_type *ptr ) ;
-    
+
     /**
      *  @brief  Write out a "pointed at" pointer to the buffer.
      *          A new entry is created for a future relocation.
      *          The pointer relocation is performed at the end of record writting
-     *          
+     *
      *  @param  ptr the address to register
      */
     void pointed_at( ptr_type *ptr ) ;
-    
+
     /**
      *  @brief  Perform the pointer relocation after the whole record has
      *          been written. The pointers are relocated and the pointer maps
@@ -260,10 +262,10 @@ namespace sio {
      */
     void pointer_relocation() ;
     ///@}
-    
+
   private:
     ///< The buffer in which to write
-    buffer              _buffer {32*sio::kbyte*sio::kbyte} ;
+    buffer              _buffer ;
     ///< The device cursor
     cursor_type         _cursor {0} ;
     ///< The map of pointer "pointed at"
@@ -282,9 +284,9 @@ namespace sio {
   inline void read_device::data( T &var ) {
     data( &var, 1 ) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   template <typename T>
   inline void read_device::data( std::vector<T> &vars ) {
     int len (0) ;
@@ -301,7 +303,7 @@ namespace sio {
   inline void read_device::data( T *var, size_type count ) {
     _cursor += sio::api::read( _buffer, var, _cursor, count ) ;
   }
-  
+
   //--------------------------------------------------------------------------
   //--------------------------------------------------------------------------
 
@@ -309,14 +311,14 @@ namespace sio {
   inline void write_device::data( const T &var ) {
     data( &var, 1 ) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   template <typename T>
   inline void write_device::data( const std::vector<T> &vars ) {
     data( (int)vars.size() ) ;
     if( not vars.empty() ) {
-      data( &vars[0], vars.size() ) ;      
+      data( &vars[0], vars.size() ) ;
     }
   }
 

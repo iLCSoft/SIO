@@ -46,9 +46,9 @@ namespace sio {
     var.resize( len ) ;
     data( &var[0], len ) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   template <>
   void read_device::data( std::vector<std::string> &vars ) {
     int len (0) ;
@@ -56,7 +56,7 @@ namespace sio {
     if( len > 0 ) {
       vars.resize( len ) ;
       for( std::string &str : vars ) {
-        data( str ) ;  
+        data( str ) ;
       }
     }
   }
@@ -106,6 +106,13 @@ namespace sio {
   //--------------------------------------------------------------------------
   //--------------------------------------------------------------------------
 
+  write_device::write_device( buffer&& buf ) :
+    _buffer( std::move( buf ) ) {
+    /* nop */
+  }
+
+  //--------------------------------------------------------------------------
+
   void write_device::set_buffer( buffer&& buf ) {
     _buffer = std::move( buf ) ;
   }
@@ -140,15 +147,15 @@ namespace sio {
     data( len ) ;
     data( &var[0], len ) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   template <>
   void write_device::data( const std::vector<std::string> &vars ) {
     data( static_cast<int>(vars.size()) ) ;
     if( not vars.empty() ) {
       for( auto &str : vars ) {
-        data( str ) ;  
+        data( str ) ;
       }
     }
   }
