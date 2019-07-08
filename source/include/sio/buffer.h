@@ -119,7 +119,7 @@ namespace sio {
      *  @param  index the index of a byte access
      */
     const_reference at( index_type index ) const ;
-    
+
     /**
      *  @brief  Get a pointer on the raw bytes at the given index
      *
@@ -375,6 +375,11 @@ namespace sio {
      *  @brief  Whether the buffer is empty
      */
     bool empty() const ;
+
+    /**
+     *  @brief  Get the underlying current buffer capacity 
+     */
+    size_type capacity() const ;
     ///@}
 
     /**

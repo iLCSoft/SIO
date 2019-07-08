@@ -82,9 +82,9 @@ namespace sio {
     }
     return data() [ index ] ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   buffer_span::const_pointer buffer_span::ptr( index_type index ) const {
     return data() + index ;
   }
@@ -299,6 +299,12 @@ namespace sio {
 
   bool buffer::empty() const {
     return _bytes.empty() ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  buffer::size_type buffer::capacity() const {
+    return _bytes.capacity() ;
   }
 
   //--------------------------------------------------------------------------
