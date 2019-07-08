@@ -11,7 +11,7 @@
 #include <sstream>
 
 namespace sio {
-  
+
   void zlib_compression::set_level( int level ) {
     if(level < 0) {
       _level = Z_DEFAULT_COMPRESSION;
@@ -25,13 +25,13 @@ namespace sio {
   }
   
   //--------------------------------------------------------------------------
-  
+
   int zlib_compression::level() const {
     return _level ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   void zlib_compression::uncompress( const buffer_span &inbuf, buffer &outbuf ) {
     if( not inbuf.valid() ) {
       SIO_THROW( sio::error_code::invalid_argument, "Buffer is not valid" ) ;
@@ -46,9 +46,9 @@ namespace sio {
     }
     SIO_DEBUG( "ZLIB uncompress OK!" ) ;
   }
-  
+
   //--------------------------------------------------------------------------
-  
+
   void zlib_compression::compress( const buffer_span &inbuf, buffer &outbuf ) {
     if( not inbuf.valid() ) {
       SIO_THROW( sio::error_code::invalid_argument, "Buffer is not valid" ) ;
@@ -60,7 +60,7 @@ namespace sio {
     if( outbuf.size() < comp_bound ) {
       outbuf.resize( comp_bound ) ;
     }
-    auto zstat = ::compress2( (Bytef*)outbuf.data(), &comp_bound, (const Bytef*)inbuf.data(), inbuf.size(), _level ) ;
+    auto zstat = ::compress2( reinterpret_cast<Bytef*>(outbuf.data()), &comp_bound, reinterpret_cast<const Bytef*>(inbuf.data()), inbuf.size(), _level ) ;
     if( Z_OK != zstat ) {
       std::stringstream ss ;
       ss << "Zlib compression failed with status " << zstat ;
@@ -69,5 +69,5 @@ namespace sio {
     outbuf.resize( comp_bound ) ;
     SIO_DEBUG( "ZLIB compress OK!" ) ;
   }
-  
+
 }
