@@ -279,6 +279,34 @@ namespace sio {
 #include <sio/api.h>
 
 namespace sio {
+  
+  //--------------------------------------------------------------------------
+
+  // specialization of string
+  template <>
+  inline void read_device::data<std::string>( std::string &var ) {
+    int len(0) ;
+    data( len ) ;
+    var.resize( len ) ;
+    data( &var[0], len ) ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  // specialization of vector of strings
+  template <>
+  inline void read_device::data<std::string>( std::vector<std::string> &vars ) {
+    int len (0) ;
+    data( len ) ;
+    if( len > 0 ) {
+      vars.resize( len ) ;
+      for( std::string &str : vars ) {
+        data( str ) ;
+      }
+    }
+  }
+  
+  //--------------------------------------------------------------------------
 
   template <typename T>
   inline void read_device::data( T &var ) {
@@ -305,6 +333,29 @@ namespace sio {
   }
 
   //--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
+
+  // specialization for string
+  template <>
+  inline void write_device::data<std::string>( const std::string &var ) {
+    int len = var.size() ;
+    data( len ) ;
+    data( var.data(), len ) ;
+  }
+
+  //--------------------------------------------------------------------------
+
+  // specialization for vector of strings
+  template <>
+  inline void write_device::data<std::string>( const std::vector<std::string> &vars ) {
+    data( static_cast<int>(vars.size()) ) ;
+    if( not vars.empty() ) {
+      for( auto &str : vars ) {
+        data( str ) ;
+      }
+    }
+  }
+  
   //--------------------------------------------------------------------------
 
   template <typename T>

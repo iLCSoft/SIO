@@ -38,31 +38,6 @@ namespace sio {
 
   //--------------------------------------------------------------------------
 
-  // specialization of string
-  template <>
-  void read_device::data( std::string &var ) {
-    int len(0) ;
-    data( len ) ;
-    var.resize( len ) ;
-    data( &var[0], len ) ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  template <>
-  void read_device::data( std::vector<std::string> &vars ) {
-    int len (0) ;
-    data( len ) ;
-    if( len > 0 ) {
-      vars.resize( len ) ;
-      for( std::string &str : vars ) {
-        data( str ) ;
-      }
-    }
-  }
-
-  //--------------------------------------------------------------------------
-
   void read_device::pointer_to( ptr_type *ptr ) {
     // Read.  Keep a record of the "match" quantity read from the buffer and
     // the location in memory which will need relocating.
@@ -136,28 +111,6 @@ namespace sio {
       SIO_THROW( sio::error_code::out_of_range, "Can't seek device cursor: out of range!" ) ;
     }
     _cursor = pos ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  // specialization for string
-  template <>
-  void write_device::data( const std::string &var ) {
-    int len = var.size() ;
-    data( len ) ;
-    data( &var[0], len ) ;
-  }
-
-  //--------------------------------------------------------------------------
-
-  template <>
-  void write_device::data( const std::vector<std::string> &vars ) {
-    data( static_cast<int>(vars.size()) ) ;
-    if( not vars.empty() ) {
-      for( auto &str : vars ) {
-        data( str ) ;
-      }
-    }
   }
 
   //--------------------------------------------------------------------------
