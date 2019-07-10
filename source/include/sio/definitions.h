@@ -109,6 +109,8 @@ namespace sio {
 
   /// The null byte definition
   static constexpr byte null_byte = '\0' ;
+  
+  static constexpr byte padding_bytes [4] = {null_byte} ;
   /// Kilo byte unit
   static constexpr std::size_t kbyte = 0x00000400 ;
   /// Mega byte unit
@@ -295,6 +297,7 @@ namespace sio {
 #define SIO_VERSION_ENCODE( maj, min ) sio::version::encode_version( maj, min )
 
 #ifdef SIO_MACROS_WITH_EXCEPTION
+#warning "SIO_MACROS_WITH_EXCEPTION activated!"
 // Read or write data
 #define SIO_DATA( dev, pnt, cnt ) \
   try { \
@@ -308,7 +311,7 @@ namespace sio {
 // Specialized macro for simple data reading/writing
 #define SIO_SDATA( dev, dat ) \
   try { \
-    SIO_DEBUG( "Simple reading/writing " << dat ); \
+    SIO_DEBUG( "Simple reading/writing " << #dat ); \
     dev.data( dat ) ; \
   } \
   catch( sio::exception &e ) { \
