@@ -40,7 +40,10 @@ FIND_PATH( SIO_INCLUDE_DIRS
 	NO_DEFAULT_PATH
 )
 
-
+IF( @SIO_MACROS_WITH_EXCEPTION@ )
+  ADD_DEFINITIONS( "-DSIO_MACROS_WITH_EXCEPTION=1" )
+ENDIF()
+ADD_DEFINITIONS( "-DSIO_LOGLVL=@SIO_LOGLVL@" )
 
 # ---------- libraries --------------------------------------------------------
 INCLUDE( "${SIO_ROOT}/lib/cmake/MacroCheckPackageLibs.cmake" )
