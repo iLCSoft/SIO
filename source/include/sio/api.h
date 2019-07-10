@@ -405,17 +405,22 @@ namespace sio {
 
   template <typename ValidPred, typename ReadFunc>
   inline void api::read_records( sio::ifstream &stream, buffer &outbuf, ValidPred valid, ReadFunc func ) {
-    sio::record_info rec_info {} ;
-    api::read_record_info( stream, rec_info, outbuf ) ;
     bool continue_extract = true ;
     while( continue_extract ) {
+      sio::record_info rec_info {} ;
+      api::read_record_info( stream, rec_info, outbuf ) ;
       // if user validates the record info object, we extract the record data
-      if( valid( rec_info ) ) {
+      auto val = valid( rec_info ) ;
+      if( val ) {
         // extract the record data
         api::read_record_data( stream, rec_info, outbuf, rec_info._header_length ) ;
         // pass the record data buffer to the user (as a span)
         // stop extracting records if the function returns false
-        continue_extract = func( rec_info, outbuf.span( rec_info._header_length, rec_info._data_length ) ) ;
+        continue_extract = func( rec_info, outbuf.span( rec_info._header_length, rec_info._data_length ) ) ;        
+      }
+      else {
+        // if not, seek to the next record
+        stream.seekg( rec_info._file_end ) ;
       }
     }
   }
