@@ -70,6 +70,8 @@ int main( int argc, char **argv ) {
     
     /// A bit of cleanup and we are done !
     stream.close() ;
+    
+    std::cout << "Read sio file " << fname << std::endl ;
   }
   catch( sio::exception &e ) {
     std::cout << "Caught sio exception :\n" << e.what() << std::endl ;
