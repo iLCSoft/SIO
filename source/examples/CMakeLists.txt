@@ -21,3 +21,13 @@ TARGET_LINK_LIBRARIES( zlib_read sio )
 INSTALL( TARGETS zlib_read RUNTIME DESTINATION bin/examples )
 
 
+# relocation example
+ADD_EXECUTABLE( relocation_write relocation/relocation_write.cc )
+TARGET_LINK_LIBRARIES( relocation_write sio )
+INSTALL( TARGETS relocation_write RUNTIME DESTINATION bin/examples )
+
+ADD_EXECUTABLE( relocation_read relocation/relocation_read.cc )
+TARGET_LINK_LIBRARIES( relocation_read sio )
+INSTALL( TARGETS relocation_read RUNTIME DESTINATION bin/examples )
+
+
