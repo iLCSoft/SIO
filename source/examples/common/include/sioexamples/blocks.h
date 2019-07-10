@@ -55,6 +55,57 @@ namespace sio {
       particle            _particle {} ;
     };
     
+    
+    class linked_list_block : public sio::block {
+    public:
+      linked_list_block() :
+        sio::block( "linked_list", sio::version::encode_version( 1, 2 ) ) {
+        /* nop */
+      }
+    
+      std::shared_ptr<linked_list> root() const { return _root ; }
+      void set_root( std::shared_ptr<linked_list> r ) { _root = r ; }
+    
+      // Read the linked_list data from the device
+      void read( sio::read_device &device, sio::version_type /*vers*/ ) override {
+        int nlinks = 0 ;
+        // read the number of elements in the linked list
+        SIO_SDATA( device, nlinks ) ;
+        // create the root element
+        _root = std::make_shared<linked_list>() ;
+        auto current = _root ;
+        for( int i=0 ; i<nlinks ; i++ ) {
+          linked_list_data( current, device ) ;
+          // last element ? then don't allocate the next of the list
+          if( i+1 < nlinks ) {
+            current->_next = std::make_shared<linked_list>() ;
+          }
+          current = current->_next ;     
+        }
+      }
+    
+      // Write the linked_list data to the device
+      void write( sio::write_device &device ) override {
+        int nlinks = 0 ;
+        auto current = _root ;
+        while( nullptr != current ) {
+          nlinks++ ;
+          current = current->_next ;
+        }
+        // write the number of elements in the linked list
+        SIO_SDATA( device, nlinks ) ;
+        current = _root ;
+        while( nullptr != current ) {
+          linked_list_data( current, device ) ;
+          current = current->_next ;
+        }
+      }
+    
+    private:
+      ///< The linked_list data to read/write
+      std::shared_ptr<linked_list>            _root {nullptr} ;
+    };
+    
   }
   
 }
