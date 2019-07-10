@@ -78,6 +78,7 @@ namespace sio {
     if( outbuf.size() < sio::max_record_info_len ) {
       outbuf.resize( sio::max_record_info_len ) ;
     }
+    SIO_DEBUG( "Reading first record bytes of input stream at position: " << stream.tellg() ) ;
     stream.read( outbuf.data(), 8 ) ;
     if( stream.eof() ) {
       SIO_THROW( sio::error_code::eof, "Reached end of file !" ) ;
@@ -344,8 +345,10 @@ namespace sio {
         if( record_counter >= count ) {
           break ;
         }
+        SIO_DEBUG( "Start reading next record info from stream" ) ;
         sio::api::read_record_info( stream, rec_info, info_buffer ) ;
         if( detailed ) {
+          SIO_DEBUG( "Detailed: Start reading next record data from stream" ) ;
           sio::api::read_record_data( stream, rec_info, rec_buffer ) ;
         }
         // seek after the record to read the next record info
@@ -391,6 +394,7 @@ namespace sio {
             compressor.uncompress( rec_buffer.span(), uncomp_rec_buffer ) ;
           }
           sio::buffer_span device_buffer = compressed ? uncomp_rec_buffer.span() : rec_buffer.span( 0, rec_info._data_length ) ;
+          SIO_DEBUG( "Start extracting block infos" ) ;
           auto block_infos = sio::api::read_block_infos( device_buffer ) ;
           SIO_DEBUG( "Number of blocks found: " << block_infos.size() ) ;
           for( auto binfo : block_infos ) {
@@ -494,7 +498,6 @@ namespace sio {
       device.seek( datalen_pos ) ;
       info._data_length = end_pos - info._header_length ;
       info._uncompressed_length = end_pos - info._header_length ;
-      SIO_DEBUG( "Writing record info :\n" << info ) ;
       device.data( info._data_length ) ;
       device.data( info._uncompressed_length ) ;
       // get back the buffer
@@ -524,11 +527,20 @@ namespace sio {
     if( not stream.write( rec_buf.data(), rec_buf.size() ).good() ) {
       SIO_THROW( sio::error_code::io_failure, "Couldn't write record buffer to output stream" ) ;
     }
+    // always add some padding bytes at the end
+    auto padlen = (4 - (rec_buf.size() & sio::bit_align)) & sio::bit_align;
+    if( padlen > 0 ) {
+      SIO_DEBUG( "Writing " << padlen << " bytes for padding ..." ) ;
+      if( not stream.write( sio::padding_bytes, padlen ).good() ) {
+        SIO_THROW( sio::error_code::io_failure, "Couldn't write record buffer padding to output stream" ) ;
+      }
+    }
     // flush the stream
     if( not stream.flush().good() ) {
       SIO_THROW( sio::error_code::io_failure, "Couldn't flush output stream" ) ;
     }
     rec_info._file_end = stream.tellp() ;
+    SIO_DEBUG( "Written record with info :\n" << rec_info ) ;
   }
 
   //--------------------------------------------------------------------------
@@ -555,11 +567,20 @@ namespace sio {
     if( not stream.write( data_span.data(), data_span.size() ).good() ) {
       SIO_THROW( sio::error_code::io_failure, "Couldn't write record data buffer to output stream" ) ;
     }
+    // always add some padding bytes at the end
+    auto padlen = (4 - (data_span.size() & sio::bit_align)) & sio::bit_align;
+    if( padlen > 0 ) {
+      SIO_DEBUG( "Writing " << padlen << " bytes for padding ..." ) ;
+      if( not stream.write( sio::padding_bytes, padlen ).good() ) {
+        SIO_THROW( sio::error_code::io_failure, "Couldn't write record buffer padding to output stream" ) ;
+      }
+    }
     // flush the stream
     if( not stream.flush().good() ) {
       SIO_THROW( sio::error_code::io_failure, "Couldn't flush output stream" ) ;
     }
     rec_info._file_end = stream.tellp() ;
+    SIO_DEBUG( "Written record with info :\n" << rec_info ) ;
   }
 
   //--------------------------------------------------------------------------
