@@ -38,13 +38,6 @@ ADD_EXECUTABLE( sio-dump-detailed main/sio-dump-detailed.cc )
 TARGET_LINK_LIBRARIES( sio-dump-detailed sio )
 INSTALL( TARGETS sio-dump-detailed RUNTIME DESTINATION bin )
 
-# add unit tests
-SIO_ADD_TEST_REG (
-  test_exception
-  BUILD_EXEC
-  REGEX_FAIL "TEST_FAILED"
-)
-
 # SIO examples
 IF( SIO_EXAMPLES )
   ADD_SUBDIRECTORY( examples )
@@ -60,4 +53,10 @@ IF( SIO_EXAMPLES )
   
   ADD_TEST( t_zlib_read "${EXECUTABLE_OUTPUT_PATH}/zlib_read" zlib.sio )
   SET_TESTS_PROPERTIES( t_zlib_read PROPERTIES PASS_REGULAR_EXPRESSION "Read sio file zlib.sio" )
+  
+  ADD_TEST( t_relocation_write "${EXECUTABLE_OUTPUT_PATH}/relocation_write" relocation.sio )
+  SET_TESTS_PROPERTIES( t_relocation_write PROPERTIES PASS_REGULAR_EXPRESSION "Written sio file relocation.sio" )
+  
+  ADD_TEST( t_relocation_read "${EXECUTABLE_OUTPUT_PATH}/relocation_read" relocation.sio )
+  SET_TESTS_PROPERTIES( t_relocation_read PROPERTIES PASS_REGULAR_EXPRESSION "Read sio file relocation.sio with 200 elements" )
 ENDIF()
