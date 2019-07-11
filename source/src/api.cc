@@ -75,9 +75,7 @@ namespace sio {
       SIO_THROW( sio::error_code::bad_state, "ifstream is in a bad state!" ) ;
     }
     rec_info._file_start = stream.tellg() ;
-    if( outbuf.size() < sio::max_record_info_len ) {
-      outbuf.resize( sio::max_record_info_len ) ;
-    }
+    outbuf.resize( sio::max_record_info_len ) ;
     SIO_DEBUG( "Reading first record bytes of input stream at position: " << stream.tellg() ) ;
     stream.read( outbuf.data(), 8 ) ;
     if( stream.eof() ) {
@@ -141,13 +139,10 @@ namespace sio {
     if( not stream.good() ) {
       SIO_THROW( sio::error_code::bad_state, "ifstream is in a bad state!" ) ;
     }
-    // if the user provide large enough buffer, there is maybe no need to expand it
-    auto total_len = rec_info._data_length ;
-    if( outbuf.size() + buffer_shift < total_len ) {
-      auto mis_len = static_cast<long int>(total_len + buffer_shift) - static_cast<long int>(outbuf.size()) ;
-      SIO_DEBUG( "read_record_data: Expanding buffer by " << mis_len << " (buf len=" << outbuf.size() << ")" ) ;
-      outbuf.expand( mis_len ) ;
-    }
+    // resize the buffer to the expected read size.
+    // this may not re-allocate the buffer internally
+    // if it was large enough
+    outbuf.resize( buffer_shift + rec_info._data_length ) ;
     // go to record start
     auto seek_pos = rec_info._file_start ;
     seek_pos += rec_info._header_length ;
@@ -184,8 +179,6 @@ namespace sio {
     api::read_record( stream, rec_info, outbuf ) ;
     return std::make_pair( rec_info, std::move( outbuf ) ) ;
   }
-
-
 
   //--------------------------------------------------------------------------
 
