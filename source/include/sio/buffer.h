@@ -400,6 +400,12 @@ namespace sio {
      *  @return the new buffer size
      */
     size_type expand( size_type nbytes = 32*sio::kbyte*sio::kbyte ) ;
+    
+    /**
+     *  @brief  Shrink the internal buffer to its size.
+     *          This doesn't modify the buffer size.
+     */
+    void shrink() ;
 
     /**
      *  @brief  Clear the buffer.
