@@ -34,6 +34,26 @@ MACRO( SIO_INSTALL_DIRECTORY )
     )
 ENDMACRO()
 
+FUNCTION( SIO_GENERATE_DOXYFILE )
+  CMAKE_PARSE_ARGUMENTS( ARG "" "OUTPUT_DIR" "INPUT" ${ARGN} )
+  # the input directory where the Doxyfile.in is
+  SET( DOXYFILE_INPUT_DIR "${PROJECT_SOURCE_DIR}/cmake" )
+  # the output location of the Doxyfile 
+  SET( DOXYFILE_OUTPUT_DIR "${PROJECT_BINARY_DIR}/Doxygen" )
+  IF( ARG_OUTPUT_DIR )
+    SET( DOXYFILE_OUTPUT_DIR ${ARG_OUTPUT_DIR} )
+  ENDIF()
+  # the doxygen input source location
+  SET( DOX_INPUT ${ARG_INPUT} )
+  # the project version
+  SET( DOX_PROJECT_NUMBER "${${PROJECT_NAME}_VERSION}" )
+  # output path of doxygen output (html, latex, ...)
+  SET( DOX_OUTPUT_DIRECTORY "${DOXYFILE_OUTPUT_DIR}" )
+  # configure file to output location
+  FILE( MAKE_DIRECTORY ${DOXYFILE_OUTPUT_DIR} )
+  CONFIGURE_FILE( "${DOXYFILE_INPUT_DIR}/Doxyfile.in" "${DOXYFILE_OUTPUT_DIR}/Doxyfile" @ONLY )
+ENDFUNCTION()
+
 
 # helper macro to display standard cmake variables and force write to cache
 # otherwise outdated values may appear in ccmake gui
