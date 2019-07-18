@@ -4,6 +4,7 @@
 
 // -- std headers
 #include <sstream>
+#include <iomanip>
 
 namespace sio {
 
@@ -133,6 +134,23 @@ namespace sio {
       SIO_THROW( error_code::out_of_range, ss.str() ) ;
     }
     return buffer_span( std::next(_first, start) , std::next(_first, start+count) ) ;
+  }
+  
+  //--------------------------------------------------------------------------
+  
+  void buffer_span::dump( int base, unsigned int line_split, size_type max_bytes ) {
+    std::ios_base::fmtflags f( std::cout.flags() );
+    for( size_type i=0 ; i<size() ; i++ ) {
+      std::cout << std::setbase( base ) << (int)at(i) << " " ;
+      if( (i != 0) and (i%line_split == 0) ) {
+        std::cout << std::endl ;
+      }
+      if( i > max_bytes ) {
+        break ;
+      }
+    }
+    std::cout << std::endl ;
+    std::cout.flags( f );
   }
 
   //--------------------------------------------------------------------------

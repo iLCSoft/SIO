@@ -3,6 +3,9 @@
 // -- sio headers
 #include <sio/definitions.h>
 
+// -- std headers
+#include <limits>
+
 namespace sio {
 
   /**
@@ -172,6 +175,15 @@ namespace sio {
      *  @param  count the size of the subspan
      */
     buffer_span subspan( index_type start, std::size_t count ) const ;
+    
+    /**
+     *  @brief  Dump the buffer into standard output
+     *  
+     *  @param  base the numeric base of the output data (default octal)
+     *  @param  line_split the number of bytes to print before a line break
+     *  @param  max_bytes the maximum number of bytes to printout
+     */
+    void dump( int base = 8, unsigned int line_split = 20, size_type max_bytes = std::numeric_limits<size_type>::max() ) ;
     ///@}
 
   private:
