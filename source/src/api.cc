@@ -257,7 +257,7 @@ namespace sio {
     // check for a block marker
     if( sio::block_marker != marker ) {
       std::stringstream ss ;
-      ss << "Block marker not found (expected " << sio::block_marker <<", got " << marker << ")" ;
+      ss << "Block marker not found (block marker: " << sio::block_marker <<", record marker: " << sio::record_marker << ", got " << marker << ")" ;
       SIO_THROW( sio::error_code::no_marker, ss.str() ) ;
     }
     device.data( info._version ) ;
