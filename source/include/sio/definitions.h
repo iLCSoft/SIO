@@ -262,25 +262,25 @@ namespace sio {
 #endif
 
 #if SIO_LOGLVL > 3
-#define SIO_DEBUG( message ) std::cout << "[SIO DEBUG] - " << message << std::endl
+#define SIO_DEBUG( message ) std::cout << "[SIO DEBUG] " << __FUNCTION__ << " - " << message << std::endl
 #else
 #define SIO_DEBUG( message )
 #endif
 
 #if SIO_LOGLVL > 2
-#define SIO_INFO( message ) std::cout << "[SIO INFO] - " << message << std::endl
+#define SIO_INFO( message ) std::cout << "[SIO INFO] - "  << __FUNCTION__ << " - " << message << std::endl
 #else
 #define SIO_INFO( message )
 #endif
 
 #if SIO_LOGLVL > 1
-#define SIO_WARNING( message ) std::cout << "[SIO WARNING] - " << message << std::endl
+#define SIO_WARNING( message ) std::cout << "[SIO WARNING] - "  << __FUNCTION__ << " - " << message << std::endl
 #else
 #define SIO_WARNING( message )
 #endif
 
 #if SIO_LOGLVL > 0
-#define SIO_ERROR( message ) std::cout << "[SIO ERROR] - " << message << std::endl
+#define SIO_ERROR( message ) std::cout << "[SIO ERROR] - "  << __FUNCTION__ << " - " << message << std::endl
 #else
 #define SIO_ERROR( message )
 #endif
