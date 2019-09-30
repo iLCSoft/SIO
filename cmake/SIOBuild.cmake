@@ -1,4 +1,7 @@
 
+# Policy for "Support new ``if()`` IN_LIST operator"
+CMAKE_POLICY( SET CMP0057 NEW )
+
 MACRO( SIO_ADD_SHARED_LIBRARY _name )
   ADD_LIBRARY( ${_name} SHARED ${ARGN} )
   # change lib_target properties
@@ -233,7 +236,6 @@ SET( COMPILER_FLAGS
   -Wuninitialized
   -Wno-non-virtual-dtor
   -Wheader-hygiene
-  -std=c++11
 )
 
 IF( SIO_PROFILING AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
@@ -250,6 +252,21 @@ IF( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
  LIST( APPEND COMPILER_FLAGS -Wl,-no-undefined )
 ENDIF()
 
+# Dealing with CXX standard
+SET( SIO_POSSIBLE_CXX_STANDARDS 11 14 17 20 )
+LIST( GET SIO_POSSIBLE_CXX_STANDARDS 0 SIO_MINIMUM_CXX_REQUIRED )
+
+IF( CMAKE_CXX_STANDARD )
+  MESSAGE( STATUS "Checking CXX standard set by user ..." )
+  IF( NOT ${CMAKE_CXX_STANDARD} IN_LIST SIO_POSSIBLE_CXX_STANDARDS )
+    MESSAGE( FATAL_ERROR "Invalid cxx standard (set=${CMAKE_CXX_STANDARD}, minimum=${SIO_MINIMUM_CXX_REQUIRED})" )
+  ENDIF()
+ELSE()
+  MESSAGE( STATUS "Setting CXX standard to minimum required ..." )
+  SET( CMAKE_CXX_STANDARD ${SIO_MINIMUM_CXX_REQUIRED} )
+ENDIF()
+
+MESSAGE( STATUS "Using CXX standard ${CMAKE_CXX_STANDARD}" )
 
 MESSAGE( STATUS "FLAGS ${COMPILER_FLAGS}" )
 FOREACH( FLAG ${COMPILER_FLAGS} )
@@ -265,9 +282,6 @@ FOREACH( FLAG ${COMPILER_FLAGS} )
     ### We prepend the flag, so they are overwritten by whatever the user sets in his own configuration
     SET ( CMAKE_CXX_FLAGS "${FLAG} ${CMAKE_CXX_FLAGS}")
   ELSE()
-    IF( "${FLAG}" STREQUAL "-std=c++11" )
-      MESSAGE( FATAL_ERROR "Cannot add -std=c++11 to CMAKE_CXX_FLAGS, but c++11 is required, check your compiler" )
-    ENDIF()
     MESSAGE ( STATUS "NOT Adding ${FLAG} to CXX_FLAGS" )
   ENDIF()
 ENDFOREACH()
