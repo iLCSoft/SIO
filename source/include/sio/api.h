@@ -1,5 +1,5 @@
 #pragma once
-#define NOMINMAX
+
 // -- sio headers
 #include <sio/definitions.h>
 #include <sio/buffer.h>
