@@ -44,12 +44,15 @@ namespace sio {
     inline void linked_list_data( std::shared_ptr<linked_list> l, devT &device ) {
       // read/write name field
       SIO_SDATA( device, l->_name ) ;
+      std::cout << "ll data name: " << l->_name << std::endl ;
       // read/write a pointer member. This object won't allocated on read
       // but relocated after all data have been read from a record
       auto ptr = l->_next.get() ;
+      std::cout << "ll reading pntr" << std::endl ;
       SIO_PNTR( device, &ptr ) ;
       // the linked list pointer itself can be referenced by other structures
       // read/write the address of this object
+      std::cout << "ll reading ptag" << std::endl ;
       SIO_PTAG( device, l.get() ) ;
 
     }

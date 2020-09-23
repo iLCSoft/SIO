@@ -42,6 +42,8 @@ int main( int argc, char **argv ) {
     sio::buffer rec_buffer( sio::kbyte ) ;
     sio::api::read_record_info( stream, rec_info, info_buffer ) ;
     sio::api::read_record_data( stream, rec_info, rec_buffer ) ;
+    std::cout << "Record buffer:" << std::endl ;
+    std::cout << rec_buffer.size() << std::endl ;
     
     /// SIO write data in records, formed of a list of blocks.
     /// This example illustrates how to create a simple block

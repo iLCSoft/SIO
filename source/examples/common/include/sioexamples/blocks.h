@@ -71,6 +71,7 @@ namespace sio {
         int nlinks = 0 ;
         // read the number of elements in the linked list
         SIO_SDATA( device, nlinks ) ;
+        std::cout << "Read " << nlinks << " links" << std::endl ;
         // create the root element
         _root = std::make_shared<linked_list>() ;
         auto current = _root ;
