@@ -9,4 +9,4 @@ cd build
 cmake -GNinja -DSIO_BUILTIN_ZLIB=$BUILTIN_ZLIB -DSIO_EXAMPLES=ON -DCMAKE_CXX_FLAGS="-fdiagnostics-color=always" .. && \
 ninja  -k 0 && \
 ninja install && \
-ctest --output-on-failure
+ctest --output-on-failure --verbose
