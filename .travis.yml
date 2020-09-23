@@ -8,10 +8,10 @@ language: cpp
 
 env:
   matrix:
-    - COMPILER=gcc
-    - COMPILER=llvm
-    - BUILTIN_ZLIB=ON
-    - BUILTIN_ZLIB=OFF
+    - COMPILER=gcc BUILTIN_ZLIB=ON
+    - COMPILER=llvm BUILTIN_ZLIB=ON
+    - COMPILER=gcc BUILTIN_ZLIB=OFF
+    - COMPILER=llvm BUILTIN_ZLIB=OFF
 
 
 before_install:
