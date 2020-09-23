@@ -57,9 +57,11 @@ int main( int argc, char **argv ) {
     /// buffer size after SIO calls, so it is recommended to 
     /// specify the range of the blocks decoding. Here from the
     /// beginning to the record data length.
+    std::cout << "Reading blocks" << std::endl;
     sio::api::read_blocks( rec_buffer.span( 0, rec_info._data_length ), blocks ) ;
 
     /// Let see what we got from the record:
+    std::cout << "Dumping block contents" << std::endl;
     auto llroot = ll_blk->root() ;
     auto llcur = llroot ;
     int n=0 ;
