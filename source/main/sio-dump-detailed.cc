@@ -37,11 +37,20 @@ int main( int argc, char **argv ) {
     count = atoi(argv[2]) ;
     std::cout << "Will dump only " << count << " records ..." << std::endl ;
   }
-  
+
   sio::ifstream file;
   file.open( fname , std::ios::in | std::ios::binary ) ;
-  sio::api::dump_records( file, skip, count, true ) ;
-  
+  try {
+    sio::api::dump_records( file, skip, count, true ) ;
+  } catch( const sio::exception &e ) {
+    if( e.code() == sio::error_code::no_marker ) {
+      std::cerr << "While reading the file SIO expected a marker but didn't find an appropriate"
+                << " one. This could mean that the file is corrupted. However, it could also be"
+                << " that data has been stored in the stream that is not meant to be read by "
+                << "SIO directly." << std::endl;
+    }
+  }
+
   return 0 ;
 }
 
