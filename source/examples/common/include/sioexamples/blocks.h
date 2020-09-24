@@ -78,6 +78,7 @@ namespace sio {
         std::cout << "root = " << current.get() << std::endl ;
         
         for( int i=0 ; i<nlinks ; i++ ) {
+          std::cout << "Reading link no " << i << std::endl ;
           linked_list_data( current, device ) ;
           // last element ? then don't allocate the next of the list
           if( i+1 < nlinks ) {
@@ -85,6 +86,7 @@ namespace sio {
           }
           current = current->_next ;     
         }
+        std::cout << "Read " << nlinks << " links" << std::endl ;
       }
     
       // Write the linked_list data to the device
