@@ -64,7 +64,7 @@ int main( int argc, char **argv ) {
     sio::api::read_blocks( rec_buffer.span( 0, rec_info._data_length ), blocks ) ;
 
     /// Let see what we got from the record:
-    std::cout << "Dumping block contents" << std::endl;
+    std::cout << "Dumping block contents" << std::endl ;
     auto llroot = ll_blk->root() ;
     auto llcur = llroot ;
     int n=0 ;
