@@ -11,6 +11,6 @@ ninja  -k 0 && \
 ninja install 
 #&& \
 #ctest --output-on-failure --verbose
-sudo yum install valgrind -y
+yum install valgrind -y
 ./bin/relocation_write
 valgrind ./bin/relocation_read relocation.sio
