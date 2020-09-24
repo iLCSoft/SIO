@@ -44,10 +44,12 @@ int main( int argc, char **argv ) {
     sio::api::dump_records( file, skip, count, false ) ;
   } catch( const sio::exception &e ) {
     if ( e.code() == sio::error_code::no_marker ) {
-      std::cerr << "While reading the file SIO expected a marker but didn't find an appropriate"
-                << " one. This could mean that the file is corrupted. However, it could also be"
+      std::cerr << "While reading the file the following exception occured: " << e.what() << '\n'
+                << "This could mean that the file is corrupted. However, it could also be"
                 << " that data has been stored in the stream that is not meant to be read by "
                 << "SIO directly." << std::endl;
+    } else {
+      throw e;
     }
   }
 
