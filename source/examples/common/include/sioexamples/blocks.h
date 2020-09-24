@@ -75,6 +75,7 @@ namespace sio {
         // create the root element
         _root = std::make_shared<linked_list>() ;
         auto current = _root ;
+        std::cout << "root = " << current.get() << std::endl ;
         for( int i=0 ; i<nlinks ; i++ ) {
           linked_list_data( current, device ) ;
           // last element ? then don't allocate the next of the list
