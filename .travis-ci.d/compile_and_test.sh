@@ -1,4 +1,5 @@
 #!/bin/bash
+yum install valgrind -y
 
 ILCSOFT=/cvmfs/clicdp.cern.ch/iLCSoft/builds/current/CI_${COMPILER}
 source $ILCSOFT/init_ilcsoft.sh
@@ -11,6 +12,6 @@ ninja  -k 0 && \
 ninja install 
 #&& \
 #ctest --output-on-failure --verbose
-yum install valgrind -y
+
 ./bin/relocation_write
 /usr/bin/valgrind ./bin/relocation_read relocation.sio
