@@ -35,7 +35,7 @@ namespace sio {
     // data structure with a pointer. The shared_ptr
     // is just there to make the ownership clearer
     struct linked_list {
-      std::string                      _name {} ;
+      std::string                      _name {""} ;
       std::shared_ptr<linked_list>     _next {nullptr} ;
     };
     
@@ -43,7 +43,7 @@ namespace sio {
     template <typename devT>
     inline void linked_list_data( std::shared_ptr<linked_list> l, devT &device ) {
       // read/write name field
-      std::cout << "Totoooooooo" << std::endl ;
+      // std::cout << "Totoooooooo" << std::endl ;
       SIO_SDATA( device, l->_name ) ;
       // std::cout << "ll data name: " << l->_name << std::endl ;
       // read/write a pointer member. This object won't allocated on read
