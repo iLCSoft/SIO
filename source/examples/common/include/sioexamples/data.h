@@ -34,6 +34,7 @@ namespace sio {
     // simple example of data referencing another 
     // data structure with a pointer.
     struct linked_list {
+      linked_list() = default ;
       linked_list(const linked_list &) = delete ;
       linked_list &operator=(const linked_list &) = delete ;
       ~linked_list() {
