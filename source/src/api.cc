@@ -25,6 +25,8 @@ namespace sio {
     // ptoi:  Iterator for the 'pointer to' multimap (runs [ptol, ptoh) )
     // pati:  Iterator in the 'pointed at' map (search map for ptol->first)
     auto ptol  = pointer_to.begin() ;
+    std::cout << "sizeof(void*) is " << sizeof(void*) << std::endl ;
+    std::cout << "sizeof(sio::ptr_type) is " << sizeof(sio::ptr_type) << std::endl ;
     while( ptol != pointer_to.end() ) {
       std::cout << "ptol: " << ptol->first << " -> " << ptol->second << std::endl ;
       auto ptoh = pointer_to.upper_bound( ptol->first ) ;
