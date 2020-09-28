@@ -32,25 +32,29 @@ namespace sio {
     }
     
     // simple example of data referencing another 
-    // data structure with a pointer. The shared_ptr
-    // is just there to make the ownership clearer
+    // data structure with a pointer.
     struct linked_list {
+      ~linked_list() {
+        if( nullptr != _next ) {
+          delete _next ;
+          _next = nullptr ;
+        }
+      }
       std::string                      _name {} ;
-      std::shared_ptr<linked_list>     _next {nullptr} ;
+      linked_list                     *_next {nullptr} ;
     };
     
     /// Read or write linked_list data with the device
     template <typename devT>
-    inline void linked_list_data( std::shared_ptr<linked_list> l, devT &device ) {
+    inline void linked_list_data( linked_list *l, devT &device ) {
       // read/write name field
       SIO_SDATA( device, l->_name ) ;
       // read/write a pointer member. This object won't allocated on read
       // but relocated after all data have been read from a record
-      auto ptr = l->_next.get() ;
-      SIO_PNTR( device, &ptr ) ;
+      SIO_PNTR( device, &l->_next ) ;
       // the linked list pointer itself can be referenced by other structures
       // read/write the address of this object
-      SIO_PTAG( device, l.get() ) ;
+      SIO_PTAG( device, l ) ;
 
     }
     

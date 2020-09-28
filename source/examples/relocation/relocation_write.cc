@@ -43,14 +43,14 @@ int main( int argc, char **argv ) {
     
     /// Create a linked list of 200 elements
     int n = 200 ;
-    auto llroot = std::make_shared<sio::example::linked_list>() ;
+    auto llroot = new sio::example::linked_list() ;
     auto llcur = llroot ;
     for( int i=0 ; i<n ; i++ ) {
       llcur->_name = "element_" + std::to_string( i ) ;
       std::cout << "Created element in linked list with name: " << llcur->_name << std::endl ;
       if( i+1 < n ) {
         std::cout << "Creating next element..." << std::endl ;
-        llcur->_next = std::make_shared<sio::example::linked_list>() ;
+        llcur->_next = new sio::example::linked_list() ;
       }
       else {
         std::cout << "It was the last element" << std::endl ;
