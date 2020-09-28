@@ -215,6 +215,10 @@ ENDIF()
 SET( CMAKE_INSTALL_RPATH_USE_LINK_PATH 1 )
 MARK_AS_ADVANCED( CMAKE_INSTALL_RPATH_USE_LINK_PATH )
 
+IF( SIO_SANITIZERS )
+  STRING( JOIN "," SIO_SANITIZERS ${SIO_SANITIZERS} )
+ENDIF()
+
 ## Set the default compiler flags for all projects picking up default ilcutil settings
 ## This runs checks if compilers support the flag and sets them, if they do
 ## this will create a humongous amount of warnings when compiling :)
@@ -250,6 +254,10 @@ ENDIF()
 
 IF( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
  LIST( APPEND COMPILER_FLAGS -Wl,-no-undefined )
+ENDIF()
+
+IF( SIO_SANITIZERS )
+  LIST( APPEND CMAKE_CXX_FLAGS -fsanitize=${SIO_SANITIZERS} )
 ENDIF()
 
 # Dealing with CXX standard
