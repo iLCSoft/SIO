@@ -26,6 +26,7 @@ namespace sio {
     // pati:  Iterator in the 'pointed at' map (search map for ptol->first)
     auto ptol  = pointer_to.begin() ;
     while( ptol != pointer_to.end() ) {
+      std::cout << "Relocation loop" << ptol->first << " -> " << ptol->second << std::endl ;
       auto ptoh = pointer_to.upper_bound( ptol->first ) ;
       auto pati = pointed_at.find( ptol->first ) ;
       bool pat_found( pati != pointed_at.end() ) ;

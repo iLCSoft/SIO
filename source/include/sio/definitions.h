@@ -81,8 +81,10 @@ namespace sio {
   // --JM
 #if defined(__alpha__) || defined(_M_ALPHA) || defined(_LP64)
   using ptr_type = std::size_t ;
+  #warning "Using ptr type size_t"
 #else
   using ptr_type = unsigned int ;
+  #warning "Using ptr type unsigned int"
 #endif
 
   class block ;
