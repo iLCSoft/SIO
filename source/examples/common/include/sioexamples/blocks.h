@@ -58,6 +58,9 @@ namespace sio {
     
     class linked_list_block : public sio::block {
     public:
+      linked_list_block(const linked_list_block &) = delete ;
+      linked_list_block &operator=(const linked_list_block &) = delete ;
+      
       linked_list_block() :
         sio::block( "linked_list", sio::version::encode_version( 1, 2 ) ) {
         /* nop */
