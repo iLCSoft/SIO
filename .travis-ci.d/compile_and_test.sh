@@ -14,4 +14,5 @@ ninja install
 #ctest --output-on-failure --verbose
 
 ./bin/relocation_write
-/usr/bin/valgrind ./bin/relocation_read relocation.sio
+#/usr/bin/valgrind 
+./bin/relocation_read relocation.sio
