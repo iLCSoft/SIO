@@ -62,9 +62,25 @@ namespace sio {
         sio::block( "linked_list", sio::version::encode_version( 1, 2 ) ) {
         /* nop */
       }
+      
+      ~linked_list_block() {
+        if( nullptr != _root ) {
+          delete _root ;
+          _root = nullptr ;
+        }
+      }
     
-      std::shared_ptr<linked_list> root() const { return _root ; }
-      void set_root( std::shared_ptr<linked_list> r ) { _root = r ; }
+      linked_list *root() const { 
+        return _root ; 
+      }
+      
+      void set_root( linked_list *r ) { 
+        if( nullptr != _root ) {
+          delete _root ;
+          _root = nullptr ;
+        }
+        _root = r ; 
+      }
     
       // Read the linked_list data from the device
       void read( sio::read_device &device, sio::version_type /*vers*/ ) override {
@@ -72,13 +88,17 @@ namespace sio {
         // read the number of elements in the linked list
         SIO_SDATA( device, nlinks ) ;
         // create the root element
-        _root = std::make_shared<linked_list>() ;
+        if( nullptr != _root ) {
+          delete _root ;
+          _root = nullptr ;
+        }
+        _root = new linked_list() ;
         auto current = _root ;
         for( int i=0 ; i<nlinks ; i++ ) {
           linked_list_data( current, device ) ;
           // last element ? then don't allocate the next of the list
           if( i+1 < nlinks ) {
-            current->_next = std::make_shared<linked_list>() ;
+            current->_next = new linked_list() ;
           }
           current = current->_next ;     
         }
@@ -103,7 +123,7 @@ namespace sio {
     
     private:
       ///< The linked_list data to read/write
-      std::shared_ptr<linked_list>            _root {nullptr} ;
+      linked_list                    *_root {nullptr} ;
     };
     
   }
