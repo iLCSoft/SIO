@@ -42,7 +42,7 @@ int main( int argc, char **argv ) {
     blocks.push_back( ll_blk ) ;
     
     /// Create a linked list of 200 elements
-    int n = 200 ;
+    int n = 100 ;
     auto llroot = std::make_shared<sio::example::linked_list>() ;
     auto llcur = llroot ;
     for( int i=0 ; i<n ; i++ ) {
