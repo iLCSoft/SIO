@@ -43,13 +43,15 @@ int main( int argc, char **argv ) {
   try {
     sio::api::dump_records( file, skip, count, false ) ;
   } catch( const sio::exception &e ) {
-    if ( e.code() == sio::error_code::no_marker ) {
-      std::cerr << "While reading the file the following exception occured: " << e.what() << '\n'
-                << "This could mean that the file is corrupted. However, it could also be"
-                << " that data has been stored in the stream that is not meant to be read by "
-                << "SIO directly." << std::endl;
-    } else {
-      throw e;
+    switch( e.code() ) {
+      case sio::error_code::not_open:
+        std::cerr << "Cannot open file \'" << fname << "\'" << std::endl;
+        break;
+      case sio::error_code::no_marker:
+        std::cerr << "Interrupt: no record marker found\n";
+        break;
+      default:
+        std::cerr << "ERROR: " << e.what() << std::endl;
     }
   }
 
