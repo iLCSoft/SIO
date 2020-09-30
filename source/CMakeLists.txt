@@ -34,10 +34,6 @@ ADD_EXECUTABLE( sio-dump main/sio-dump.cc )
 TARGET_LINK_LIBRARIES( sio-dump sio )
 INSTALL( TARGETS sio-dump RUNTIME DESTINATION bin )
 
-ADD_EXECUTABLE( sio-dump-detailed main/sio-dump-detailed.cc )
-TARGET_LINK_LIBRARIES( sio-dump-detailed sio )
-INSTALL( TARGETS sio-dump-detailed RUNTIME DESTINATION bin )
-
 # SIO examples
 IF( SIO_EXAMPLES )
   ADD_SUBDIRECTORY( examples )
