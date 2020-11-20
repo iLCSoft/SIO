@@ -3,7 +3,7 @@
 # @author Frank Gaede, DESY
 # @author Jan Engels, DESY
 # @author Remi Ete, DESY
-CMAKE_MINIMUM_REQUIRED( VERSION 2.8 FATAL_ERROR )
+CMAKE_MINIMUM_REQUIRED( VERSION 3.4 FATAL_ERROR )
 ########################################################
 
 # project name
@@ -17,6 +17,8 @@ SET( SIO_VERSION_PATCH 3 )
 ### DEPENDENCIES ############################################################
 
 LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake )
+
+SET(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
 # options
 OPTION( SIO_EXAMPLES                 "Switch ON to build SIO examples" ON )

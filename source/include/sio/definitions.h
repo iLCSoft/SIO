@@ -9,6 +9,9 @@
 #include <map>
 #include <string>
 #include <memory>
+#ifdef _WIN32
+#define NOMINMAX
+#endif
 #ifdef __APPLE__
 #include <_types.h>
 #include <_types/_uint16_t.h>
