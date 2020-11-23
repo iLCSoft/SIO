@@ -25,6 +25,7 @@ OPTION( SIO_RELEASE_OFAST            "Set to ON to set CMAKE_CXX_FLAGS_RELEASE t
 OPTION( SIO_PROFILING                "Set to ON to enable SIO profiling (-pg)" OFF )
 OPTION( SIO_BUILTIN_ZLIB             "Set to OFF to use system zlib library" ON )
 OPTION( SIO_MACROS_WITH_EXCEPTION    "Set to ON to enable try/catch handling in SIO macros" OFF )
+OPTION( SIO_SET_RPATH                "Link libraries with built-in RPATH (run-time search path)" ON)
 SET(    SIO_LOGLVL                   "0" CACHE STRING "The SIO verbosity level" )
 
 IF( NOT SIO_LOGLVL MATCHES "^[0-9]+$" )
