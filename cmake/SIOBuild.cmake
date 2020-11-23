@@ -201,10 +201,6 @@ SET( LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib" )
 MARK_AS_ADVANCED( EXECUTABLE_OUTPUT_PATH )
 MARK_AS_ADVANCED( LIBRARY_OUTPUT_PATH )
 
-# add library install path to the rpath list
-SET( CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib" )
-MARK_AS_ADVANCED( CMAKE_INSTALL_RPATH )
-
 # add install path to the rpath list (apple)
 IF( APPLE )
   SET( CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib" )
@@ -236,6 +232,7 @@ SET( COMPILER_FLAGS
   -Wuninitialized
   -Wno-non-virtual-dtor
   -Wheader-hygiene
+  -fdiagnostics-color=auto
 )
 
 IF( SIO_PROFILING AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
@@ -248,8 +245,28 @@ ELSE()
   SET( CMAKE_CXX_FLAGS_RELEASE "-O3" )
 ENDIF()
 
-IF( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
- LIST( APPEND COMPILER_FLAGS -Wl,-no-undefined )
+# resolve which linker we use
+EXECUTE_PROCESS(COMMAND ${CMAKE_CXX_COMPILER} -Wl,--version OUTPUT_VARIABLE stdout ERROR_QUIET)
+IF("${stdout}" MATCHES "GNU ")
+  SET(LINKER_TYPE "GNU")
+  MESSAGE( STATUS "Detected GNU compatible linker" )
+ELSE()
+  EXECUTE_PROCESS(COMMAND ${CMAKE_CXX_COMPILER} -Wl,-v ERROR_VARIABLE stderr )
+  IF(("${stderr}" MATCHES "PROGRAM:ld") AND ("${stderr}" MATCHES "PROJECT:ld64"))
+    SET(LINKER_TYPE "APPLE")
+    MESSAGE( STATUS "Detected Apple linker" )
+  ELSE()
+    SET(LINKER_TYPE "unknown")
+    MESSAGE( STATUS "Detected unknown linker" )
+  ENDIF()
+ENDIF()
+
+IF("${LINKER_TYPE}" STREQUAL "APPLE")
+  SET ( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined,error")
+elseIF("${LINKER_TYPE}" STREQUAL "GNU")
+  SET ( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+ELSE()
+  MESSAGE( WARNING "No known linker (GNU or Apple) has been detected, pass no flags to linker" )
 ENDIF()
 
 # Dealing with CXX standard
@@ -286,8 +303,32 @@ FOREACH( FLAG ${COMPILER_FLAGS} )
   ENDIF()
 ENDFOREACH()
 
-IF( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.9 )
-  SET( CMAKE_CXX_FLAGS "-fdiagnostics-color=auto ${CMAKE_CXX_FLAGS}" )
+
+#  When building, don't use the install RPATH already (but later on when installing)
+SET(CMAKE_SKIP_BUILD_RPATH FALSE)         # don't skip the full RPATH for the build tree
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) # use always the build RPATH for the build tree
+SET(CMAKE_MACOSX_RPATH TRUE)              # use RPATH for MacOSX
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE) # point to directories outside the build tree to the install RPATH
+
+# Check whether to add RPATH to the installation (the build tree always has the RPATH enabled)
+IF(APPLE)
+  SET(CMAKE_INSTALL_NAME_DIR "@rpath")
+  SET(CMAKE_INSTALL_RPATH "@loader_path/../lib")    # self relative LIBDIR
+  # the RPATH to be used when installing, but only if it's not a system directory
+  LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+  IF("${isSystemDir}" STREQUAL "-1")
+    SET(CMAKE_INSTALL_RPATH "@loader_path/../lib")
+  ENDIF("${isSystemDir}" STREQUAL "-1")
+ELSEIF(SIO_SET_RPATH)
+  SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib") # install LIBDIR
+  # the RPATH to be used when installing, but only if it's not a system directory
+  LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+  IF("${isSystemDir}" STREQUAL "-1")
+    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  ENDIF("${isSystemDir}" STREQUAL "-1")
+ELSE()
+  SET(CMAKE_SKIP_INSTALL_RPATH TRUE)           # skip the full RPATH for the install tree
 ENDIF()
+
 
 INSTALL( FILES cmake/MacroCheckPackageLibs.cmake cmake/MacroCheckPackageVersion.cmake DESTINATION lib/cmake )
