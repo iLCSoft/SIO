@@ -1,3 +1,12 @@
+# v00-00-04
+
+* 2020-11-23 Marko Petric ([PR#12](https://github.com/iLCSoft/SIO/pull/12))
+  - Setup rpath for macOS and give optional flag for turning on rpath on other systems
+  - Resolve correctly linker independently of OS and pass flags
+
+* 2020-11-19 Remi Ete ([PR#11](https://github.com/iLCSoft/SIO/pull/11))
+  - Fix clang warnings
+
 # v00-00-03
 
 * 2020-10-28 Frank Gaede ([PR#4](https://github.com/ilcsoft/sio/pull/4))
