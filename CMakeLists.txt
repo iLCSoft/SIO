@@ -12,7 +12,7 @@ PROJECT( SIO )
 # project version
 SET( SIO_VERSION_MAJOR 0 )
 SET( SIO_VERSION_MINOR 0 )
-SET( SIO_VERSION_PATCH 3 )
+SET( SIO_VERSION_PATCH 4 )
 
 ### DEPENDENCIES ############################################################
 
