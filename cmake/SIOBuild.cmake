@@ -108,7 +108,7 @@ MACRO( SIO_GENERATE_PACKAGE_CONFIGURATION_FILES )
         CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/cmake/${arg}.in"
                         "${PROJECT_BINARY_DIR}/${arg}" @ONLY
         )
-        INSTALL( FILES "${PROJECT_BINARY_DIR}/${arg}" DESTINATION . )
+        INSTALL( FILES "${PROJECT_BINARY_DIR}/${arg}" DESTINATION lib/cmake )
       ENDIF()
     ENDIF()
     IF( ${arg} MATCHES "ConfigVersion.cmake" )
@@ -117,7 +117,7 @@ MACRO( SIO_GENERATE_PACKAGE_CONFIGURATION_FILES )
         CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/cmake/${arg}.in"
                         "${PROJECT_BINARY_DIR}/${arg}" @ONLY
         )
-        INSTALL( FILES "${PROJECT_BINARY_DIR}/${arg}" DESTINATION . )
+        INSTALL( FILES "${PROJECT_BINARY_DIR}/${arg}" DESTINATION lib/cmake )
       ENDIF()
     ENDIF()
   ENDFOREACH()
