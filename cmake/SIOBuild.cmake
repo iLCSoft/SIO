@@ -108,7 +108,11 @@ MACRO( SIO_GENERATE_PACKAGE_CONFIGURATION_FILES )
         CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/cmake/${arg}.in"
                         "${PROJECT_BINARY_DIR}/${arg}" @ONLY
         )
-        INSTALL( FILES "${PROJECT_BINARY_DIR}/${arg}" DESTINATION lib/cmake )
+        INSTALL( FILES "${PROJECT_BINARY_DIR}/${arg}" DESTINATION . )
+        # some releases (like LCG) create a filesystem projection (view)
+        # that ignores files installed to .
+        # install the same file again to another "view-safe" location as a workaround 
+        INSTALL( FILES "${PROJECT_BINARY_DIR}/${arg}" DESTINATION lib/cmake/SIO )
       ENDIF()
     ENDIF()
     IF( ${arg} MATCHES "ConfigVersion.cmake" )
@@ -117,6 +121,10 @@ MACRO( SIO_GENERATE_PACKAGE_CONFIGURATION_FILES )
         CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/cmake/${arg}.in"
                         "${PROJECT_BINARY_DIR}/${arg}" @ONLY
         )
+        INSTALL( FILES "${PROJECT_BINARY_DIR}/${arg}" DESTINATION . )
+        # some releases (like LCG) create a filesystem projection (view)
+        # that ignores files installed to .
+        # install the same file again to another "view-safe" location as a workaround 
         INSTALL( FILES "${PROJECT_BINARY_DIR}/${arg}" DESTINATION lib/cmake )
       ENDIF()
     ENDIF()
