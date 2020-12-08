@@ -125,7 +125,7 @@ MACRO( SIO_GENERATE_PACKAGE_CONFIGURATION_FILES )
         # some releases (like LCG) create a filesystem projection (view)
         # that ignores files installed to .
         # install the same file again to another "view-safe" location as a workaround 
-        INSTALL( FILES "${PROJECT_BINARY_DIR}/${arg}" DESTINATION lib/cmake )
+        INSTALL( FILES "${PROJECT_BINARY_DIR}/${arg}" DESTINATION lib/cmake/SIO )
       ENDIF()
     ENDIF()
   ENDFOREACH()
