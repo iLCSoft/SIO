@@ -3,7 +3,7 @@
 # @author Frank Gaede, DESY
 # @author Jan Engels, DESY
 # @author Remi Ete, DESY
-CMAKE_MINIMUM_REQUIRED( VERSION 2.8 FATAL_ERROR )
+CMAKE_MINIMUM_REQUIRED( VERSION 3.12 FATAL_ERROR )
 ########################################################
 
 # project name
