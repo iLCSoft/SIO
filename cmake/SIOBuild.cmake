@@ -256,6 +256,3 @@ ELSEIF(SIO_SET_RPATH)
 ELSE()
   SET(CMAKE_SKIP_INSTALL_RPATH TRUE)           # skip the full RPATH for the install tree
 ENDIF()
-
-
-INSTALL( FILES cmake/MacroCheckPackageLibs.cmake cmake/MacroCheckPackageVersion.cmake DESTINATION lib/cmake )
