@@ -57,5 +57,5 @@ ENDIF()
 # display some variables and write them to cache
 SIO_DISPLAY_STD_VARIABLES()
 
-# generate and install following configuration files
-SIO_GENERATE_PACKAGE_CONFIGURATION_FILES( SIOConfig.cmake SIOConfigVersion.cmake )
+### ADD CMAKE INFRASTRUCTURE FOR DOWNSTREAM #################################
+INCLUDE(cmake/SIOCreateConfig.cmake)

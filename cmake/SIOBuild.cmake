@@ -99,38 +99,6 @@ MACRO( SIO_DISPLAY_STD_VARIABLES )
 ENDMACRO()
 
 
-
-# helper macro for generating project configuration file
-MACRO( SIO_GENERATE_PACKAGE_CONFIGURATION_FILES )
-  FOREACH( arg ${ARGN} )
-    IF( ${arg} MATCHES "Config.cmake" )
-      IF( EXISTS "${PROJECT_SOURCE_DIR}/cmake/${arg}.in" )
-        CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/cmake/${arg}.in"
-                        "${PROJECT_BINARY_DIR}/${arg}" @ONLY
-        )
-        INSTALL( FILES "${PROJECT_BINARY_DIR}/${arg}" DESTINATION . )
-        # some releases (like LCG) create a filesystem projection (view)
-        # that ignores files installed to .
-        # install the same file again to another "view-safe" location as a workaround 
-        INSTALL( FILES "${PROJECT_BINARY_DIR}/${arg}" DESTINATION lib/cmake/SIO )
-      ENDIF()
-    ENDIF()
-    IF( ${arg} MATCHES "ConfigVersion.cmake" )
-      # version configuration file
-      IF( EXISTS "${PROJECT_SOURCE_DIR}/cmake/${arg}.in" )
-        CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/cmake/${arg}.in"
-                        "${PROJECT_BINARY_DIR}/${arg}" @ONLY
-        )
-        INSTALL( FILES "${PROJECT_BINARY_DIR}/${arg}" DESTINATION . )
-        # some releases (like LCG) create a filesystem projection (view)
-        # that ignores files installed to .
-        # install the same file again to another "view-safe" location as a workaround 
-        INSTALL( FILES "${PROJECT_BINARY_DIR}/${arg}" DESTINATION lib/cmake/SIO )
-      ENDIF()
-    ENDIF()
-  ENDFOREACH()
-ENDMACRO()
-
 # set default install prefix to project root directory
 # instead of the cmake default /usr/local
 IF( CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT )
