@@ -14,6 +14,9 @@ SET( SIO_VERSION_MAJOR 0 )
 SET( SIO_VERSION_MINOR 0 )
 SET( SIO_VERSION_PATCH 4 )
 
+# Setup default install directory layout as defined for GNU software
+INCLUDE(GNUInstallDirs)
+
 ### DEPENDENCIES ############################################################
 
 LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake )
@@ -38,8 +41,6 @@ IF( SIO_BUILTIN_ZLIB )
 ELSE()
   FIND_PACKAGE( ZLIB REQUIRED )
 ENDIF()
-
-INCLUDE_DIRECTORIES( SYSTEM ${ZLIB_INCLUDE_DIR} )
 
 # load SIO build settings
 INCLUDE( SIOBuild )
