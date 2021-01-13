@@ -4,6 +4,7 @@
 # Exported Targets
 #
 #   SIO::sio       : Base sio library
+#   SIO::sio-dump  : sio-dump utility
 #
 # returns following variables:
 #
