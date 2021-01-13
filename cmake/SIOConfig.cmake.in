@@ -28,6 +28,13 @@ SET_AND_CHECK(SIO_INCLUDE_DIRS "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@")
 # # do not store find results in cache
 MARK_AS_ADVANCED( SIO_INCLUDE_DIRS )
 
+# If we are not building zlib ourselves (and statically link to it) make sure
+# that whatever zlib we found, is also found by the dependencies
+IF(NOT @SIO_BUILTIN_ZLIB@)
+  INCLUDE(CMakeFindDependencyMacro)
+  FIND_DEPENDENCY(ZLIB)
+ENDIF()
+
 # # ---------- libraries --------------------------------------------------------
 IF(NOT TARGET SIO::sio)
   INCLUDE("${CMAKE_CURRENT_LIST_DIR}/SIOTargets.cmake")
