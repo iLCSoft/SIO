@@ -11,8 +11,8 @@ PROJECT( SIO )
 
 # project version
 SET( SIO_VERSION_MAJOR 0 )
-SET( SIO_VERSION_MINOR 0 )
-SET( SIO_VERSION_PATCH 4 )
+SET( SIO_VERSION_MINOR 1 )
+SET( SIO_VERSION_PATCH 0 )
 
 # Setup default install directory layout as defined for GNU software
 INCLUDE(GNUInstallDirs)
