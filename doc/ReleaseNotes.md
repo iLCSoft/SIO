@@ -1,3 +1,16 @@
+# v00-01
+
+* 2021-02-08 tmadlener ([PR#15](https://github.com/iLCSoft/SIO/pull/15))
+  - Export sio library as `SIO::sio` target for easier downstream usage. (For the moment `SIO_INCLUDE_DIR` and `SIO_LIBRARIES` are also still defined in a call to `find_package(SIO)` to keep some backwards compatibility).
+  - Remove now obsolete cmake configuration by replacing it with more standard cmake approaches.
+  - Bump minimum required cmake version to 3.12
+
+* 2021-01-13 tmadlener ([PR#16](https://github.com/iLCSoft/SIO/pull/16))
+  - Use github actions for CI and remove travis CI.
+
+* 2021-01-05 Valentin Volkl ([PR#13](https://github.com/iLCSoft/SIO/pull/13))
+  -  install cmake files under lib/cmake/SIO
+
 # v00-00-04
 
 * 2020-11-23 Marko Petric ([PR#12](https://github.com/iLCSoft/SIO/pull/12))
