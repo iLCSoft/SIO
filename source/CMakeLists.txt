@@ -49,16 +49,19 @@ IF( SIO_EXAMPLES )
   
   ADD_TEST( t_simple_read "${EXECUTABLE_OUTPUT_PATH}/simple_read" simple.sio )
   SET_TESTS_PROPERTIES( t_simple_read PROPERTIES PASS_REGULAR_EXPRESSION "Read sio file simple.sio" )
+  SET_TESTS_PROPERTIES( t_simple_read PROPERTIES DEPENDS "t_simple_write" )
   
   ADD_TEST( t_zlib_write "${EXECUTABLE_OUTPUT_PATH}/zlib_write" zlib.sio )
   SET_TESTS_PROPERTIES( t_zlib_write PROPERTIES PASS_REGULAR_EXPRESSION "Written sio file zlib.sio" )
   
   ADD_TEST( t_zlib_read "${EXECUTABLE_OUTPUT_PATH}/zlib_read" zlib.sio )
   SET_TESTS_PROPERTIES( t_zlib_read PROPERTIES PASS_REGULAR_EXPRESSION "Read sio file zlib.sio" )
+  SET_TESTS_PROPERTIES( t_zlib_read PROPERTIES DEPENDS "t_zlib_write" )
   
   ADD_TEST( t_relocation_write "${EXECUTABLE_OUTPUT_PATH}/relocation_write" relocation.sio )
   SET_TESTS_PROPERTIES( t_relocation_write PROPERTIES PASS_REGULAR_EXPRESSION "Written sio file relocation.sio" )
   
   ADD_TEST( t_relocation_read "${EXECUTABLE_OUTPUT_PATH}/relocation_read" relocation.sio )
   SET_TESTS_PROPERTIES( t_relocation_read PROPERTIES PASS_REGULAR_EXPRESSION "Read sio file relocation.sio with 200 elements" )
+  SET_TESTS_PROPERTIES( t_relocation_read PROPERTIES DEPENDS "t_relocation_write" )
 ENDIF()
