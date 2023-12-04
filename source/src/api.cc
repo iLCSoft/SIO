@@ -494,7 +494,7 @@ namespace sio {
       device.data( info._data_length ) ;
       device.data( info._uncompressed_length ) ;
       // get back the buffer
-      rec_buf = std::move( device.take_buffer() ) ;
+      rec_buf = device.take_buffer() ;
       rec_buf.resize( end_pos ) ;
       return info ;
     }
