@@ -8,7 +8,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        LCG: ["LCG_97a/x86_64-centos7-gcc9-opt"]
+        LCG: ["LCG_104/x86_64-el9-clang16-opt",
+              "LCG_104/x86_64-el9-gcc13-opt"]
         BUILTIN_ZLIB: ["ON", "OFF"]
     steps:
     - uses: actions/checkout@v2
@@ -23,7 +24,7 @@ jobs:
           cmake -DCMAKE_INSTALL_PREFIX=../install \
                 -DCMAKE_CXX_STANDARD=17 \
                 -DSIO_BUILTIN_ZLIB=${{ matrix.BUILTIN_ZLIB }} \
-                -DCMAKE_CXX_FLAGS=" -fdiagnostics-color=always " \
+                -DCMAKE_CXX_FLAGS=" -fdiagnostics-color=always -Werror" \
                 -G Ninja \
                 ..
           echo "::endgroup::" && echo "::group::Build"
