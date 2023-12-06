@@ -1,3 +1,17 @@
+# v00-02
+
+* 2023-12-04 tmadlener ([PR#20](https://github.com/iLCSoft/SIO/pull/20))
+  - Remove K&R style definitions in builtin zlib since they will no longer be supported by newer C standars.
+
+* 2023-12-04 tmadlener ([PR#19](https://github.com/iLCSoft/SIO/pull/19))
+  - Update CI to latest LCG stacks and compilers, fail on warnings
+
+* 2023-12-04 tmadlener ([PR#18](https://github.com/iLCSoft/SIO/pull/18))
+  - Remove a pessimizing `std::move`
+
+* 2022-07-19 Valentin Volkl ([PR#17](https://github.com/iLCSoft/SIO/pull/17))
+  - Tests: Make tests that require inputs depend on the ones that provide it
+
 # v00-01
 
 * 2021-02-08 tmadlener ([PR#15](https://github.com/iLCSoft/SIO/pull/15))
