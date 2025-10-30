@@ -1,6 +1,11 @@
 // -- sio headers
 #include <sio/io_device.h>
 #include <sio/api.h>
+#include <sio/buffer.h>
+#include <sio/definitions.h>
+#include <sio/exception.h>
+#include <utility>
+
 
 namespace sio {
 

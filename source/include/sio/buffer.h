@@ -2,9 +2,10 @@
 
 // -- sio headers
 #include <sio/definitions.h>
-
 // -- std headers
 #include <limits>
+#include <cstddef>
+#include <vector>
 
 namespace sio {
 

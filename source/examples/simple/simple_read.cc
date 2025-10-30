@@ -2,10 +2,14 @@
 #include <sio/definitions.h>
 #include <sio/exception.h>
 #include <sio/api.h>
-
+#include <sio/buffer.h>
 // -- sio examples headers
 #include <sioexamples/data.h>
 #include <sioexamples/blocks.h>
+#include <iostream>
+#include <memory>
+#include <string>
+
 
 /**
  *  This example illustrate how to read a simple data structure.

@@ -1,10 +1,14 @@
 // -- sio headers
 #include <sio/buffer.h>
 #include <sio/exception.h>
-
+#include <sio/definitions.h>
 // -- std headers
 #include <sstream>
 #include <iomanip>
+#include <iostream>
+#include <iterator>
+#include <utility>
+
 
 namespace sio {
 

@@ -3,6 +3,9 @@
 // -- sio headers
 #include <sio/definitions.h>
 #include <sio/buffer.h>
+#include <cstddef>
+#include <string>
+#include <vector>
 
 namespace sio {
 

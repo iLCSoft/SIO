@@ -1,5 +1,7 @@
 // -- sio headers
 #include <sio/memcpy.h>
+#include <sio/definitions.h>
+
 
 namespace sio {
 
