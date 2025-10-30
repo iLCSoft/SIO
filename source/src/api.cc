@@ -7,13 +7,18 @@
 #include <sio/compression/zlib.h>
 #include <sio/block.h>
 #include <sio/version.h>
-
+#include <sio/definitions.h>
 // -- std headers
 #include <iostream>
 #include <iomanip>
-#include <limits>
 #include <string>
 #include <algorithm>
+#include <memory>
+#include <cstddef>
+#include <string>
+#include <vector>
+#include <utility>
+
 
 namespace sio {
 

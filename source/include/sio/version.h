@@ -2,6 +2,7 @@
 
 // -- sio headers
 #include <sio/definitions.h>
+#include <cstdint>
 
 namespace sio {
 

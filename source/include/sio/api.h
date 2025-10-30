@@ -3,13 +3,13 @@
 // -- sio headers
 #include <sio/definitions.h>
 #include <sio/buffer.h>
-
 // -- std headers
-#include <memory>
 #include <utility>
 #include <string>
 #include <sstream>
 #include <vector>
+#include <algorithm>
+#include <cstddef>
 
 namespace sio {
 

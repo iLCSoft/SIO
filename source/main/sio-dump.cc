@@ -1,9 +1,7 @@
 // -- sio headers
 #include <sio/definitions.h>
-#include <sio/buffer.h>
 #include <sio/api.h>
-#include <sio/compression/zlib.h>
-
+#include <sio/exception.h>
 // -- std headers
 #include <limits>
 #include <vector>
@@ -11,6 +9,9 @@
 #include <algorithm>
 #include <iterator>
 #include <iostream>
+#include <cstdlib>
+#include <stdexcept>
+
 
 
 constexpr const char *USAGE = R"(Usage: sio-dump [-d/--detailed] [-n NRECORDS] [-m SKIPRECORDS] siofile)";

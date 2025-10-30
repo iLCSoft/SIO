@@ -1,14 +1,14 @@
 #include <sio/compression/zlib.h>
-
 // -- sio headers
 #include <sio/buffer.h>
 #include <sio/exception.h>
-
+#include <sio/definitions.h>
 // -- zlib headers
 #include <zlib.h>
-
+#include <zconf.h>
 // -- std headers
 #include <sstream>
+
 
 namespace sio {
 

@@ -2,6 +2,8 @@
 #include <sio/block.h>
 #include <sio/exception.h>
 
+#include <sio/definitions.h>
+
 namespace sio {
   
   block::block( const std::string &nam, sio::version_type vers ) :

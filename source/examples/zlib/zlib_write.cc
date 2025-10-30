@@ -3,10 +3,14 @@
 #include <sio/exception.h>
 #include <sio/api.h>
 #include <sio/compression/zlib.h>
-
+#include <sio/buffer.h>
 // -- sio examples headers
 #include <sioexamples/data.h>
 #include <sioexamples/blocks.h>
+#include <iostream>
+#include <memory>
+#include <string>
+
 
 /**
  *  This example illustrate how to write a simple data structure and 
