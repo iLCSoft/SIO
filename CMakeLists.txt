@@ -21,6 +21,9 @@ INCLUDE(GNUInstallDirs)
 
 LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake )
 
+# Load C++20 module support
+INCLUDE( SIOModules )
+
 # options
 OPTION( SIO_EXAMPLES                 "Switch ON to build SIO examples" ON )
 OPTION( INSTALL_DOC                  "Set to OFF to skip build/install Documentation" OFF )
@@ -38,6 +41,13 @@ ENDIF()
 # ZLIB package
 IF( SIO_BUILTIN_ZLIB )
   ADD_SUBDIRECTORY( zlib )
+  # Install ZLIB when SIO modules are enabled (needed for export)
+  IF( SIO_ENABLE_CXX_MODULES )
+    INSTALL( TARGETS ZLIB
+      EXPORT SIOTargets
+      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
+  ENDIF()
 ELSE()
   FIND_PACKAGE( ZLIB REQUIRED )
 ENDIF()
