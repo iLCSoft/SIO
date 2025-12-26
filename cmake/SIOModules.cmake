@@ -50,11 +50,24 @@ endif()
 #---------------------------------------------------------------------------------------------------
 # SIO_ADD_MODULE_INTERFACE( target module_file )
 #
-# Add a C++20 module interface to the SIO target
+# Add a C++20 module interface to a SIO target.
+#
+# This function conditionally adds a module interface file to the specified target when
+# SIO_ENABLE_CXX_MODULES is ON. The module interface is added as a PUBLIC CXX_MODULES file set,
+# which makes it available for installation and use by downstream projects.
+#
+# When SIO_ENABLE_CXX_MODULES is OFF, this function returns immediately without any action.
 #
 # Arguments:
-#   target      - The target to which the module should be added
-#   module_file - The .ixx file implementing the module interface
+#   target      - The target to which the module interface should be added
+#   module_file - The .ixx file implementing the module interface (absolute or relative path)
+#
+# Example:
+#   SIO_ADD_MODULE_INTERFACE(sio ${CMAKE_CURRENT_SOURCE_DIR}/sio_module.ixx)
+#
+# Note:
+#   The module_file should be installed separately using INSTALL(TARGETS ... FILE_SET CXX_MODULES)
+#   when SIO_ENABLE_CXX_MODULES is ON.
 #---------------------------------------------------------------------------------------------------
 function(SIO_ADD_MODULE_INTERFACE target module_file)
   if(NOT SIO_ENABLE_CXX_MODULES)
