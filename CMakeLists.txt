@@ -42,6 +42,9 @@ ENDIF()
 IF( SIO_BUILTIN_ZLIB )
   ADD_SUBDIRECTORY( zlib )
   # Install ZLIB when SIO modules are enabled (needed for export)
+  # Note: This makes ZLIB visible to downstream users as SIO::ZLIB when modules are enabled.
+  #       This is required by CMake's export mechanism for targets with FILE_SET CXX_MODULES.
+  #       The ZLIB target is static and should not conflict with system ZLIB libraries.
   IF( SIO_ENABLE_CXX_MODULES )
     INSTALL( TARGETS ZLIB
       EXPORT SIOTargets
