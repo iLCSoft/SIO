@@ -108,35 +108,35 @@ namespace sio {
   using block_list = std::vector<block_ptr> ;
 
   /// The null byte definition
-  static constexpr byte null_byte = '\0' ;
+  inline constexpr byte null_byte = '\0' ;
   
-  static constexpr byte padding_bytes [4] = {null_byte} ;
+  inline constexpr byte padding_bytes [4] = {null_byte} ;
   /// Kilo byte unit
-  static constexpr std::size_t kbyte = 0x00000400 ;
+  inline constexpr std::size_t kbyte = 0x00000400 ;
   /// Mega byte unit
-  static constexpr std::size_t mbyte = 0x00100000 ;
+  inline constexpr std::size_t mbyte = 0x00100000 ;
   /// The compression bit mask
-  static constexpr unsigned int compression_bit = 0x00000001 ;
+  inline constexpr unsigned int compression_bit = 0x00000001 ;
   /// The bit alignment mask
-  static constexpr unsigned int bit_align = 0x00000003 ;
+  inline constexpr unsigned int bit_align = 0x00000003 ;
   /// The additional padding added in buffer IO
-  static constexpr unsigned int padding = 3 ;
+  inline constexpr unsigned int padding = 3 ;
   /// The additional padding mask
-  static constexpr unsigned int padding_mask = 0xfffffffc ;
+  inline constexpr unsigned int padding_mask = 0xfffffffc ;
   /// The record marker
-  static constexpr unsigned int record_marker = 0xabadcafe ;
+  inline constexpr unsigned int record_marker = 0xabadcafe ;
   /// The block marker
-  static constexpr unsigned int block_marker  = 0xdeadbeef ;
+  inline constexpr unsigned int block_marker  = 0xdeadbeef ;
   /// The maximum length of a record name
-  static constexpr std::size_t max_record_name_len = 64 ;
+  inline constexpr std::size_t max_record_name_len = 64 ;
   /// The maximum length of a record_info in memory
-  static constexpr std::size_t max_record_info_len = 2*sizeof(sio::ifstream::pos_type) + 5*sizeof(unsigned int) + max_record_name_len ;
+  inline constexpr std::size_t max_record_info_len = 2*sizeof(sio::ifstream::pos_type) + 5*sizeof(unsigned int) + max_record_name_len ;
 
   // TODO: Do we still need all of this ??
-  static constexpr std::size_t single_len = 1 ;
-  static constexpr std::size_t double_len = 2 ;
-  static constexpr std::size_t quad_len = 4 ;
-  static constexpr std::size_t octo_len = 8 ;
+  inline constexpr std::size_t single_len = 1 ;
+  inline constexpr std::size_t double_len = 2 ;
+  inline constexpr std::size_t quad_len = 4 ;
+  inline constexpr std::size_t octo_len = 8 ;
 
   /**
    *  @brief  record_info struct.
