@@ -11,6 +11,7 @@
 // -- std headers
 #include <iostream>
 #include <iomanip>
+#include <limits>
 #include <string>
 #include <algorithm>
 #include <memory>
@@ -120,7 +121,9 @@ namespace sio {
     // if the record is compressed skip the read pointer over
     // any padding bytes that may have been inserted to make
     // the next record header start on a four byte boundary in the file.
-    auto tot_len = rec_info._data_length + rec_info._header_length ;
+    // Use std::size_t arithmetic to avoid 32 bit overflow for records >= 4 GiB
+    std::size_t tot_len = static_cast<std::size_t>(rec_info._data_length)
+                        + static_cast<std::size_t>(rec_info._header_length) ;
     SIO_DEBUG( "Total len before: " << tot_len ) ;
     if( compressed ) {
       tot_len += ((4 - (rec_info._data_length & sio::bit_align)) & sio::bit_align) ;
@@ -264,6 +267,27 @@ namespace sio {
       std::stringstream ss ;
       ss << "Block marker not found (block marker: " << sio::block_marker <<", record marker: " << sio::record_marker << ", got " << marker << ")" ;
       SIO_THROW( sio::error_code::no_marker, ss.str() ) ;
+    }
+    // Validate block_len against the remaining buffer to catch corrupt records
+    // (for example, caused by a 32 bit overflow of the record data length at write time)
+    if( static_cast<std::size_t>(block_len) > rec_buf.size() - index ) {
+      std::stringstream ss ;
+      ss << "Block '" ;
+      // peek at the name for the error message (best-effort, may itself be corrupt)
+      unsigned int ver(0), nlen(0) ;
+      read_device peek( rec_buf.subspan( index ) ) ;
+      peek.data( block_len ) ; peek.data( marker ) ; peek.data( ver ) ; peek.data( nlen ) ;
+      if( nlen <= sio::max_record_name_len ) {
+        std::string bname( nlen, '\0' ) ;
+        peek.data( &bname[0], nlen ) ;
+        ss << bname ;
+      } else {
+        ss << "<unknown>" ;
+      }
+      ss << "': block_len (" << block_len << ") exceeds remaining record buffer ("
+         << (rec_buf.size() - index) << " bytes). "
+         << "The record is likely corrupt (possible 32 bit overflow of data length at write time)." ;
+      SIO_THROW( sio::error_code::out_of_range, ss.str() ) ;
     }
     device.data( info._version ) ;
     unsigned int name_len(0) ;
@@ -440,7 +464,14 @@ namespace sio {
         blk_ptr->write( device ) ;
         // fill back the block length in block header
         auto blk_end = device.position() ;
-        unsigned int blklen = blk_end - block_start ;
+        auto raw_blklen = blk_end - block_start ;
+        if( raw_blklen > std::numeric_limits<unsigned int>::max() ) {
+          SIO_THROW( sio::error_code::invalid_argument,
+            "Block '" + block_name + "' length (" + std::to_string(raw_blklen) +
+            " bytes) exceeds the maximum allowed by the SIO format (4 GiB). "
+            "The SIO format stores block lengths as 32 bit integers." ) ;
+        }
+        unsigned int blklen = static_cast<unsigned int>( raw_blklen ) ;
         SIO_DEBUG( "Block len :" << blklen ) ;
         device.seek( block_start ) ;
         device.data( blklen ) ;
@@ -493,9 +524,16 @@ namespace sio {
       sio::api::write_blocks( device, blocks ) ;
       // fill the data length and uncompressed record length
       auto end_pos = device.position() ;
+      auto raw_data_len = end_pos - info._header_length ;
+      if( raw_data_len > std::numeric_limits<unsigned int>::max() ) {
+        SIO_THROW( sio::error_code::invalid_argument,
+          "Record '" + name + "' data length (" + std::to_string(raw_data_len) +
+          " bytes) exceeds the maximum allowed by the SIO format (4 GiB). "
+          "The SIO format stores record lengths as 32 bit integers." ) ;
+      }
       device.seek( datalen_pos ) ;
-      info._data_length = end_pos - info._header_length ;
-      info._uncompressed_length = end_pos - info._header_length ;
+      info._data_length = static_cast<unsigned int>( raw_data_len ) ;
+      info._uncompressed_length = static_cast<unsigned int>( raw_data_len ) ;
       device.data( info._data_length ) ;
       device.data( info._uncompressed_length ) ;
       // get back the buffer
