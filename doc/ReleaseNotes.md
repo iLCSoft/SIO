@@ -1,3 +1,28 @@
+# v00-02-01
+
+* 2026-05-19 Juan Miguel Carceller ([PR#29](https://github.com/iLCSoft/SIO/pull/29))
+  - Try to find if a block is corrupt (may not always work) when reading
+  - Throw if writing a block or record bigger than 4 GiB since the block and record lengths are stored as 32 bit integers
+  - Make some related arithmetic operations not be limited to 32 bits
+
+* 2026-02-18 sss ([PR#28](https://github.com/iLCSoft/SIO/pull/28))
+  - Allow compiling with C++26.
+
+* 2026-02-11 Juan Miguel Carceller ([PR#27](https://github.com/iLCSoft/SIO/pull/27))
+  - Add support for unity builds by excluding zlib
+
+* 2026-01-29 Thomas Madlener ([PR#26](https://github.com/iLCSoft/SIO/pull/26))
+  - Add a Key4hep based CI workflow
+
+* 2026-01-29 Thomas Madlener ([PR#25](https://github.com/iLCSoft/SIO/pull/25))
+  - Fix a cmake warning (`CMP0153`)
+
+* 2026-01-29 Juan Miguel Carceller ([PR#23](https://github.com/iLCSoft/SIO/pull/23))
+  - Add missing includes and remove includes that are not needed
+
+* 2026-01-29 sss ([PR#22](https://github.com/iLCSoft/SIO/pull/22))
+  - Allow building with C++23.
+
 # v00-02
 
 * 2023-12-04 tmadlener ([PR#20](https://github.com/iLCSoft/SIO/pull/20))
