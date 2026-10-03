@@ -16,13 +16,13 @@ namespace sio {
    */
   template <typename T>
   struct sizeof_helper {
-    static constexpr std::size_t size = sizeof(T) ;
+    static inline constexpr std::size_t size = sizeof(T) ;
   };
 
 #define SIO_FORCE_SIZEOF( TYPE, SIZE ) \
   template <> \
   struct sizeof_helper<TYPE> { \
-    static constexpr std::size_t size = SIZE ; \
+    static inline constexpr std::size_t size = SIZE ; \
   }
 
   SIO_FORCE_SIZEOF( char, 1 ) ;
